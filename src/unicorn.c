@@ -63,6 +63,33 @@ typedef struct client_st {
 } client_t;
 
 
+/* 打印最终测试报告 */
+static void show_final_report(void) 
+{
+    float reqpersec;
+
+    /* 最终每秒处理请求出--QPS */
+    reqpersec = (float)g_conf.requests_finished / ((float)g_conf.total_latency / 1000);
+
+    if (!g_conf.quiet) 
+    {
+        printf("========== %s ==========\n", g_conf.title);
+        printf(" All %d requests has send\n", g_conf.requests);        
+        printf(" All %d requests completed\n", g_conf.requests_finished);
+        printf(" Complete:%.8f%%\n", 100*((float)g_conf.requests_finished/(float)g_conf.requests));
+        printf(" Use time %.2f seconds\n", (float)g_conf.total_latency/1000);
+        printf(" Parallel %d clients\n", g_conf.num_clients);
+        printf(" keep alive: %d\n", g_conf.keep_alive);
+        printf("\n");
+
+        printf("%.2f requests per second\n\n", reqpersec);
+    } 
+    else 
+    {
+        printf("%s:%.2f requests per second\n\n", g_conf.title, reqpersec);
+    }
+}
+
 /* 时间事件: 打印当前的QPS(从开始到当前的累计值) */
 static int show_qps(unc_ae_event_loop *el, long long id, void *priv) 
 {
