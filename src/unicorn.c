@@ -120,7 +120,16 @@ static void init_conf()
 	
 	return;
 }
-    
+
+int main(int argc, char **argv) 
+{
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
+
+	//全局句柄默认值初始化
+	init_conf();
+
+	//参数解析
     parse_options(argc, argv);
     
     if (optind < argc) 
