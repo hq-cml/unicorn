@@ -61,6 +61,43 @@ typedef struct client_st {
     long long       start;      /* start time of request */
     long long       latency;    /* request latency */
 } client_t;
+static void parse_options(int argc, char **argv) 
+{
+    char c;
+    
+    while ((c = getopt(argc, argv, "h:p:c:n:k:qlH")) != -1) 
+    {
+        switch (c) {
+        case 'h':
+            g_conf.hostip = strdup(optarg);
+            break;
+        case 'p':
+            g_conf.hostport = atoi(optarg);
+            break;
+        case 'c':
+            g_conf.num_clients = atoi(optarg);
+            break;
+        case 'n':
+            g_conf.requests = atoi(optarg);
+            break;
+        case 'k':
+            g_conf.keep_alive = atoi(optarg);
+            break;
+        case 'q':
+            g_conf.quiet = 1;
+            break;
+        case 'l':
+            g_conf.loop = 1;
+            break;
+        case 'H':
+            usage(0);
+            break;
+        default:
+            usage(1);
+        }
+    }
+}
+
 int main(int argc, char **argv) 
 {
     signal(SIGHUP, SIG_IGN);
