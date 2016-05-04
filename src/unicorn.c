@@ -71,6 +71,7 @@ static int show_qps(unc_ae_event_loop *el, long long id, void *priv)
     printf("%s: %.2f\n", g_conf.title, rps);
     return 3000; /* every 3000ms */
 }
+
 static void usage(int status) 
 {
     puts("Usage: benchmark [-h <host>] [-p <port>] "
@@ -85,13 +86,14 @@ static void usage(int status)
     puts(" -H               show help information\n");
     exit(status);
 }
+
 /*
  * ²ÎÊý½âÎö
  */
 static void parse_options(int argc, char **argv) 
 {
     char c;
-    
+
     while ((c = getopt(argc, argv, "h:p:c:n:k:qlH")) != -1) 
     {
         switch (c) {
@@ -137,7 +139,7 @@ static void init_conf()
 	g_conf.loop = 0;
 	g_conf.quiet = 0;
 	g_conf.el = unc_ae_create_event_loop();
-	unc_ae_create_time_event(g_conf.el, 3000, show_throughput, NULL, NULL);
+	unc_ae_create_time_event(g_conf.el, 3000, show_qps, NULL, NULL);
 	g_conf.clients = unc_dlist_init();
 	g_conf.hostip = "127.0.0.1";
 	g_conf.hostport = 9527;
