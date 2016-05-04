@@ -62,6 +62,15 @@ typedef struct client_st {
     long long       latency;    /* request latency */
 } client_t;
 
+
+/* 时间事件: 打印当前的QPS(从开始到当前的累计值) */
+static int show_qps(unc_ae_event_loop *el, long long id, void *priv) 
+{
+    float dt = (float)(mstime() - g_conf.start) / 1000.0;
+    float rps = (float)g_conf.requests_finished / dt;
+    printf("%s: %.2f\n", g_conf.title, rps);
+    return 3000; /* every 3000ms */
+}
 static void usage(int status) 
 {
     puts("Usage: benchmark [-h <host>] [-p <port>] "
