@@ -61,6 +61,9 @@ typedef struct client_st {
     long long       start;      /* start time of request */
     long long       latency;    /* request latency */
 } client_t;
+/*
+ * 参数解析
+ */
 static void parse_options(int argc, char **argv) 
 {
     char c;
@@ -98,22 +101,25 @@ static void parse_options(int argc, char **argv)
     }
 }
 
-int main(int argc, char **argv) 
+/*
+ * 全局句柄默认值初始化
+ */
+static void init_conf() 
 {
-    signal(SIGHUP, SIG_IGN);
-    signal(SIGPIPE, SIG_IGN);
-    
-    g_conf.num_clients = 50;
-    g_conf.requests = 10000;
-    g_conf.live_clients = 0;
-    g_conf.keep_alive = 1;
-    g_conf.loop = 0;
-    g_conf.quiet = 0;
-    g_conf.el = unc_ae_create_event_loop();
-    unc_ae_create_time_event(g_conf.el, 3000, show_throughput, NULL, NULL);
-    g_conf.clients = unc_dlist_init();
-    g_conf.hostip = "127.0.0.1";
-    g_conf.hostport = 9527;
+	g_conf.num_clients = 1;
+	g_conf.requests = 1;
+	g_conf.live_clients = 0;
+	g_conf.keep_alive = 1;
+	g_conf.loop = 0;
+	g_conf.quiet = 0;
+	g_conf.el = unc_ae_create_event_loop();
+	unc_ae_create_time_event(g_conf.el, 3000, show_throughput, NULL, NULL);
+	g_conf.clients = unc_dlist_init();
+	g_conf.hostip = "127.0.0.1";
+	g_conf.hostport = 9527;
+	
+	return;
+}
     
     parse_options(argc, argv);
     
