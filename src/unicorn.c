@@ -61,6 +61,21 @@ typedef struct client_st {
     long long       start;      /* start time of request */
     long long       latency;    /* request latency */
 } client_t;
+
+static void usage(int status) 
+{
+    puts("Usage: benchmark [-h <host>] [-p <port>] "
+            "[-c <clients>] [-n requests]> [-k <boolean>]\n");
+    puts(" -h <hostname>    server hostname (default 127.0.0.1)");
+    puts(" -p <port>        server port (default 9527)");
+    puts(" -c <clients>     number of parallel connections (default 1)");
+    puts(" -n <requests>    total number of requests (default 1)");    
+    puts(" -k <boolean>     1 = keep alive, 0 = reconnect (default 1)");
+    puts(" -q               quiet. Just show QPS values");
+    puts(" -l               loop. Run the tests forever");
+    puts(" -H               show help information\n");
+    exit(status);
+}
 /*
  * ²ÎÊı½âÎö
  */
