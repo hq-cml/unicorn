@@ -177,7 +177,7 @@ static void client_done(client_t *c)
     } 
     else 
     {
-    	pcontent = unc_str_new(c->obuf->buf);
+        pcontent = unc_str_new(c->obuf->buf);
     	//先释放当前client，内部live_clients会自减
 		free_client(c); 
 
@@ -188,6 +188,24 @@ static void client_done(client_t *c)
 			create_multi_clients(num, pcontent->buf);
 		}
     }
+}
+
+
+/* 
+ * 释放一个client 
+ */
+static void free_client(client_t *c) 
+{
+    unc_dlist_node_t *node;
+    unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
+    unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_READABLE);
+    close(c->fd);
+    unc_str_free(c->obuf);
+    --g_conf.live_clients;
+    node = unc_dlist_search_key(g_conf.clients, c);
+    assert(node != NULL);
+    unc_dlist_delete_node(g_conf.clients, node);
+    free(c);
 }
 /* 打印最终测试报告 */
 static void show_final_report(void) 
