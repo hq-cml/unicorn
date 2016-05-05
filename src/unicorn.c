@@ -66,6 +66,18 @@ static conf_t g_conf;
 
 static void client_done(client_t *c);
 
+/* 获得当前微妙数 */
+static long long ustime() 
+{
+    struct timeval tv;
+    long long ust;
+
+    gettimeofday(&tv, NULL);
+    ust = ((long)tv.tv_sec) * 1000000;
+    ust += tv.tv_usec;
+    return ust;
+}
+
 /* 打印最终测试报告 */
 static void show_final_report(void) 
 {
