@@ -66,7 +66,9 @@ static conf_t g_conf;
 
 static void client_done(client_t *c);
 
-/* 获得当前微妙数 */
+/* 
+ * 获得当前微妙数 
+ */
 static long long ustime() 
 {
     struct timeval tv;
@@ -78,7 +80,9 @@ static long long ustime()
     return ust;
 }
 
-/* 获得当前毫秒数 */
+/* 
+ * 获得当前毫秒数 
+ */
 static long long mstime() 
 {
     struct timeval tv;
@@ -146,7 +150,9 @@ static void create_multi_clients(int num, char *content)
     }
 }
 
-/* 重置client,然后开启新一轮写/读流程 */
+/* 
+ * 重置client,然后开启新一轮写/读流程 
+ */
 static void reset_client(client_t *c) 
 {
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
@@ -156,7 +162,9 @@ static void reset_client(client_t *c)
     c->read = 0;
 }
 
-/* 当client完成了一次写/读请求之后调用 */
+/* 
+ * 当client完成了一次写/读请求之后调用 
+ */
 static void client_done(client_t *c) 
 {
 	unc_str_t *pcontent;
@@ -190,7 +198,6 @@ static void client_done(client_t *c)
     }
 }
 
-
 /* 
  * 释放一个client 
  */
@@ -207,7 +214,10 @@ static void free_client(client_t *c)
     unc_dlist_delete_node(g_conf.clients, node);
     free(c);
 }
-/* 打印最终测试报告 */
+
+/* 
+ * 打印最终测试报告 
+ */
 static void show_final_report(void) 
 {
     float reqpersec;
@@ -234,7 +244,9 @@ static void show_final_report(void)
     }
 }
 
-/* 时间事件: 打印当前的QPS(从开始到当前的累计值) */
+/* 
+ * 时间事件: 打印当前的QPS(从开始到当前的累计值) 
+ */
 static int show_qps(unc_ae_event_loop *el, long long id, void *priv) 
 {
     float dt = (float)(mstime() - g_conf.start) / 1000.0;
@@ -243,6 +255,9 @@ static int show_qps(unc_ae_event_loop *el, long long id, void *priv)
     return 3000; /* every 3000ms */
 }
 
+/*
+ * 打印使用帮助函数
+ */
 static void usage(int status) 
 {
     puts("Usage: benchmark [-h <host>] [-p <port>] "
