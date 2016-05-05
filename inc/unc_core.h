@@ -117,5 +117,34 @@
 #define UNC_PROG_NAME    "unicorn"
 #define UNICORN_VERSION   "1.0"
 
+/* ----------------全局句柄-------------------- */
+typedef struct config {
+    unc_ae_event_loop   *el;                /* ae句柄 */
+    char                *hostip;            /* 测试目标IP */
+    int                  hostport;          /* 测试目标端口 */
+    int                  num_clients;       /* 预计同一时间客户端数(并发数) */
+    int                  live_clients;      /* 实际目前活跃的客户数(实时并发数) */
+    int                  requests;          /* 期望总请求个数，程序启动时指定 */
+    int                  requests_issued;   /* 已经发出去请求总数 */
+    int                  requests_finished; /* 实际完成的请求总数 */
+    int                  quiet;             /* 是否只显示qps，默认否 */
+    int                  keep_alive;        /* 是否维持长连接，1 = keep alive, 0 = reconnect (default 1) */
+    int                  loop;              /* 程序是否无终止循环:否 */
+    long long            start;             /* 程序开始时间 */
+    long long            total_latency;     /* 程序总耗时(毫秒) */
+    char                *title;             /* 程序名称 */
+    unc_dlist_t         *clients;           /* client链表 */
+} conf_t;
+
+/* ---------------Client结构-----------------*/
+typedef struct client_st {
+    int             fd;         /* client的fd */
+    unc_str_t      *obuf;       /* client的sendbuf */
+    unsigned int    written;    /* bytes of 'obuf' already written */
+    unsigned int    read;       /* bytes already be read */
+    long long       start;      /* start time of request */
+    long long       latency;    /* request latency */
+} client_t;
+
 #endif
 
