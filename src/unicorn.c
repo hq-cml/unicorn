@@ -38,13 +38,13 @@ typedef struct config {
     unc_ae_event_loop   *el;                /* ae句柄 */
     char                *hostip;            /* 测试目标IP */
     int                  hostport;          /* 测试目标端口 */
-    int                  num_clients;       /* 预计同一时间客户端数 */
-    int                  live_clients;      /* 实际目前活跃的客户数 */
+    int                  num_clients;       /* 预计同一时间客户端数(并发数) */
+    int                  live_clients;      /* 实际目前活跃的客户数(实时并发数) */
     int                  requests;          /* 期望总请求个数，程序启动时指定 */
     int                  requests_issued;   /* 已经发出去请求总数 */
     int                  requests_finished; /* 实际完成的请求总数 */
     int                  quiet;             /* 是否只显示qps，默认否 */
-    int                  keep_alive;        /* 1 = keep alive, 0 = reconnect (default 1) */
+    int                  keep_alive;        /* 是否维持长连接，1 = keep alive, 0 = reconnect (default 1) */
     int                  loop;              /* 程序是否无终止循环:否 */
     long long            start;             /* 程序开始时间 */
     long long            total_latency;     /* 程序总耗时(毫秒) */
@@ -120,6 +120,29 @@ static client_t *create_one_client(const char *content)
     ++g_conf.live_clients;
 	
     return c;
+}
+
+/* 
+ * 创建多个client 
+ * 参数: num,     创建client的个数
+ *       content, 发送内容
+ */
+static void create_multi_clients(int num, char *content) 
+{
+    int n = 0;
+	int i = 0;
+	
+    //while (g_conf.live_clients < g_conf.num_clients) 
+    while (i++ < num)
+    {
+        create_one_client((const char *)content);
+        /* listen backlog is quite limited on most system */
+        if (++n > 64) 
+        {
+            usleep(50000);
+            n = 0;
+        }
+    }
 }
 /* 打印最终测试报告 */
 static void show_final_report(void) 
