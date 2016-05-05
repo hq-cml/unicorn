@@ -90,6 +90,37 @@ static long long mstime()
     return mst;
 }
 
+
+/* 
+ * 创建一个client
+ * 参数: content,发送内容
+ */
+static client_t *create_one_client(const char *content) 
+{
+    char buf[2048];
+
+	//初始化client_t
+    client_t *c = (client_t *)malloc(sizeof(*c));
+	//非阻塞方式建立与server的连接
+    c->fd = unc_anet_tcp_nonblock_connect(buf, g_conf.hostip, g_conf.hostport);
+    if (c->fd == UNC_ERR) 
+    {
+        fprintf(stderr, "Connect to %s:%d failed.Detail:%s\n", g_conf.hostip, g_conf.hostport, buf);
+        exit(1);
+    }
+    c->obuf = unc_str_new(content);
+    c->written = 0;
+    c->read = 0;
+	
+	//注册写事件
+    unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE, write_handler, c);
+	//自身加入client队列
+    unc_dlist_add_node_tail(g_conf.clients, c);
+	//client数自增
+    ++g_conf.live_clients;
+	
+    return c;
+}
 /* 打印最终测试报告 */
 static void show_final_report(void) 
 {
