@@ -145,6 +145,17 @@ static void create_multi_clients(int num, char *content)
         }
     }
 }
+
+/* 重置client,然后开启新一轮写/读流程 */
+static void reset_client(client_t *c) 
+{
+    unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
+    unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_READABLE);
+    unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE, write_handler, c);
+    c->written = 0;
+    c->read = 0;
+}
+
 /* 当client完成了一次写/读请求之后调用 */
 static void client_done(client_t *c) 
 {
