@@ -62,6 +62,9 @@ typedef struct client_st {
     long long       latency;    /* request latency */
 } client_t;
 
+static conf_t g_conf;
+
+static void client_done(client_t *c);
 
 /* 打印最终测试报告 */
 static void show_final_report(void) 
