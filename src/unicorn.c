@@ -94,6 +94,7 @@ static long long mstime()
 /* 
  * 创建一个client
  * 参数: content,发送内容
+ * 返回: client_t指针
  */
 static client_t *create_one_client(const char *content) 
 {
@@ -142,6 +143,39 @@ static void create_multi_clients(int num, char *content)
             usleep(50000);
             n = 0;
         }
+    }
+}
+/* 当client完成了一次写/读请求之后调用 */
+static void client_done(client_t *c) 
+{
+	unc_str_t *pcontent;
+	int num;
+    // 如果达到总预计请求数，则程序停止
+    if (g_conf.requests_finished == g_conf.requests) 
+    {
+        free_client(c);
+        unc_ae_stop(g_conf.el); //全局Ae直接停止
+        return;
+    }
+
+    // 如果keep_alive，则重新开始client的写/读流程
+    // 如果!keep_alive,则重启client,然后开始写/读流程
+    if (g_conf.keep_alive) 
+    {
+        reset_client(c);
+    } 
+    else 
+    {
+    	pcontent = unc_str_new(c->obuf->buf);
+    	//先释放当前client，内部live_clients会自减
+		free_client(c); 
+
+		//补齐
+		num = g_conf.num_clients - g_conf.live_clients;
+		if(num > 0)
+		{
+			create_multi_clients(num, pcontent->buf);
+		}
     }
 }
 /* 打印最终测试报告 */
