@@ -216,6 +216,18 @@ static void free_client(client_t *c)
 }
 
 /* 
+ * 释放全部client 
+ */
+static void free_all_clients() {
+    unc_dlist_node_t *node = g_conf.clients->head;
+    unc_dlist_node_t *next = NULL;
+    while (node) 
+    {
+        next = node->next;
+        free_client((client_t *)node->value);
+        node = next;
+    }
+}
  * 打印最终测试报告 
  */
 static void show_final_report(void) 
