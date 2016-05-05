@@ -78,6 +78,18 @@ static long long ustime()
     return ust;
 }
 
+/* 获得当前毫秒数 */
+static long long mstime() 
+{
+    struct timeval tv;
+    long long mst;
+
+    gettimeofday(&tv, NULL);
+    mst = ((long)tv.tv_sec) * 1000;
+    mst += tv.tv_usec / 1000;
+    return mst;
+}
+
 /* 打印最终测试报告 */
 static void show_final_report(void) 
 {
