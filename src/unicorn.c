@@ -35,6 +35,17 @@
 
 //函数声明
 static void client_done(client_t *c);
+static int show_qps(unc_ae_event_loop *el, long long id, void *priv);
+static void usage(int status);
+static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask);
+static void create_multi_clients(int num, char *content);
+static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask);
+static void free_all_clients();
+static void show_final_report(void);
+static void free_client(client_t *c);
+
+
+
 
 //全局句柄定义
 static conf_t g_conf;
@@ -161,7 +172,6 @@ static void usage(int status)
  */
 static void start(char *title, char *content) 
 {
-    client_t  *c;
     g_conf.title = title;
     g_conf.requests_issued = 0;
     g_conf.requests_finished = 0;
@@ -447,5 +457,15 @@ int main(int argc, char **argv)
             " 'sudo sysctl -w net.inet.tcp.msl=1000' for Mac OS X\n"
             " in order to use a lot of clients/requests\n");
     }
+
+    do {
+        /* 压测Echo */
+        start("Unicorn QPS benchmark", "hello mossad");
+        /* 压测tosser */
+        //char buf[256] = {0};
+        //snprintf(buf, 256, "0000000106{\"type\": \"0\", \"host\": \"hq_test\", \"data\": [[\"999\", \"999\", \"1\"], [\"888\", \"888\", \"1\"]], \"time\": \"%d\"}", (int)time(NULL));
+        //printf("strlen:%d, %s\n", strlen(buf), buf);
+        //benchmark("Mossad QPS benchmark", buf);
+    } while (g_conf.loop);
      return 0;
 }
