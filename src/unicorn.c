@@ -279,6 +279,43 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     }
 
 }
+
+/* 
+ * 读取回调函数 
+ */
+static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask) 
+{
+    client_t *c = (client_t *)priv;
+    int nread;
+    char buffer[4096];
+    memset(buffer, 0, 4096);
+    nread = read(fd, buffer, 4096);
+    if (nread == -1) 
+    {
+        if (errno == EAGAIN) 
+        {
+            /* 暂时不可读，读取nonblock的fd时，可能会遇到 */
+            return;
+        }
+        fprintf(stderr, "Error: %s\n", strerror(errno));
+        exit(1);
+    } 
+    else if (nread == 0) 
+    {
+        fprintf(stderr, "Error: %s\n", "Server close connection.");
+        exit(1);
+    }
+    c->read += nread;
+    /* 当读取到的数据，和写出去的数据相等时，算是完成了一次请求 */
+    if (c->read == c->obuf->len && 0==memcmp(buffer, c->obuf->buf, c->obuf->len)) 
+    {
+        c->latency = ustime() - c->start;
+        ++g_conf.requests_finished;
+    }
+    client_done(c);
+}
+
+/* 
  * 重置client,然后开启新一轮写/读流程 
  */
 static void reset_client(client_t *c) 
