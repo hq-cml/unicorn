@@ -219,7 +219,6 @@ static void create_multi_clients(int num, char *content)
     int n = 0;
 	int i = 0;
 	
-    //while (g_conf.live_clients < g_conf.num_clients) 
     while (i++ < num)
     {
         create_one_client((const char *)content);
@@ -233,6 +232,53 @@ static void create_multi_clients(int num, char *content)
 }
 
 /* 
+ * 写回调函数(client发送请求)
+ * 一直写(通过Ae)，直到将该写的(client->obuf)全部写完了，才启动read回调
+ */
+static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask) 
+{
+    client_t *c = (client_t *)priv;
+
+    /* Initialize request when nothing was written. */
+    if (c->written == 0) 
+    {
+        if (g_conf.requests_issued++ >= g_conf.requests) 
+        {
+            free_client(c);
+            unc_ae_stop(g_conf.el);
+            return;
+        }
+
+        c->start = ustime();
+        c->latency = -1;
+    }
+
+    if (c->obuf->len > c->written) 
+    {
+        char *ptr = c->obuf->buf + c->written;
+        int nwritten = write(c->fd, ptr, c->obuf->len - c->written);
+        if (nwritten == -1) 
+        {
+            /* When a process writes to a socket that has received an RST, the SIGPIPE signal is sent to the process. */
+            if (errno != EPIPE) 
+            {
+                fprintf(stderr, "write failed:%s\n", strerror(errno));
+            }
+            free_client(c);
+            return;
+        }
+        c->written += nwritten;
+
+        if (c->obuf->len == c->written) 
+        {
+            /* 删除写事件 */
+            unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
+            /* 启动读事件 */
+            unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_READABLE, read_handler, c);
+        }
+    }
+
+}
  * 重置client,然后开启新一轮写/读流程 
  */
 static void reset_client(client_t *c) 
