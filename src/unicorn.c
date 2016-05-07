@@ -316,7 +316,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
             /* 暂时不可读，读取nonblock的fd时，可能会遇到 */
             return;
         }
-        fprintf(stderr, "Error: %s\n", strerror(errno));
+        fprintf(stderr, "Read Error: %s\n", strerror(errno));
         exit(1);
     } 
     else if (nread == 0) 
@@ -353,10 +353,10 @@ static void client_done(client_t *c)
 {
 	unc_str_t *pcontent;
 	int num;
-    // 如果达到总预计请求数，则程序停止
+    //如果达到总预计请求数，则程序停止
     if (g_conf.requests_finished == g_conf.requests) 
     {
-        free_client(c);
+        //free_client(c);
         unc_ae_stop(g_conf.el); //全局Ae直接停止
         return;
     }
@@ -426,9 +426,10 @@ static void show_final_report(void)
     if (!g_conf.quiet) 
     {
         printf("========== %s ==========\n", g_conf.title);
-        printf(" All %d requests has send\n", g_conf.requests);        
+        printf(" All %d requests\n", g_conf.requests);  
+        printf(" All %d requests has send\n", g_conf.requests_issued);        
         printf(" All %d requests completed\n", g_conf.requests_finished);
-        printf(" Complete:%.8f%%\n", 100*((float)g_conf.requests_finished/(float)g_conf.requests));
+        printf(" Complete:%.2f%%\n", 100*((float)g_conf.requests_finished/(float)g_conf.requests));
         printf(" Use time %.2f seconds\n", (float)g_conf.total_latency/1000);
         printf(" Parallel %d clients\n", g_conf.num_clients);
         printf(" keep alive: %d\n", g_conf.keep_alive);
@@ -476,5 +477,6 @@ int main(int argc, char **argv)
         //printf("strlen:%d, %s\n", strlen(buf), buf);
         //benchmark("Mossad QPS benchmark", buf);
     } while (g_conf.loop);
+
      return 0;
 }
