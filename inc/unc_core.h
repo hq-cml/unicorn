@@ -95,9 +95,9 @@
 #include "unc_string.h"
 #include "unc_dlist.h"
 #include "unc_anet.h"
+#include "unc_so.h"
 
 /*
-#include "unc_so.h"
 #include "unc_daemon.h"
 #include "unc_thread.h"
 #include "unc_master.h"
