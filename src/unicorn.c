@@ -251,11 +251,19 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 
     /* Initialize request when nothing was written. */
     if (c->written == 0) 
-    {
-        if (g_conf.requests_issued++ >= g_conf.requests) 
+    {   
+        //if (g_conf.requests_issued++ >= g_conf.requests) 
+        if (g_conf.requests_issued >= g_conf.requests) 
         {
-            free_client(c);
-            unc_ae_stop(g_conf.el);
+            /*
+               * 这个地方原来存在两个bug: 
+               * 1. requests_issued++的位置应该下面，否则，由于write是可能被多次调用的，导致requests_issued远远超过requests
+               * 2. 程序结束的判断是通过requests_issued进行，这导致程序过早结束，因为其他client可能正在读，服务端日志查看发现
+               *    client都提前close了连接，问题就出在此处，应该放在read里面判断是否结束程序
+               * 3. 一个可能的潜在问题，在read里面判断完成请求数，会不会因为某次请求异常未完成而导致整个程序达不到退出条件呢?
+               */
+            //free_client(c);
+            //unc_ae_stop(g_conf.el);
             return;
         }
 
@@ -281,6 +289,7 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 
         if (c->obuf->len == c->written) 
         {
+            g_conf.requests_issued++;
             /* 删除写事件 */
             unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
             /* 启动读事件 */
