@@ -509,12 +509,20 @@ int main(int argc, char **argv)
 
 	//参数解析
     parse_options(argc, argv);
-    
     if (optind < argc) 
     {
         usage(1);
     }
 
+    //动态库加载
+    if (unc_load_so(&g_handle, syms, g_conf.so_file) < 0) 
+    {
+        printf("Load file %s failed\n", g_conf.so_file);
+        exit(1);
+    }
+  
+    if (g_so.handle_init) g_so.handle_init(&g_conf, NULL);
+    
     if (!g_conf.keep_alive) 
     {
         puts("WARNING:\n"
@@ -524,15 +532,27 @@ int main(int argc, char **argv)
             " in order to use a lot of clients/requests\n");
     }
 
-    do {
-        /* 压测Echo */
-        start("Unicorn QPS benchmark", "hello mossad");
-        /* 压测tosser */
-        //char buf[256] = {0};
-        //snprintf(buf, 256, "0000000106{\"type\": \"0\", \"host\": \"hq_test\", \"data\": [[\"999\", \"999\", \"1\"], [\"888\", \"888\", \"1\"]], \"time\": \"%d\"}", (int)time(NULL));
-        //printf("strlen:%d, %s\n", strlen(buf), buf);
-        //benchmark("Mossad QPS benchmark", buf);
-    } while (g_conf.loop);
+    //生成request body
+    if (g_so.generate_request) 
+    {
+        if(g_so.generate_request(&g_conf, NULL) != UNC_OK)
+        {
+            printf("Generate request failed\n");
+            exit(1);
+        }
+    }
 
-     return 0;
+    do {
+        if (g_so.request_pre) g_so.request_pre(&g_conf, NULL);
+        start_request("UNICORN CLIENT", "Hello World!");
+        show_final_report(); 
+        if (g_so.request_post) g_so.request_post(&g_conf, NULL);
+    } while (g_conf.loop);
+    
+    if (g_so.handle_finish) g_so.handle_finish(&g_conf, NULL);
+
+    //释放动态库
+    unc_unload_so(&g_handle);
+   
+    return 0;
 }
