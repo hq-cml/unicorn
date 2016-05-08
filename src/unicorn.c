@@ -156,7 +156,7 @@ static void parse_options(int argc, char **argv)
             break;
         case 'k':
             g_conf.keep_alive = atoi(optarg);
-            break;
+            break;            
         case 'q':
             g_conf.quiet = 1;
             break;
@@ -182,7 +182,8 @@ static void usage(int status)
     puts(" -h <hostname>    server hostname (default 127.0.0.1)");
     puts(" -p <port>        server port (default 9527)");
     puts(" -c <clients>     number of parallel connections (default 1)");
-    puts(" -n <requests>    total number of requests (default 1)");    
+    puts(" -n <requests>    total number of requests (default 1)");   
+    puts(" -s <so file>     so file (default ./libfunc.so)");
     puts(" -k <boolean>     1 = keep alive, 0 = reconnect (default 1)");
     puts(" -q               quiet. Just show QPS values");
     puts(" -l               loop. Run the tests forever");
@@ -193,14 +194,23 @@ static void usage(int status)
 /* 
  * 启动压力测试 
  */
-static void start(char *title, char *content) 
+static void start_request(char *title, char *content) 
 {
-    g_conf.title = title;
+    if(!g_conf.title)
+    {
+        g_conf.title = title;
+    }
+    //重置requests_issued和requests_finished
     g_conf.requests_issued = 0;
     g_conf.requests_finished = 0;
 
+    if(!g_conf.request_body)
+    {
+        g_conf.request_body = unc_str_new(content);
+    }
+    
     /* 创建指定数目的client */
-    create_multi_clients(g_conf.num_clients, content);
+    create_multi_clients(g_conf.num_clients);
 
     g_conf.start = mstime();
     unc_ae_main_loop(g_conf.el);
