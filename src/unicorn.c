@@ -44,11 +44,25 @@ static void free_all_clients();
 static void show_final_report(void);
 static void free_client(client_t *c);
 
-
-
-
 //全局句柄定义
 static conf_t g_conf;
+
+//动态库句柄定义
+unc_so_func_t    g_so;
+void *g_handle;
+
+/* 利用syms对g_so各个函数的遍历初始化 */
+static unc_so_symbol_t syms[] = 
+{
+    /* symbol_name,                      function pointer,                            optional */
+    {"unc_handle_init",            (void **)&g_so.handle_init,              1}, /* 可选 */
+    {"unc_handle_finish",          (void **)&g_so.handle_finish,            1}, /* 可选 */
+    {"unc_request_pre",            (void **)&g_so.request_pre,              1}, /* 可选 */
+    {"unc_request_post",           (void **)&g_so.request_post,             1}, /* 可选 */
+    {"unc_generate_request",       (void **)&g_so.generate_request,         1}, /* 可选 */
+    {"unc_check_full_response",    (void **)&g_so.check_full_response,      0}, /* 必选 */
+    {NULL, NULL, 0}
+};
 
 /* 
  * 获得当前微妙数 
