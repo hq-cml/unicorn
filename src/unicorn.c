@@ -379,6 +379,7 @@ static void client_done(client_t *c)
 		{
 			create_multi_clients(num, pcontent->buf);
 		}
+        unc_str_free(pcontent);
     }
 }
 
