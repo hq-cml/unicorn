@@ -38,7 +38,7 @@ static void client_done(client_t *c);
 static int show_qps(unc_ae_event_loop *el, long long id, void *priv);
 static void usage(int status);
 static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask);
-static void create_multi_clients(int num, char *content);
+static void create_multi_clients(int num);
 static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask);
 static void free_all_clients();
 static void show_final_report(void);
@@ -192,7 +192,7 @@ static void start(char *title, char *content)
  * 参数: content,发送内容
  * 返回: client_t指针
  */
-static client_t *create_one_client(const char *content) 
+static client_t *create_one_client() 
 {
     char buf[2048];
 
@@ -205,7 +205,8 @@ static client_t *create_one_client(const char *content)
         fprintf(stderr, "Connect to %s:%d failed.Detail:%s\n", g_conf.hostip, g_conf.hostport, buf);
         exit(1);
     }
-    c->obuf = unc_str_new(content);
+    c->sendbuf = unc_str_dup(g_conf.request_body);
+    c->recvbuf = unc_str_new_empty();
     c->written = 0;
     c->read = 0;
 	
@@ -224,14 +225,14 @@ static client_t *create_one_client(const char *content)
  * 参数: num,     创建client的个数
  *       content, 发送内容
  */
-static void create_multi_clients(int num, char *content) 
+static void create_multi_clients(int num) 
 {
     int n = 0;
 	int i = 0;
 	
     while (i++ < num)
     {
-        create_one_client((const char *)content);
+        create_one_client();
         /* listen backlog is quite limited on most system */
         if (++n > 64) 
         {
