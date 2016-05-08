@@ -215,8 +215,6 @@ static void start_request(char *title, char *content)
     g_conf.start = mstime();
     unc_ae_main_loop(g_conf.el);
     g_conf.total_latency = mstime() - g_conf.start;
-
-    show_final_report();
     free_all_clients();
 }
 
@@ -295,6 +293,7 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
                * 2. 程序结束的判断是通过requests_issued进行，这导致程序过早结束，因为其他client可能正在读，服务端日志查看发现
                *    client都提前close了连接，问题就出在此处，应该放在read里面判断是否结束程序
                * 3. 一个可能的潜在问题，在read里面判断完成请求数，会不会因为某次请求异常未完成而导致整个程序达不到退出条件呢?
+               *    经测试: 会!
                */
             //free_client(c);
             //unc_ae_stop(g_conf.el);
@@ -305,10 +304,10 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         c->latency = -1;
     }
 
-    if (c->obuf->len > c->written) 
+    if (c->sendbuf->len > c->written) 
     {
-        char *ptr = c->obuf->buf + c->written;
-        int nwritten = write(c->fd, ptr, c->obuf->len - c->written);
+        char *ptr = c->sendbuf->buf + c->written;
+        int nwritten = write(c->fd, ptr, c->sendbuf->len - c->written);
         if (nwritten == -1) 
         {
             /* When a process writes to a socket that has received an RST, the SIGPIPE signal is sent to the process. */
@@ -321,7 +320,7 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         }
         c->written += nwritten;
 
-        if (c->obuf->len == c->written) 
+        if (c->sendbuf->len == c->written) 
         {
             g_conf.requests_issued++;
             /* 删除写事件 */
