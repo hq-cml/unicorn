@@ -397,6 +397,8 @@ static void reset_client(client_t *c)
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_READABLE);
     unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE, write_handler, c);
+    
+    unc_str_clear(c->recvbuf);
     c->written = 0;
     c->read = 0;
 }
@@ -444,7 +446,8 @@ static void free_client(client_t *c)
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_READABLE);
     close(c->fd);
-    unc_str_free(c->obuf);
+    unc_str_free(c->sendbuf);
+    unc_str_free(c->recvbuf);
     --g_conf.live_clients;
     node = unc_dlist_search_key(g_conf.clients, c);
     assert(node != NULL);
