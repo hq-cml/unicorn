@@ -338,10 +338,12 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask) 
 {
     client_t *c = (client_t *)priv;
-    int nread;
-    char buffer[4096];
-    memset(buffer, 0, 4096);
-    nread = read(fd, buffer, 4096);
+    int nread, check = UNC_ERR;
+    char buffer[UNC_IOBUF_SIZE];
+    memset(buffer, 0, UNC_IOBUF_SIZE);
+
+    //从服务端读取数据，并将读取的内容append到recvbuf上
+    nread = read(fd, buffer, UNC_IOBUF_SIZE-1);
     if (nread == -1) 
     {
         if (errno == EAGAIN) 
@@ -357,14 +359,34 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         fprintf(stderr, "Error: %s\n", "Server close connection.");
         exit(1);
     }
+    buffer[nread] = '\0';
     c->read += nread;
-    /* 当读取到的数据，和写出去的数据相等时，算是完成了一次请求 */
-    if (c->read == c->obuf->len && 0==memcmp(buffer, c->obuf->buf, c->obuf->len)) 
+    unc_str_cat(&(c->recvbuf), buffer); //append
+    
+    //当读取到的数据，和写出去的数据相等时，算是完成了一次请求
+    //if (c->read == c->sendbuf->len && 0==memcmp(c->recvbuf->buf, c->sendbuf->buf, c->sendbuf->len)) 
+    check = g_so.check_full_response(&g_conf, c, NULL);
+    if(check == UNC_OK)
     {
         c->latency = ustime() - c->start;
         ++g_conf.requests_finished;
+        if(!g_conf.response.is_get)
+        {
+            g_conf.response.is_get = 1;
+            g_conf.response.res_body = unc_str_dup(c->recvbuf);
+        }
+        client_done(c);
     }
-    client_done(c);
+    else if(check == UNC_NEEDMORE)
+    {
+        //printf("Part response:%s\n", c->recvbuf->buf);
+        return;
+    }
+    else
+    {
+       printf("Something wrong in server!\n"); 
+       exit(1);
+    }
 }
 
 /* 
