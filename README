@@ -6,4 +6,44 @@
  \______/  |__| \__| |__|  \______| \______/  | _| `.__||__| \__| 
 
 ========================== Description ============================
-    A Tcp/Http pressure tester.
+    Unicorn is a TCP client framework that you can customize your 
+logical business code and not to care about networking processing 
+and event process. Unicorn is responsible for them.
+    
+    In cases directory, there are some production cases baseed on 
+unicorn. You can refer them to write your business code.
+    
+    ./cases/tcp -- a tcp pressure tester for echo back server.
+
+
+========================== Installation ===========================
+1.compile unicorn
+  #cd src
+  #make
+  #make install
+
+2.compile client case 
+  #cd cases/tcp
+  #make
+  #make install
+
+3.run
+  #cd bin
+  #./Unicorn
+
+4.enjoy it ~
+
+
+========================== Usage ===========================
+Unicorn [-h <host>] [-p <port>] [-c <clients>] [-n requests]> [-k <boolean>]
+
+ -h <hostname>    server hostname (default 127.0.0.1)
+ -p <port>        server port (default 9527)
+ -c <clients>     number of parallel connections (default 1)
+ -n <requests>    total number of requests (default 1)
+ -s <so file>     so file (default ./libfunc.so)
+ -k <boolean>     1 = keep alive, 0 = reconnect (default 1)
+ -q               quiet. Just show QPS values
+ -l               loop. Run the tests forever
+ -H               show help information
+
