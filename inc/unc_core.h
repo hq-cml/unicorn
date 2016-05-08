@@ -41,10 +41,10 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <signal.h>
+#include <dlfcn.h>
 
 
 /*
-
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
@@ -62,7 +62,6 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <getopt.h>
-#include <dlfcn.h>
 #include <sys/prctl.h>
 #include <sys/resource.h> 
 #include <netinet/in.h>
@@ -96,6 +95,7 @@
 #include "unc_dlist.h"
 #include "unc_anet.h"
 #include "unc_so.h"
+#include "unc_plugin.h"
 
 /*
 #include "unc_daemon.h"
@@ -146,5 +146,15 @@ typedef struct client_st {
     long long       latency;    /* request latency */
 } client_t;
 
+/* --------------动态库容器句柄-----------------*/
+typedef struct unc_so_func_struct 
+{
+    int (*handle_init)(void *, void *);                 /* 当进程初始化的时候均会调用，参数是全局变量g_conf，此函数可选 */ 
+    int (*handle_finish)(void *, void *);               /* 当进程结束的时候均会调用，此函数可选 */
+    int (*request_pre)(void *, void *);                 /* 请求开始前调用，此函数可选 */
+    int (*request_post)(void *, void *);                /* 请求结束后调用，此函数可选 */
+    int (*generate_request)(void *, void *);            /* 生成request请求 */
+    int (*check_full_response)(void *, void *, void *); /* 判断完整的response，必选函数 */
+} unc_so_func_t;
 #endif
 
