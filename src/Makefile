@@ -12,7 +12,7 @@ INC    = -I../inc
 
 TARGET = Unicorn 
 
-OBJECT  = unc_ae.o unc_anet.o unc_dlist.o unc_string.o unicorn.o
+OBJECT  = unc_ae.o unc_anet.o unc_dlist.o unc_string.o unc_so.o unicorn.o
            
 all: $(TARGET) 
 
