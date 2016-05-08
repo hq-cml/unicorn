@@ -15,8 +15,8 @@
  *       Author:  HQ 
  *
  **/
-#ifndef __UNC_DLL_H_INCLUDED__ 
-#define __UNC_DLL_H_INCLUDED__
+#ifndef __UNC_SO_H_INCLUDED__ 
+#define __UNC_SO_H_INCLUDED__
 
 /*
 #define UNC_OK  0
@@ -38,5 +38,5 @@ typedef struct unc_symbol_struct
 int unc_load_so(void **phandle, unc_so_symbol_t *syms, const char *filename);
 void unc_unload_so(void **phandle);
 
-#endif /* __UNC_DLL_H_INCLUDED__ */
+#endif /* __UNC_SO_H_INCLUDED__ */
 
