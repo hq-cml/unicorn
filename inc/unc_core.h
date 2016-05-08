@@ -101,24 +101,32 @@
 #include "unc_daemon.h"
 #include "unc_thread.h"
 #include "unc_master.h"
-#include "unc_plugin.h"
 #include "unc_signal.h"
 */
 
 /* -----------------PUBLIC MACRO---------------- */
-#define UNC_OK       0
-#define UNC_ERR     -1
-#define UNC_FAILED  -2
-#define UNC_NONEED  -3
-#define UNC_END     -4
+#define UNC_OK        0
+#define UNC_ERR      -1
+#define UNC_FAILED   -2
+#define UNC_NONEED   -3
+#define UNC_NEEDMORE -4
 
 
 #define UNC_PROG_TITLE   "Unicorn"
 #define UNC_PROG_NAME    "unicorn"
 #define UNICORN_VERSION   "1.0"
 
+#define UNC_IOBUF_SIZE 40960
+
+/* ---------------服务器返回内容 ---------------*/
+typedef struct response {
+    int          is_get;    /* 是否得到了完整的返回 */
+    unc_str_t   *res_body;       /* 具体的返回内容 */
+}response_t;
+
 /* ----------------全局句柄-------------------- */
 typedef struct config {
+    char                *title;             /* 程序名称 */
     unc_ae_event_loop   *el;                /* ae句柄 */
     char                *hostip;            /* 测试目标IP */
     int                  hostport;          /* 测试目标端口 */
@@ -132,14 +140,18 @@ typedef struct config {
     int                  loop;              /* 程序是否无终止循环:否 */
     long long            start;             /* 程序开始时间 */
     long long            total_latency;     /* 程序总耗时(毫秒) */
-    char                *title;             /* 程序名称 */
     unc_dlist_t         *clients;           /* client链表 */
+    char                *so_file;           /* 库文件 */
+    unc_str_t           *request_body;      /* 请求内容 */
+    response_t           response;          /* 服务器返回内容 */
+    
 } conf_t;
 
-/* ---------------Client结构-----------------*/
+/* ---------------Client结构----------------- */ 
 typedef struct client_st {
     int             fd;         /* client的fd */
-    unc_str_t      *obuf;       /* client的sendbuf */
+    unc_str_t      *sendbuf;    /* client的sendbuf */
+    unc_str_t      *recvbuf;    /* client的recvbuf */
     unsigned int    written;    /* bytes of 'obuf' already written */
     unsigned int    read;       /* bytes already be read */
     long long       start;      /* start time of request */
@@ -156,5 +168,6 @@ typedef struct unc_so_func_struct
     int (*generate_request)(void *, void *);            /* 生成request请求 */
     int (*check_full_response)(void *, void *, void *); /* 判断完整的response，必选函数 */
 } unc_so_func_t;
+
 #endif
 
