@@ -352,7 +352,6 @@ static void reset_client(client_t *c)
  */
 static void client_done(client_t *c) 
 {
-	unc_str_t *pcontent;
 	int num;
     //如果达到总预计请求数，则程序停止
     if (g_conf.requests_finished == g_conf.requests) 
@@ -370,17 +369,15 @@ static void client_done(client_t *c)
     } 
     else 
     {
-        pcontent = unc_str_new(c->obuf->buf);
-    	//先释放当前client，内部live_clients会自减
-		free_client(c); 
+        //先释放当前client，内部live_clients会自减
+        free_client(c); 
 
-		//补齐
-		num = g_conf.num_clients - g_conf.live_clients;
-		if(num > 0)
-		{
-			create_multi_clients(num, pcontent->buf);
-		}
-        unc_str_free(pcontent);
+        //补齐
+        num = g_conf.num_clients - g_conf.live_clients;
+        if(num > 0)
+        {
+            create_multi_clients(num);
+        }
     }
 }
 
@@ -427,21 +424,21 @@ static void show_final_report(void)
 
     if (!g_conf.quiet) 
     {
-        printf("========== %s ==========\n", g_conf.title);
-        printf(" All %d requests\n", g_conf.requests);  
-        printf(" All %d requests has send\n", g_conf.requests_issued);        
-        printf(" All %d requests completed\n", g_conf.requests_finished);
-        printf(" Complete:%.2f%%\n", 100*((float)g_conf.requests_finished/(float)g_conf.requests));
-        printf(" Use time %.2f seconds\n", (float)g_conf.total_latency/1000);
-        printf(" Parallel %d clients\n", g_conf.num_clients);
-        printf(" keep alive: %d\n", g_conf.keep_alive);
+        printf("====== %s REPORT ======\n", g_conf.title);
+        printf(" All requests           : %d\n", g_conf.requests);  
+        printf(" All requests has send  : %d\n", g_conf.requests_issued);        
+        printf(" All requests completed : %d\n", g_conf.requests_finished);
+        printf(" Complete rate          : %.2f%%\n", 100*((float)g_conf.requests_finished/(float)g_conf.requests));
+        printf(" Use time of seconds    : %.2f\n", (float)g_conf.total_latency/1000);
+        printf(" Parallel clients       : %d\n", g_conf.num_clients);
+        printf(" Keep alive             : %d\n", g_conf.keep_alive);
         printf("\n");
 
-        printf("%.2f requests per second\n\n", reqpersec);
+        printf(" Average QPS            : %.2f r/s\n", reqpersec);
     } 
     else 
     {
-        printf("%s:%.2f requests per second\n\n", g_conf.title, reqpersec);
+        printf("%s:%.2f requests per second\n", g_conf.title, reqpersec);
     }
 }
 
