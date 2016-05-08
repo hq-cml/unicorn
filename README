@@ -34,7 +34,7 @@ unicorn. You can refer them to write your business code.
 4.enjoy it ~
 
 
-========================== Usage ===========================
+============================== Usage ===============================
 Unicorn [-h <host>] [-p <port>] [-c <clients>] [-n requests]> [-k <boolean>]
 
  -h <hostname>    server hostname (default 127.0.0.1)
@@ -44,6 +44,6 @@ Unicorn [-h <host>] [-p <port>] [-c <clients>] [-n requests]> [-k <boolean>]
  -s <so file>     so file (default ./libfunc.so)
  -k <boolean>     1 = keep alive, 0 = reconnect (default 1)
  -q               quiet. Just show QPS values
- -l               loop. Run the tests forever
+ -l               loop. Run the tests forever. For persistent test
  -H               show help information
 

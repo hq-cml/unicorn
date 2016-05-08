@@ -177,7 +177,7 @@ static void parse_options(int argc, char **argv)
  */
 static void usage(int status) 
 {
-    puts("Usage: benchmark [-h <host>] [-p <port>] "
+    puts("Usage: ./Unicorn [-h <host>] [-p <port>] "
             "[-c <clients>] [-n requests]> [-k <boolean>]\n");
     puts(" -h <hostname>    server hostname (default 127.0.0.1)");
     puts(" -p <port>        server port (default 9527)");
@@ -186,7 +186,7 @@ static void usage(int status)
     puts(" -s <so file>     so file (default ./libfunc.so)");
     puts(" -k <boolean>     1 = keep alive, 0 = reconnect (default 1)");
     puts(" -q               quiet. Just show QPS values");
-    puts(" -l               loop. Run the tests forever");
+    puts(" -l               loop. Run the tests forever. For persistent test");
     puts(" -H               show help information\n");
     exit(status);
 }
