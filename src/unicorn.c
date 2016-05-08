@@ -97,6 +97,9 @@ static long long mstime()
  */
 static void init_conf() 
 {
+    g_conf.title = NULL;
+    g_conf.requests_issued = 0;
+    g_conf.requests_finished = 0;
 	g_conf.num_clients = 1;
 	g_conf.requests = 1;
 	g_conf.live_clients = 0;
@@ -108,7 +111,10 @@ static void init_conf()
 	g_conf.clients = unc_dlist_init();
 	g_conf.hostip = "127.0.0.1";
 	g_conf.hostport = 9527;
-	
+    g_conf.so_file = "./libfunc.so";
+	g_conf.response.is_get = 0;
+    g_conf.response.res_body = NULL;
+    g_conf.request_body = NULL;
 	return;
 }
 
@@ -119,7 +125,7 @@ static int show_qps(unc_ae_event_loop *el, long long id, void *priv)
 {
     float dt = (float)(mstime() - g_conf.start) / 1000.0;
     float rps = (float)g_conf.requests_finished / dt;
-    printf("%s: %.2f\n", g_conf.title, rps);
+    printf("%s: %.2f r/s\n", g_conf.title, rps);
     return 3000; /* every 3000ms */
 }
 
@@ -144,6 +150,9 @@ static void parse_options(int argc, char **argv)
             break;
         case 'n':
             g_conf.requests = atoi(optarg);
+            break;
+        case 's':
+            g_conf.so_file= strdup(optarg);
             break;
         case 'k':
             g_conf.keep_alive = atoi(optarg);
