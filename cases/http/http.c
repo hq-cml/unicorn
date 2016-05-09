@@ -87,7 +87,8 @@ int unc_generate_request(void *conf, void *args)
     GET /www/hello.php
     Connection:Keep-Alive
     */
-    p_conf->request_body = unc_str_new("GET /www/hello.php 1.0\r\nConnection:Keep-Alive\r\n\r\n");
+    //p_conf->request_body = unc_str_new("GET /www/info.php 1.0\r\nConnection:Keep-Alive\r\n\r\n");
+    p_conf->request_body = unc_str_new("GET /www/info.php 1.0\r\nConnection:Keep-Alive\r\nAccept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Encoding:gzip, deflate, sdch\r\nAccept-Language:zh-CN,zh;q=0.8,en;q=0.6\r\nCache-Control:max-age=0\r\nConnection:keep-alive\r\nHost:127.0.0.1:8081\r\nUpgrade-Insecure-Requests:1\r\nUser-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36\r\n\r\n");
     return UNC_OK;
 }
 
@@ -95,7 +96,7 @@ int unc_check_full_response(void *conf, void *client, void *args)
 {
     client_t *p_client =(client_t *) client;
 
-    int pos = strstr(p_client->recvbuf->buf, "world");
+    char * pos = strstr(p_client->recvbuf->buf, "world");
     if(pos != NULL)
     {
         return UNC_OK;
