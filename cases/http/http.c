@@ -1,32 +1,32 @@
 /**
- *  __    __   __   __   __    ______   ______   .______    __   __
- * |  |  |  | |  \ |  | |  |  /      | /  __  \  |   _  \  |  \ |  |
- * |  |  |  | |   \|  | |  | |  ,----'|  |  |  | |  |_)  | |   \|  |
- * |  |  |  | |  . `  | |  | |  |     |  |  |  | |      /  |  . `  |
- * |  `--'  | |  |\   | |  | |  `----.|  `--'  | |  |\  \-.|  |\   |
- *  \______/  |__| \__| |__|  \______| \______/  | _| `.__||__| \__|
+ *  __    __   __   __   __    ______   ______   .______    __   __  
+ * |  |  |  | |  \ |  | |  |  /      | /  __  \  |   _  \  |  \ |  | 
+ * |  |  |  | |   \|  | |  | |  ,----'|  |  |  | |  |_)  | |   \|  | 
+ * |  |  |  | |  . `  | |  | |  |     |  |  |  | |      /  |  . `  | 
+ * |  `--'  | |  |\   | |  | |  `----.|  `--'  | |  |\  \-.|  |\   | 
+ *  \______/  |__| \__| |__|  \______| \______/  | _| `.__||__| \__| 
  *
  *    Filename :  http.c
- *
- * Description :  ï¿½ï¿½ï¿½ï¿½Unicornï¿½ï¿½ï¿½Üµï¿½HTTPÑ¹ï¿½ï¿½ï¿½Í»ï¿½ï¿½ï¿½
- *                Êµï¿½ï¿½unc_plugin.hï¿½ÐµÄºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É½ï¿½ï¿½Ã»ï¿½ï¿½ß¼ï¿½Ç¶ï¿½ï¿½unicornï¿½ï¿½ï¿½ï¿½
- *
- *     Version :  1.0.0
- *
- *      Author :  HQ
+ * 
+ * Description :  »ùÓÚUnicorn¿ò¼ÜµÄHTTPÑ¹²â¿Í»§¶Ë
+ *                ÊµÏÖunc_plugin.hÖÐµÄº¯Êý£¬¼´¿É½«ÓÃ»§Âß¼­Ç¶Èëunicorn¿ò¼Ü
+ * 
+ *     Version :  1.0.0 
+ * 
+ *      Author :  HQ 
  *
  **/
 
 #include "unc_core.h"
 
 /**
- * ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Øµï¿½
- * ï¿½ï¿½ï¿½ï¿½: @conf, @args
- * Ëµï¿½ï¿½:
- *       1. ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½
- * ï¿½ï¿½ï¿½ï¿½:ï¿½É¹ï¿½:0; Ê§ï¿½ï¿½:-x
+ * ¹¦ÄÜ: ³õÊ¼»¯»Øµ÷
+ * ²ÎÊý: @conf, @args
+ * ËµÃ÷: 
+ *       1. ¿ÉÑ¡º¯Êý
+ * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
  **/
-int unc_handle_init(void *conf, void *args)
+int unc_handle_init(void *conf, void *args) 
 {
     conf_t *p_conf =(conf_t *) conf;
     p_conf->title = "TCP PRESSURE TEST";
@@ -35,12 +35,12 @@ int unc_handle_init(void *conf, void *args)
 }
 
 /**
- * ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½
- * ï¿½ï¿½ï¿½ï¿½: @conf, @args
- * Ëµï¿½ï¿½:
- *       1. ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½
+ * ¹¦ÄÜ: ½áÊø»Øµ÷
+ * ²ÎÊý: @conf, @args
+ * ËµÃ÷: 
+ *       1. ¿ÉÑ¡º¯Êý
  **/
-int unc_handle_finish(void *conf, void *args)
+int unc_handle_finish(void *conf, void *args) 
 {
     conf_t *p_conf =(conf_t *) conf;
     if(p_conf->response.is_get)
@@ -54,32 +54,39 @@ int unc_handle_finish(void *conf, void *args)
 }
 
 /**
- * ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½Ç°ï¿½Øµï¿½
- * ï¿½ï¿½ï¿½ï¿½: @conf, @args
- * Ëµï¿½ï¿½:
- *       1. ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½
- * ï¿½ï¿½ï¿½ï¿½:ï¿½É¹ï¿½:0; Ê§ï¿½ï¿½:-x
+ * ¹¦ÄÜ: ÇëÇóÇ°»Øµ÷
+ * ²ÎÊý: @conf, @args
+ * ËµÃ÷: 
+ *       1. ¿ÉÑ¡º¯Êý
+ * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
  **/
-int unc_request_pre(void *conf, void *args)
+int unc_request_pre(void *conf, void *args) 
 {
     printf("*************************** TEST START ***************************\n");
     return UNC_OK;
 }
 
 /**
- * ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½
- * ï¿½ï¿½ï¿½ï¿½: @conf, @args
- * Ëµï¿½ï¿½:
- *       1. ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½
- * ï¿½ï¿½ï¿½ï¿½:ï¿½É¹ï¿½:0; Ê§ï¿½ï¿½:-x
+ * ¹¦ÄÜ: ÇëÇóºó»Øµ÷
+ * ²ÎÊý: @conf, @args
+ * ËµÃ÷: 
+ *       1. ¿ÉÑ¡º¯Êý
+ * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
  **/
-int unc_request_post(void *conf, void *args)
+int unc_request_post(void *conf, void *args) 
 {
     printf("*************************** TEST END ***************************\n\n\n\n");
     return UNC_OK;
 }
 
-int unc_generate_request(void *conf, void *args)
+/**
+ * ¹¦ÄÜ: Éú³ÉTcpÇëÇóbody
+ * ²ÎÊý: @conf, @args
+ * ËµÃ÷: 
+ *       1. ¿ÉÑ¡º¯Êý
+ * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ **/
+int unc_generate_request(void *conf, void *args) 
 {
     conf_t *p_conf =(conf_t *) conf;
     //TODO read from a file
@@ -92,7 +99,14 @@ int unc_generate_request(void *conf, void *args)
     return UNC_OK;
 }
 
-int unc_check_full_response(void *conf, void *client, void *args)
+/**
+ * ¹¦ÄÜ: ÅÐ¶Ïµ±Ç°µÄresponseÄÚÈÝ£¬ÊÇ·ñÊÇÒ»¸öÍêÕûµÄresoponse
+ * ²ÎÊý: @conf, @client, @args
+ * ËµÃ÷: 
+ *       1. ±ØÑ¡º¯Êý
+ * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ **/
+int unc_check_full_response(void *conf, void *client, void *args) 
 {
     client_t *p_client =(client_t *) client;
 
