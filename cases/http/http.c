@@ -90,3 +90,18 @@ int unc_generate_request(void *conf, void *args)
     p_conf->request_body = unc_str_new("GET /www/hello.php 1.0\r\nConnection:Keep-Alive\r\n\r\n");
     return UNC_OK;
 }
+
+int unc_check_full_response(void *conf, void *client, void *args)
+{
+    client_t *p_client =(client_t *) client;
+
+    int pos = strstr(p_client->recvbuf->buf, "world");
+    if(pos != NULL)
+    {
+        return UNC_OK;
+    }
+    else
+    {
+        return UNC_NEEDMORE;
+    }
+}
