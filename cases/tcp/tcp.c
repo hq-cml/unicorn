@@ -8,8 +8,8 @@
  *
  *    Filename :  tcp.c
  * 
- * Description :  Unicorn框架tcp压测客户端
- *                实现unc_plugin.h中的函数，即可将用户逻辑嵌入unicorn框架
+ * Description :  基于Unicorn框架的TCP压测客户端。
+ *                实现unc_plugin.h中的函数，即可将用户逻辑嵌入unicorn框架。
  * 
  *     Version :  1.0.0 
  * 
@@ -35,8 +35,8 @@ int unc_handle_init(void *conf, void *args)
 }
 
 /**
- * 功能: 触发此回调
- * 参数: @cycle
+ * 功能: 结束回调
+ * 参数: @conf, @args
  * 说明: 
  *       1. 可选函数
  **/
