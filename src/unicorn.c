@@ -113,6 +113,7 @@ static void init_conf()
 	g_conf.hostip = "127.0.0.1";
 	g_conf.hostport = 9527;
     g_conf.so_file = "./libfunc.so";
+    g_conf.request_file = "./request.file";
 	g_conf.response.is_get = 0;
     g_conf.response.res_body = NULL;
     g_conf.request_body = NULL;
@@ -138,7 +139,7 @@ static void parse_options(int argc, char **argv)
 {
     char c;
 
-    while ((c = getopt(argc, argv, "h:p:c:n:k:w:qlH")) != -1) 
+    while ((c = getopt(argc, argv, "h:p:c:s:f:n:k:w:qlH")) != -1) 
     {
         switch (c) {
         case 'h':
@@ -155,6 +156,9 @@ static void parse_options(int argc, char **argv)
             break;
         case 's':
             g_conf.so_file= strdup(optarg);
+            break;
+        case 'f':
+            g_conf.request_file = strdup(optarg);
             break;
         case 'k':
             g_conf.keep_alive = atoi(optarg);
@@ -184,16 +188,17 @@ static void usage(int status)
 {
     puts("Usage: ./Unicorn [-h <host>] [-p <port>] "
             "[-c <clients>] [-n requests]> [-k <boolean>]\n");
-    puts(" -h <hostname>    server hostname (default 127.0.0.1)");
-    puts(" -p <port>        server port (default 9527)");
-    puts(" -c <clients>     number of parallel connections (default 1)");
-    puts(" -n <requests>    total number of requests (default 1)");   
-    puts(" -s <so file>     so file (default ./libfunc.so)");
-    puts(" -k <boolean>     1 = keep alive, 0 = reconnect (default 1)");
-    puts(" -q               quiet. Just show QPS values");
-    puts(" -l               loop. Run the tests forever. For persistent test");
-    puts(" -w               whether done while server close connection.(default 1)");
-    puts(" -H               show help information\n");
+    puts(" -h <hostname>      server hostname (default 127.0.0.1)");
+    puts(" -p <port>          server port (default 9527)");
+    puts(" -c <clients>       number of parallel connections (default 1)");
+    puts(" -n <requests>      total number of requests (default 1)");   
+    puts(" -s <so file>       so file (default ./libfunc.so)");
+    puts(" -f <request file>  request file(default ./request.file)");
+    puts(" -k <boolean>       1 = keep alive, 0 = reconnect (default 1)");
+    puts(" -q                 quiet. Just show QPS values");
+    puts(" -l                 loop. Run the tests forever. For persistent test");
+    puts(" -w                 whether define done if server close connection.(default 1)");
+    puts(" -H                 show help information\n");
     exit(status);
 }
 
@@ -415,8 +420,8 @@ static void client_done(client_t *c, int server_close)
 {
 	int num;
 
-    //服务端没有关闭连接，或者服务端关闭连接但是done_when_close是1，则完成数++，并且记录服务端返回
-    if(server_close == 0 
+    //服务端没有关闭连接，或者服务端关闭连接但是done_if_srv_close是1，则完成数++，并且记录服务端返回
+    if(server_close != 1 
        || (server_close == 1 && g_conf.done_if_srv_close))
     {
         c->latency = ustime() - c->start;
@@ -503,8 +508,10 @@ static void show_final_report(void)
     {
         printf("====== %s REPORT ======\n", g_conf.title);
         printf(" All requests           : %d\n", g_conf.requests);  
-        printf(" All requests has send  : %d\n", g_conf.requests_issued);        
+        printf(" All requests sended    : %d\n", g_conf.requests_issued);        
         printf(" All requests completed : %d\n", g_conf.requests_done);
+        //如果done_if_srv_close，则done和finished相同，所以只有非done_if_srv_close时打印
+        if(!g_conf.done_if_srv_close) printf(" All requests finished  : %d\n", g_conf.requests_finished);
         printf(" Complete rate          : %.2f%%\n", 100*((float)g_conf.requests_done/(float)g_conf.requests));
         printf(" Use time of seconds    : %.2f\n", (float)g_conf.total_latency/1000);
         printf(" Parallel clients       : %d\n", g_conf.num_clients);
@@ -573,6 +580,7 @@ int main(int argc, char **argv)
 
     //释放动态库
     unc_unload_so(&g_handle);
-   
+
+    //TODO 释放g_conf
     return 0;
 }
