@@ -34,7 +34,7 @@
 #include "unc_core.h"
 
 //函数声明
-static void client_done(client_t *c);
+static void client_done(client_t *c, int server_close);
 static int show_qps(unc_ae_event_loop *el, long long id, void *priv);
 static void usage(int status);
 static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask);
@@ -356,8 +356,9 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     } 
     else if (nread == 0) 
     {
-        fprintf(stderr, "Error: %s\n", "Server close connection.");
-        exit(1);
+        //server端关闭连接，也算是广义的完成
+        client_done(c, 1);
+        return;
     }
     buffer[nread] = '\0';
     c->read += nread;
@@ -368,14 +369,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     check = g_so.check_full_response(&g_conf, c, NULL);
     if(check == UNC_OK)
     {
-        c->latency = ustime() - c->start;
-        ++g_conf.requests_finished;
-        if(!g_conf.response.is_get)
-        {
-            g_conf.response.is_get = 1;
-            g_conf.response.res_body = unc_str_dup(c->recvbuf);
-        }
-        client_done(c);
+        client_done(c, 0);
     }
     else if(check == UNC_NEEDMORE)
     {
@@ -405,10 +399,24 @@ static void reset_client(client_t *c)
 
 /* 
  * 当client完成了一次写/读请求之后调用 
+ * 参数:
+ *    1. client
+ *    2. server_close，server端是否关闭了连接
+ *
  */
-static void client_done(client_t *c) 
+static void client_done(client_t *c, int server_close) 
 {
 	int num;
+
+    //完成数++，并且记录服务端返回
+    c->latency = ustime() - c->start;
+    ++g_conf.requests_finished;
+    if(!g_conf.response.is_get)
+    {
+        g_conf.response.is_get = 1;
+        g_conf.response.res_body = unc_str_dup(c->recvbuf);
+    }
+        
     //如果达到总预计请求数，则程序停止
     if (g_conf.requests_finished == g_conf.requests) 
     {
@@ -417,9 +425,9 @@ static void client_done(client_t *c)
         return;
     }
 
-    // 如果keep_alive，则重新开始client的写/读流程
-    // 如果!keep_alive,则重启client,然后开始写/读流程
-    if (g_conf.keep_alive) 
+    // 如果keep_alive且server端没有关闭连接，则重新开始client的写/读流程
+    // 否则，释放client，然后重启client,然后开始写/读流程
+    if (g_conf.keep_alive && !server_close) 
     {
         reset_client(c);
     } 
