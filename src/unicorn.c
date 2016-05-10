@@ -98,9 +98,9 @@ static long long mstime()
 static void init_conf() 
 {
     g_conf.title = NULL;
-    g_conf.requests_issued = 0;
-    g_conf.requests_finished = 0;
+    g_conf.requests_issued   = 0;
     g_conf.requests_done     = 0;
+    g_conf.requests_finished = 0;
 	g_conf.num_clients = 1;
 	g_conf.requests = 1;
 	g_conf.live_clients = 0;
@@ -116,7 +116,7 @@ static void init_conf()
 	g_conf.response.is_get = 0;
     g_conf.response.res_body = NULL;
     g_conf.request_body = NULL;
-    g_conf.done_when_close = 1;
+    g_conf.done_if_srv_close = 1;
 	return;
 }
 
@@ -126,7 +126,7 @@ static void init_conf()
 static int show_qps(unc_ae_event_loop *el, long long id, void *priv) 
 {
     float dt = (float)(mstime() - g_conf.start) / 1000.0;
-    float rps = (float)g_conf.requests_finished / dt;
+    float rps = (float)g_conf.requests_done / dt;
     printf("%s: %.2f r/s\n", g_conf.title, rps);
     return 3000; /* every 3000ms */
 }
@@ -160,7 +160,7 @@ static void parse_options(int argc, char **argv)
             g_conf.keep_alive = atoi(optarg);
             break;
         case 'w':
-            g_conf.done_when_close = atoi(optarg);
+            g_conf.done_if_srv_close = atoi(optarg);
             break;           
         case 'q':
             g_conf.quiet = 1;
@@ -208,8 +208,8 @@ static void start_request(char *title, char *content)
     }
     //重置requests_issued和requests_finished
     g_conf.requests_issued = 0;
+    g_conf.requests_done   = 0;
     g_conf.requests_finished = 0;
-    g_conf.requests_done = 0;
 
     if(!g_conf.request_body)
     {
@@ -417,11 +417,10 @@ static void client_done(client_t *c, int server_close)
 
     //服务端没有关闭连接，或者服务端关闭连接但是done_when_close是1，则完成数++，并且记录服务端返回
     if(server_close == 0 
-       || (server_close == 1 && g_conf.done_when_close))
+       || (server_close == 1 && g_conf.done_if_srv_close))
     {
-        printf("SAAAAAAAAAAAA\n");
         c->latency = ustime() - c->start;
-        ++g_conf.requests_finished;
+        ++g_conf.requests_done;
         if(!g_conf.response.is_get)
         {
             g_conf.response.is_get = 1;
@@ -429,9 +428,9 @@ static void client_done(client_t *c, int server_close)
         }
     }
 
-    ++g_conf.requests_done;   
+    ++g_conf.requests_finished;   
     //如果达到总预计请求数，则程序停止，用广义的requests_done保证程序能够结束
-    if (g_conf.requests_done == g_conf.requests) 
+    if (g_conf.requests_finished == g_conf.requests) 
     {
         //free_client(c);
         unc_ae_stop(g_conf.el); //全局Ae直接停止
@@ -498,15 +497,15 @@ static void show_final_report(void)
     float reqpersec;
 
     /* 最终每秒处理请求出--QPS */
-    reqpersec = (float)g_conf.requests_finished / ((float)g_conf.total_latency / 1000);
+    reqpersec = (float)g_conf.requests_done / ((float)g_conf.total_latency / 1000);
 
     if (!g_conf.quiet) 
     {
         printf("====== %s REPORT ======\n", g_conf.title);
         printf(" All requests           : %d\n", g_conf.requests);  
         printf(" All requests has send  : %d\n", g_conf.requests_issued);        
-        printf(" All requests completed : %d\n", g_conf.requests_finished);
-        printf(" Complete rate          : %.2f%%\n", 100*((float)g_conf.requests_finished/(float)g_conf.requests));
+        printf(" All requests completed : %d\n", g_conf.requests_done);
+        printf(" Complete rate          : %.2f%%\n", 100*((float)g_conf.requests_done/(float)g_conf.requests));
         printf(" Use time of seconds    : %.2f\n", (float)g_conf.total_latency/1000);
         printf(" Parallel clients       : %d\n", g_conf.num_clients);
         printf(" Keep alive             : %d\n", g_conf.keep_alive);

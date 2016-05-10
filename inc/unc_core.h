@@ -134,8 +134,8 @@ typedef struct config {
     int                  live_clients;      /* 实际目前活跃的客户数(实时并发数) */
     int                  requests;          /* 期望总请求个数，程序启动时指定 */
     int                  requests_issued;   /* 已经发出去请求总数 */
-    int                  requests_finished; /* 实际完成的请求总数 */
-    int                  requests_done;     /* 广义的完成请求数，比如服务端断开连接等异常也算完成 */
+    int                  requests_done;     /* 实际完成的请求总数 */
+    int                  requests_finished; /* 广义的完成请求数，比如服务端断开连接等异常也算完成 */
     int                  quiet;             /* 是否只显示qps，默认否 */
     int                  keep_alive;        /* 是否维持长连接，1 = keep alive, 0 = reconnect (default 1) */
     int                  loop;              /* 程序是否无终止循环:否 */
@@ -143,7 +143,7 @@ typedef struct config {
     long long            total_latency;     /* 程序总耗时(毫秒) */
     unc_dlist_t         *clients;           /* client链表 */
     char                *so_file;           /* 库文件 */
-    int                  done_when_close;   /* 如果服务端关闭连接，是否算是一个完整请求(default 1) */
+    int                  done_if_srv_close; /* 如果服务端关闭连接，是否算是一个完整请求(default 1) */
     unc_str_t           *request_body;      /* 请求内容 */
     response_t           response;          /* 服务器返回内容 */
     
