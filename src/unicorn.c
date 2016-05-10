@@ -100,6 +100,7 @@ static void init_conf()
     g_conf.title = NULL;
     g_conf.requests_issued = 0;
     g_conf.requests_finished = 0;
+    g_conf.requests_done     = 0;
 	g_conf.num_clients = 1;
 	g_conf.requests = 1;
 	g_conf.live_clients = 0;
@@ -208,6 +209,7 @@ static void start_request(char *title, char *content)
     //重置requests_issued和requests_finished
     g_conf.requests_issued = 0;
     g_conf.requests_finished = 0;
+    g_conf.requests_done = 0;
 
     if(!g_conf.request_body)
     {
@@ -426,9 +428,10 @@ static void client_done(client_t *c, int server_close)
             g_conf.response.res_body = unc_str_dup(c->recvbuf);
         }
     }
-        
-    //如果达到总预计请求数，则程序停止
-    if (g_conf.requests_finished == g_conf.requests) 
+
+    ++g_conf.requests_done;   
+    //如果达到总预计请求数，则程序停止，用广义的requests_done保证程序能够结束
+    if (g_conf.requests_done == g_conf.requests) 
     {
         //free_client(c);
         unc_ae_stop(g_conf.el); //全局Ae直接停止

@@ -135,6 +135,7 @@ typedef struct config {
     int                  requests;          /* 期望总请求个数，程序启动时指定 */
     int                  requests_issued;   /* 已经发出去请求总数 */
     int                  requests_finished; /* 实际完成的请求总数 */
+    int                  requests_done;     /* 广义的完成请求数，比如服务端断开连接等异常也算完成 */
     int                  quiet;             /* 是否只显示qps，默认否 */
     int                  keep_alive;        /* 是否维持长连接，1 = keep alive, 0 = reconnect (default 1) */
     int                  loop;              /* 程序是否无终止循环:否 */
