@@ -142,6 +142,7 @@ typedef struct config {
     long long            total_latency;     /* 程序总耗时(毫秒) */
     unc_dlist_t         *clients;           /* client链表 */
     char                *so_file;           /* 库文件 */
+    int                  done_when_close;   /* 如果服务端关闭连接，是否算是一个完整请求(default 1) */
     unc_str_t           *request_body;      /* 请求内容 */
     response_t           response;          /* 服务器返回内容 */
     

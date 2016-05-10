@@ -115,6 +115,7 @@ static void init_conf()
 	g_conf.response.is_get = 0;
     g_conf.response.res_body = NULL;
     g_conf.request_body = NULL;
+    g_conf.done_when_close = 1;
 	return;
 }
 
@@ -136,7 +137,7 @@ static void parse_options(int argc, char **argv)
 {
     char c;
 
-    while ((c = getopt(argc, argv, "h:p:c:n:k:qlH")) != -1) 
+    while ((c = getopt(argc, argv, "h:p:c:n:k:w:qlH")) != -1) 
     {
         switch (c) {
         case 'h':
@@ -156,7 +157,10 @@ static void parse_options(int argc, char **argv)
             break;
         case 'k':
             g_conf.keep_alive = atoi(optarg);
-            break;            
+            break;
+        case 'w':
+            g_conf.done_when_close = atoi(optarg);
+            break;           
         case 'q':
             g_conf.quiet = 1;
             break;
@@ -187,6 +191,7 @@ static void usage(int status)
     puts(" -k <boolean>     1 = keep alive, 0 = reconnect (default 1)");
     puts(" -q               quiet. Just show QPS values");
     puts(" -l               loop. Run the tests forever. For persistent test");
+    puts(" -w               whether done while server close connection.(default 1)");
     puts(" -H               show help information\n");
     exit(status);
 }
@@ -408,13 +413,18 @@ static void client_done(client_t *c, int server_close)
 {
 	int num;
 
-    //完成数++，并且记录服务端返回
-    c->latency = ustime() - c->start;
-    ++g_conf.requests_finished;
-    if(!g_conf.response.is_get)
+    //服务端没有关闭连接，或者服务端关闭连接但是done_when_close是1，则完成数++，并且记录服务端返回
+    if(server_close == 0 
+       || (server_close == 1 && g_conf.done_when_close))
     {
-        g_conf.response.is_get = 1;
-        g_conf.response.res_body = unc_str_dup(c->recvbuf);
+        printf("SAAAAAAAAAAAA\n");
+        c->latency = ustime() - c->start;
+        ++g_conf.requests_finished;
+        if(!g_conf.response.is_get)
+        {
+            g_conf.response.is_get = 1;
+            g_conf.response.res_body = unc_str_dup(c->recvbuf);
+        }
     }
         
     //如果达到总预计请求数，则程序停止
