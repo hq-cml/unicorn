@@ -113,7 +113,7 @@ static void init_conf()
 	g_conf.hostip = "127.0.0.1";
 	g_conf.hostport = 9527;
     g_conf.so_file = "./libfunc.so";
-    g_conf.request_file = "./request.file";
+    g_conf.request_file = NULL;
 	g_conf.response.is_get = 0;
     g_conf.response.res_body = NULL;
     g_conf.request_body = NULL;
@@ -193,13 +193,59 @@ static void usage(int status)
     puts(" -c <clients>       number of parallel connections (default 1)");
     puts(" -n <requests>      total number of requests (default 1)");   
     puts(" -s <so file>       so file (default ./libfunc.so)");
-    puts(" -f <request file>  request file(default ./request.file)");
+    puts(" -f <request file>  request file(default NULL)");
     puts(" -k <boolean>       1 = keep alive, 0 = reconnect (default 1)");
     puts(" -q                 quiet. Just show QPS values");
     puts(" -l                 loop. Run the tests forever. For persistent test");
     puts(" -w                 whether define done if server close connection.(default 1)");
     puts(" -H                 show help information\n");
     exit(status);
+}
+
+/*
+ * 读取request_file文件，生成request_body
+ */
+static void read_quest_file()
+{
+    int fd;  
+    int bytes_read;  
+    char buffer[UNC_IOBUF_SIZE];
+    
+    if(!g_conf.request_body)
+    {
+        g_conf.request_body = unc_str_new_empty();
+    }
+    else
+    {
+        fprintf(stderr, "Some Thing Wrong!! Request body is not null\n");  
+        exit(1);
+    }
+    
+    //打开源文件
+    if ((fd = open(g_conf.request_file, O_RDONLY)) == -1) 
+    {  
+        fprintf(stderr, "FATAL!! Open %s Failed. Error: %s\n", g_conf.request_file, strerror(errno));  
+        exit(1);
+    }  
+  
+    //一个经典的读取文件的代码
+    memset(buffer, 0, UNC_IOBUF_SIZE);
+    while ((bytes_read = read(fd, buffer, UNC_IOBUF_SIZE))) 
+    {  
+        //发生一个致命的错误
+        if ((bytes_read == -1) && (errno != EINTR))
+        {
+            fprintf(stderr, "FATAL!! Read file %s failed.Error: %s\n", g_conf.request_file, strerror(errno));
+            exit(1);
+        }
+        else if (bytes_read > 0) 
+        {  
+            unc_str_cat(&(g_conf.request_body), buffer);
+        }
+        memset(buffer, 0, UNC_IOBUF_SIZE);
+    }  
+    close(fd);  
+    return;    
 }
 
 /* 
@@ -559,7 +605,13 @@ int main(int argc, char **argv)
             " in order to use a lot of clients/requests\n");
     }
 
-    //生成request body
+    //如果存在request_file，则尝试读取生成request body
+    if(g_conf.request_file)
+    {
+        read_quest_file();
+    }
+    
+    //调用用户钩子，对request body做进一步处理
     if (g_so.generate_request) 
     {
         if(g_so.generate_request(&g_conf, NULL) != UNC_OK)
