@@ -19,6 +19,9 @@
 
 #include "unc_core.h"
 
+unc_str_t *g_http_response_line;
+unc_str_t *g_http_response_header;
+unc_str_t *g_http_response_body;
 
 /**
  * 功能: 生成Tcp请求body
@@ -48,17 +51,19 @@ int unc_generate_request(void *conf, void *args)
 int unc_check_full_response(void *conf, void *client, void *args) 
 {
     client_t *p_client =(client_t *) client;
-    return UNC_NEEDMORE;
+    char *head_end;
+    int len;
+    if((head_end = strstr(p_client->recvbuf->buf, "\r\n\r\n")))
+    {
+         if(!g_http_response_header)
+	 {
+              len = head_end+4-p_client->recvbuf->buf; 
+              g_http_response_header = unc_str_newlen(p_client->recvbuf->buf, len);    
+         }
+         return UNC_OK;
+    }
 
-    char * pos = strstr(p_client->recvbuf->buf, "world");
-    if(pos != NULL)
-    {
-        return UNC_OK;
-    }
-    else
-    {
-        return UNC_NEEDMORE;
-    }
+    return UNC_NEEDMORE;
 }
 
 /**
@@ -73,6 +78,11 @@ int unc_handle_init(void *conf, void *args)
     conf_t *p_conf =(conf_t *) conf;
     p_conf->title = "HTTP PRESSURE TEST";
     printf("************* WELCOME TO UNICORN HTTP PRESSURE TEST ***************\n\n");
+
+    g_http_response_line = NULL;
+    g_http_response_header = NULL;
+    g_http_response_body = NULL;
+
     return UNC_OK;
 }
 
@@ -87,8 +97,8 @@ int unc_handle_finish(void *conf, void *args)
     conf_t *p_conf =(conf_t *) conf;
     if(p_conf->response.is_get)
     {
-        printf("====== THE SERVER RESPONSE ======\n");
-        printf("%s\n", p_conf->response.res_body->buf);
+        printf("====== THE SERVER HEADER ======\n");
+        printf("%s\n", g_http_response_header->buf);
     }
     printf("**************** THANK YOU FOR USE UNICORN. BYE! ****************\n");
 

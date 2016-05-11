@@ -1,0 +1,4 @@
+GET /www/info.php HTTP/1.0
+Host:127.0.0.1:80
+Connection:close
+

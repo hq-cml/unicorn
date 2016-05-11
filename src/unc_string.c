@@ -27,7 +27,7 @@
 /* 默认分割字符：'\t',' ','\r','\n' */
 static const unsigned char g_default_ifs[256] = {[9]=1, [10]=1, [13]=1, [32]=1};
 
-static unc_str_t* unc_str_newlen(const void *init, size_t init_len);
+unc_str_t* unc_str_newlen(const void *init, size_t init_len);
 //static void unc_str_dump(unc_str_t *pstr);
 
 /**
@@ -69,7 +69,7 @@ static inline size_t unc_str_alloc_size(const unc_str_t *pstr)
  *      2. 此函数不对外，因为如果init_len不对，会造成字符串"空洞"
  * 返回:成功:字符串指针;失败:NULL
  **/
-static unc_str_t* unc_str_newlen(const void *init, size_t init_len)
+unc_str_t* unc_str_newlen(const void *init, size_t init_len)
 {
     unc_str_t *pstr;
 

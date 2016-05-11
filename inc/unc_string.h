@@ -49,6 +49,7 @@ unc_str_t* unc_str_dup(unc_str_t *init);
 void       unc_str_free(unc_str_t *pstr);
 void       unc_str_clear(unc_str_t *pstr);
 void       unc_str_incr_len(unc_str_t *pstr, int incr);
+unc_str_t* unc_str_newlen(const void *t, size_t len);
 unc_str_t* unc_str_cat_len(unc_str_t **pstr, const void *t, size_t len);
 unc_str_t* unc_str_cat(unc_str_t **pstr, const void *t);
 unc_str_t* unc_str_cat_unc_str(unc_str_t **pstr, unc_str_t *pstr1);
