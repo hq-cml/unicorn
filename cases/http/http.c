@@ -51,14 +51,26 @@ int unc_generate_request(void *conf, void *args)
 int unc_check_full_response(void *conf, void *client, void *args) 
 {
     client_t *p_client =(client_t *) client;
-    char *head_end;
-    int len;
-    if((head_end = strstr(p_client->recvbuf->buf, "\r\n\r\n")))
+
+    char *line_head_end;
+    char *ptr;
+    int line_len;
+    int header_len;
+    if((line_head_end = strstr(p_client->recvbuf->buf, "\r\n\r\n")))
     {
+         //1. get status line
+         ptr = strstr(p_client->recvbuf->buf, "\r\n"); 
+         if(!g_http_response_line)
+         {
+             line_len = ptr+2-p_client->recvbuf->buf;
+             g_http_response_line = unc_str_newlen(p_client->recvbuf->buf, line_len);
+         }
+
+         //2. get header 
          if(!g_http_response_header)
 	 {
-              len = head_end+4-p_client->recvbuf->buf; 
-              g_http_response_header = unc_str_newlen(p_client->recvbuf->buf, len);    
+              header_len = line_head_end+4-(p_client->recvbuf->buf+line_len); 
+              g_http_response_header = unc_str_newlen(p_client->recvbuf->buf+line_len, header_len);    
          }
          return UNC_OK;
     }
@@ -97,6 +109,9 @@ int unc_handle_finish(void *conf, void *args)
     conf_t *p_conf =(conf_t *) conf;
     if(p_conf->response.is_get)
     {
+        printf("====== THE SERVER STATUS LINE ======\n");
+        printf("%s\n", g_http_response_line->buf);
+
         printf("====== THE SERVER HEADER ======\n");
         printf("%s\n", g_http_response_header->buf);
     }
