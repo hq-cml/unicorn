@@ -107,13 +107,21 @@ int unc_handle_init(void *conf, void *args)
 int unc_handle_finish(void *conf, void *args) 
 {
     conf_t *p_conf =(conf_t *) conf;
-    if(p_conf->response.is_get)
+    if(g_http_response_line)
     {
         printf("====== THE SERVER STATUS LINE ======\n");
         printf("%s\n", g_http_response_line->buf);
+    }
 
+    if(g_http_response_header)
+    {
         printf("====== THE SERVER HEADER ======\n");
         printf("%s\n", g_http_response_header->buf);
+    }
+    
+    if(p_conf->response.is_get)
+    {
+        //TODO something
     }
     printf("**************** THANK YOU FOR USE UNICORN. BYE! ****************\n");
 
