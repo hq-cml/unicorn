@@ -47,35 +47,62 @@ int unc_generate_request(void *conf, void *args)
  * 说明: 
  *       1. 必选函数
  * 返回:成功:0; 失败:-x
+ *
+ * 按照HTTP协议标准:
+ * 一个标准的http response包含:
+ *     STATUS LINE\r\n
+ *     HTTP HEADER\r\n
+ *     \r\n
+ *     HTTP BODY
+ *
+ * BODY长度判断方法:
+ * 1. 如果header中包含chunked，则用chunked模式确定body长度(优先级高于Content-Length)
+ * 2. 如果header中包含Content-Length，则用Content-Length作为body长度
+ * 3. 如果都没有，则利用服务器close连接来进行判断body长度
  **/
 int unc_check_full_response(void *conf, void *client, void *args) 
 {
     client_t *p_client =(client_t *) client;
+    char *recvbuf = p_client->recvbuf->buf;
 
-    char *line_head_end;
-    char *ptr;
-    int line_len;
-    int header_len;
-    if((line_head_end = strstr(p_client->recvbuf->buf, "\r\n\r\n")))
+    char *p_end;
+    char *status_line_start;
+    char *header_start;
+    char *body_start;
+    int status_line_length;
+    int header_length;
+
+    //尝试找到status line和header边界
+    if(!(p_end = strstr(recvbuf, "\r\n\r\n")))
     {
-         //1. get status line
-         ptr = strstr(p_client->recvbuf->buf, "\r\n"); 
-         if(!g_http_response_line)
-         {
-             line_len = ptr+2-p_client->recvbuf->buf;
-             g_http_response_line = unc_str_newlen(p_client->recvbuf->buf, line_len);
-         }
-
-         //2. get header 
-         if(!g_http_response_header)
-	 {
-              header_len = line_head_end+4-(p_client->recvbuf->buf+line_len); 
-              g_http_response_header = unc_str_newlen(p_client->recvbuf->buf+line_len, header_len);    
-         }
-         return UNC_OK;
+        //如果未找到边界，则直接返回needmore，交给框架继续read
+        return UNC_NEEDMORE;
     }
 
-    return UNC_NEEDMORE;
+    //定位到状态行边界
+    status_line_start = recvbuf;
+    header_start = strstr(recvbuf, "\r\n") +2; //+2是/r/n
+    status_line_length = header_start - status_line_start; 
+    if(!g_http_response_line)
+    {
+        g_http_response_line = unc_str_newlen(status_line_start, status_line_length);
+    }
+    
+    //定位header边界
+    body_start = p_end + 4; //+4是/r/n/r/n
+    header_length = body_start - header_start; 
+    if(!g_http_response_header)
+    {
+         g_http_response_header = unc_str_newlen(header_start, header_length);    
+    }
+
+    //处理body长度的问题
+    //get_body_length(header_start, header_length);
+    
+    return UNC_OK;
+
+
+    
 }
 
 /**
