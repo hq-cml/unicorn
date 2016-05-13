@@ -128,7 +128,7 @@ static int show_qps(unc_ae_event_loop *el, long long id, void *priv)
 {
     float dt = (float)(mstime() - g_conf.start) / 1000.0;
     float rps = (float)g_conf.requests_done / dt;
-    printf("%s: %.2f r/s\n", g_conf.title, rps);
+    fprintf(stdout, "%s: %.2f r/s\n", g_conf.title, rps);
     return 3000; /* every 3000ms */
 }
 
@@ -431,12 +431,12 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     }
     else if(check == UNC_NEEDMORE)
     {
-        //printf("Part response:%s\n", c->recvbuf->buf);
+        //fprintf(stdout, "Part response:%s\n", c->recvbuf->buf);
         return;
     }
     else
     {
-       printf("Something wrong in server!\n"); 
+       fprintf(stderr, "Something wrong in server!\n"); 
        exit(1);
     }
 }
@@ -552,23 +552,23 @@ static void show_final_report(void)
 
     if (!g_conf.quiet) 
     {
-        printf("====== %s REPORT ======\n", g_conf.title);
-        printf(" All requests           : %d\n", g_conf.requests);  
-        printf(" All requests sended    : %d\n", g_conf.requests_issued);        
-        printf(" All requests completed : %d\n", g_conf.requests_done);
+        fprintf(stdout, "====== %s REPORT ======\n", g_conf.title);
+        fprintf(stdout, " All requests           : %d\n", g_conf.requests);  
+        fprintf(stdout, " All requests sended    : %d\n", g_conf.requests_issued);        
+        fprintf(stdout, " All requests completed : %d\n", g_conf.requests_done);
         //如果done_if_srv_close，则done和finished相同，所以只有非done_if_srv_close时打印
-        if(!g_conf.done_if_srv_close) printf(" All requests finished  : %d\n", g_conf.requests_finished);
-        printf(" Complete rate          : %.2f%%\n", 100*((float)g_conf.requests_done/(float)g_conf.requests));
-        printf(" Use time of seconds    : %.2f\n", (float)g_conf.total_latency/1000);
-        printf(" Parallel clients       : %d\n", g_conf.num_clients);
-        printf(" Keep alive             : %d\n", g_conf.keep_alive);
-        printf("\n");
+        if(!g_conf.done_if_srv_close) fprintf(stdout, " All requests finished  : %d\n", g_conf.requests_finished);
+        fprintf(stdout, " Complete rate          : %.2f%%\n", 100*((float)g_conf.requests_done/(float)g_conf.requests));
+        fprintf(stdout, " Use time of seconds    : %.2f\n", (float)g_conf.total_latency/1000);
+        fprintf(stdout, " Parallel clients       : %d\n", g_conf.num_clients);
+        fprintf(stdout, " Keep alive             : %d\n", g_conf.keep_alive);
+        fprintf(stdout, "\n");
 
-        printf(" Average QPS            : %.2f r/s\n", reqpersec);
+        fprintf(stdout, " Average QPS            : %.2f r/s\n", reqpersec);
     } 
     else 
     {
-        printf("%s:%.2f requests per second\n", g_conf.title, reqpersec);
+        fprintf(stdout, "%s:%.2f requests per second\n", g_conf.title, reqpersec);
     }
 }
 
@@ -590,7 +590,7 @@ int main(int argc, char **argv)
     //动态库加载
     if (unc_load_so(&g_handle, syms, g_conf.so_file) < 0) 
     {
-        printf("Load file %s failed\n", g_conf.so_file);
+        fprintf(stderr, "Load file %s failed\n", g_conf.so_file);
         exit(1);
     }
   
@@ -616,7 +616,7 @@ int main(int argc, char **argv)
     {
         if(g_so.generate_request(&g_conf, NULL) != UNC_OK)
         {
-            printf("Generate request failed\n");
+            fprintf(stderr, "Generate request failed\n");
             exit(1);
         }
     }
