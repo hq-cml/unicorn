@@ -194,7 +194,7 @@ int unc_request_post(void *conf, void *args)
  *       -1   表示Transfer-Encoding: chunked
  *       整数 表示Content-Length
  *       -2   表示服务器会断开连接
- *       -3   位置错误
+ *       -3   未知错误
  */
 static int cal_body_length(char *header_start, int header_length)
 {
@@ -214,8 +214,9 @@ static int cal_body_length(char *header_start, int header_length)
         }
         return len;
     } 
-    return 0;
+    
     unc_str_free(body);
+    return 0;
 }
 
 
