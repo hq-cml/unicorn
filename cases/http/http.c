@@ -153,10 +153,16 @@ int unc_handle_finish(void *conf, void *args)
         printf("====== THE SERVER HEADER ======\n");
         printf("%s\n", g_http_response_header->buf);
     }
+
+    if(g_http_response_body)
+    {
+        printf("====== THE SERVER BODY ======\n");
+        printf("%s\n", g_http_response_body->buf);
+    }
     
     if(p_conf->response.is_get)
     {
-        //TODO something
+        //TODO
     }
     printf("**************** THANK YOU FOR USE UNICORN. BYE! ****************\n");
 
