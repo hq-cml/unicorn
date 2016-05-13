@@ -17,14 +17,11 @@
  *
  **/
 
-#include "unc_core.h"
+#include "http.h"
 
 unc_str_t *g_http_response_line;
 unc_str_t *g_http_response_header;
 unc_str_t *g_http_response_body;
-
-static int cal_body_length(char *header_start, int header_length);
-static int handle_body(const char *body_start, int body_length);
 
 /**
  * 功能: 生成Tcp请求body
@@ -204,10 +201,10 @@ int unc_request_post(void *conf, void *args)
  *       3. 查找Connection:close，如果找到则表示务端断开连接来判断长度，返回-2
  *       4. 都没找到，报错
  * 返回:
- *       -1   表示Transfer-Encoding: chunked
- *       整数 表示Content-Length
- *       -2   表示服务器会断开连接
- *       -3   未知错误
+ *       HTTP_BODY_CHUNKED   : 表示Transfer-Encoding: chunked
+ *       整数                : 表示Content-Length
+ *       HTTP_BODY_CLOSE     : 表示服务器会断开连接
+ *       HTTP_BODY_ERR       : 未知错误
  */
 static int cal_body_length(char *header_start, int header_length)
 {
@@ -247,14 +244,13 @@ static int cal_body_length(char *header_start, int header_length)
  *       3. 查找Connection:close，如果找到则表示务端断开连接来判断长度，返回-2
  *       4. 都没找到，报错
  * 返回:
- *       -1   表示Transfer-Encoding: chunked
- *       整数 表示Content-Length
- *       -2   表示服务器会断开连接
- *       -3   未知错误
+ *      UNC_OK         : 符合一个完整的包
+ *      UNC_NEEDMORE   : 包长不够，需要框架继续read
+ *      UNC_ERR        : 出现未知错误
  */
 static int handle_body(const char *body_start, int body_length)
 {
-    if(body_length == -1)
+    if(body_length == HTTP_BODY_CHUNKED)
     {
         //TODO 处理chunked
                 printf("Something Wrong1");
@@ -277,7 +273,7 @@ static int handle_body(const char *body_start, int body_length)
             return UNC_NEEDMORE;
         }
     }
-    else if(body_length== -2)
+    else if(body_length== HTTP_BODY_CLOSE)
     {
         //TODO 处理Connection: Close
                 printf("Something Wrong2");
