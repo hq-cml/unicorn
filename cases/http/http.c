@@ -24,6 +24,7 @@ unc_str_t *g_http_response_header;
 unc_str_t *g_http_response_body;
 
 static int cal_body_length(char *header_start, int header_length);
+static int handle_body(const char *body_start, int body_length);
 
 /**
  * 功能: 生成Tcp请求body
@@ -48,7 +49,10 @@ int unc_generate_request(void *conf, void *args)
  * 参数: @conf, @client, @args
  * 说明: 
  *       1. 必选函数
- * 返回:成功:0; 失败:-x
+ * 返回:
+ *      UNC_OK: 符合一个完整的包
+ *      UNC_NEEDMORE: 包长不够，需要框架继续read
+ *      UNC_ERR: 出现未知错误
  *
  * 按照HTTP协议标准:
  * 一个标准的http response包含:
@@ -101,7 +105,10 @@ int unc_check_full_response(void *conf, void *client, void *args)
 
     //处理body长度的问题
     body_length = cal_body_length(header_start, header_length);
-    printf("len%d\n", body_length);
+
+    return handle_body(body_start, body_length);
+    
+
     
     return UNC_OK;
 }
@@ -204,6 +211,7 @@ static int cal_body_length(char *header_start, int header_length)
     body = unc_str_newlen(header_start, header_length);  
     //TODO 对比g_http_response_header，看看是否会发生变化
 
+    //TODO 查找chunked
     if ((ptr = strstr(body->buf, "Content-Length:"))) 
     {
         len = strtol(ptr + strlen("Content-Length:"), NULL, 10);
@@ -212,11 +220,70 @@ static int cal_body_length(char *header_start, int header_length)
             printf("Invalid http protocol");
             exit(1);
         }
+        unc_str_free(body);
         return len;
     } 
+
+    //TODO 查找Connection: Close
+
     
     unc_str_free(body);
-    return 0;
+    //返回未知错误
+    return -3;
 }
+
+/*
+ * 功能: 根据body_length，处理body
+ * 参数: @header_start, @header_length
+ * 说明: 
+ *       1. 先找Transfer-Encoding: chunked，如果找到，则返回-1
+ *       2. 查找Content-Length，如果找到返回长度
+ *       3. 查找Connection:close，如果找到则表示务端断开连接来判断长度，返回-2
+ *       4. 都没找到，报错
+ * 返回:
+ *       -1   表示Transfer-Encoding: chunked
+ *       整数 表示Content-Length
+ *       -2   表示服务器会断开连接
+ *       -3   未知错误
+ */
+static int handle_body(const char *body_start, int body_length)
+{
+    if(body_length == -1)
+    {
+        //TODO 处理chunked
+                printf("Something Wrong1");
+        exit(1);
+    }
+    else if(body_length > 0)
+    {
+        //Content-Length
+        //TODO > 如何解决?
+        if(strlen(body_start) >= body_length)
+        {
+            if(!g_http_response_body)
+            {
+                 g_http_response_body = unc_str_newlen(body_start, body_length);    
+            }
+            return UNC_OK;
+        }
+        else
+        {
+            return UNC_NEEDMORE;
+        }
+    }
+    else if(body_length== -2)
+    {
+        //TODO 处理Connection: Close
+                printf("Something Wrong2");
+        exit(1);
+    }
+    else
+    {
+        //TODO return err
+        printf("Something Wrong3");
+        exit(1);
+    }
+}
+
 
 
