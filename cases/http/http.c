@@ -23,6 +23,8 @@ unc_str_t *g_http_response_line;
 unc_str_t *g_http_response_header;
 unc_str_t *g_http_response_body;
 
+static int cal_body_length(char *header_start, int header_length);
+
 /**
  * 功能: 生成Tcp请求body
  * 参数: @conf, @args
@@ -71,6 +73,7 @@ int unc_check_full_response(void *conf, void *client, void *args)
     char *body_start;
     int status_line_length;
     int header_length;
+    int body_length;
 
     //尝试找到status line和header边界
     if(!(p_end = strstr(recvbuf, "\r\n\r\n")))
@@ -79,7 +82,7 @@ int unc_check_full_response(void *conf, void *client, void *args)
         return UNC_NEEDMORE;
     }
 
-    //定位到状态行边界
+    //定位状态行边界
     status_line_start = recvbuf;
     header_start = strstr(recvbuf, "\r\n") +2; //+2是/r/n
     status_line_length = header_start - status_line_start; 
@@ -97,12 +100,10 @@ int unc_check_full_response(void *conf, void *client, void *args)
     }
 
     //处理body长度的问题
-    //get_body_length(header_start, header_length);
+    body_length = cal_body_length(header_start, header_length);
+    printf("len%d\n", body_length);
     
     return UNC_OK;
-
-
-    
 }
 
 /**
@@ -180,4 +181,41 @@ int unc_request_post(void *conf, void *args)
     printf("*************************** TEST END ***************************\n\n\n\n");
     return UNC_OK;
 }
+
+/*
+ * 功能: 计算body长度
+ * 参数: @header_start, @header_length
+ * 说明: 
+ *       1. 先找Transfer-Encoding: chunked，如果找到，则返回-1
+ *       2. 查找Content-Length，如果找到返回长度
+ *       3. 查找Connection:close，如果找到则表示务端断开连接来判断长度，返回-2
+ *       4. 都没找到，报错
+ * 返回:
+ *       -1   表示Transfer-Encoding: chunked
+ *       整数 表示Content-Length
+ *       -2   表示服务器会断开连接
+ *       -3   位置错误
+ */
+static int cal_body_length(char *header_start, int header_length)
+{
+    unc_str_t *body;
+    char *ptr;
+    int len;
+    body = unc_str_newlen(header_start, header_length);  
+    //TODO 对比g_http_response_header，看看是否会发生变化
+
+    if ((ptr = strstr(body->buf, "Content-Length:"))) 
+    {
+        len = strtol(ptr + strlen("Content-Length:"), NULL, 10);
+        if (len  == 0) 
+        {
+            printf("Invalid http protocol");
+            exit(1);
+        }
+        return len;
+    } 
+    return 0;
+    unc_str_free(body);
+}
+
 
