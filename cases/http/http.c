@@ -75,6 +75,7 @@ int unc_check_full_response(void *conf, void *client, void *args)
     int status_line_length;
     int header_length;
     int body_length;
+    int ret;
 
     //尝试找到status line和header边界
     if(!(p_end = strstr(recvbuf, "\r\n\r\n")))
@@ -100,12 +101,13 @@ int unc_check_full_response(void *conf, void *client, void *args)
          g_http_response_header = unc_str_newlen(header_start, header_length);    
     }
 
-    //处理body长度的问题
+    //确定body的长度
     body_length = cal_body_length(header_start, header_length);
 
-    return handle_body(body_start, body_length);
+    //处理body
+    ret = handle_body(body_start, body_length);
     
-
+    return ret;
     
     return UNC_OK;
 }
@@ -237,12 +239,9 @@ static int cal_body_length(char *header_start, int header_length)
 
 /*
  * 功能: 根据body_length，处理body
- * 参数: @header_start, @header_length
+ * 参数: @body_start, @body_length
  * 说明: 
- *       1. 先找Transfer-Encoding: chunked，如果找到，则返回-1
- *       2. 查找Content-Length，如果找到返回长度
- *       3. 查找Connection:close，如果找到则表示务端断开连接来判断长度，返回-2
- *       4. 都没找到，报错
+ *
  * 返回:
  *      UNC_OK         : 符合一个完整的包
  *      UNC_NEEDMORE   : 包长不够，需要框架继续read
@@ -259,19 +258,7 @@ static int handle_body(const char *body_start, int body_length)
     else if(body_length > 0)
     {
         //Content-Length
-        //TODO > 如何解决?
-        if(strlen(body_start) >= body_length)
-        {
-            if(!g_http_response_body)
-            {
-                 g_http_response_body = unc_str_newlen(body_start, body_length);    
-            }
-            return UNC_OK;
-        }
-        else
-        {
-            return UNC_NEEDMORE;
-        }
+        return handle_content_length(body_start, body_length);
     }
     else if(body_length== HTTP_BODY_CLOSE)
     {
@@ -287,5 +274,36 @@ static int handle_body(const char *body_start, int body_length)
     }
 }
 
+/*
+ * 功能: 处理 Content-Length
+ * 参数: @body_start, @body_length
+ * 说明: 
+ *
+ * 返回:
+ *      UNC_OK         : 符合一个完整的包
+ *      UNC_NEEDMORE   : 包长不够，需要框架继续read
+ *      UNC_ERR        : 出现未知错误
+ */
+static int handle_content_length(const char *body_start, int body_length)
+{
+    int len = strlen(body_start);
+    if(len == body_length)
+    {
+        if(!g_http_response_body)
+        {
+             g_http_response_body = unc_str_newlen(body_start, body_length);    
+        }
+        return UNC_OK;
+    }
+    else if(len > body_length)
+    {
+        fprintf(stderr, "Get Too More. Recvbuf len:%d, Expected body len:%d\n", len, body_length);
+        return UNC_ERR;
+    }
+    else
+    {
+        return UNC_NEEDMORE;
+    }    
+}
 
 
