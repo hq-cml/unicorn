@@ -69,10 +69,10 @@ int unc_check_full_response(void *conf, void *client, void *args)
     char *recvbuf = p_client->recvbuf->buf;
 
     char *p_end;
-    char *status_line_start;
+    char *statusline_start;
     char *header_start;
     char *body_start;
-    int status_line_length;
+    int statusline_length;
     int header_length;
     int body_length;
     int ret;
@@ -85,12 +85,12 @@ int unc_check_full_response(void *conf, void *client, void *args)
     }
 
     //定位状态行边界
-    status_line_start = recvbuf;
+    statusline_start = recvbuf;
     header_start = strstr(recvbuf, "\r\n") +2; //+2是/r/n
-    status_line_length = header_start - status_line_start; 
+    statusline_length = header_start - statusline_start; 
     if(!g_http_response_line)
     {
-        g_http_response_line = unc_str_newlen(status_line_start, status_line_length);
+        g_http_response_line = unc_str_newlen(statusline_start, statusline_length);
     }
     
     //定位header边界
@@ -106,9 +106,42 @@ int unc_check_full_response(void *conf, void *client, void *args)
 
     //处理body
     ret = handle_body(body_start, body_length);
-    
+    //TODO 处理UNC_ERR
     return ret;
     
+    return UNC_OK;
+}
+
+/**
+ * 功能: 服务端断开连接的时候调用
+ * 参数: @conf, @client, @args
+ * 说明: 
+ *       1. 可选函数
+ *
+ * 返回: 成功:0; 失败:-x
+ **/
+int unc_handle_server_close(void *conf, void *client, void *args) 
+{
+    
+    client_t *p_client =(client_t *) client;
+    char *recvbuf = p_client->recvbuf->buf;
+
+    char *p_end;
+    char *body_start;
+
+    //尝试找到header边界
+    if(!(p_end = strstr(recvbuf, "\r\n\r\n")))
+    {
+        //如果未找到边界，说明出现了问题，服务端不是正常的close
+        return UNC_ERR;
+    }
+    
+    //定位header边界
+    body_start = p_end + 4; //+4是/r/n/r/n
+    if(!g_http_response_body)
+    {
+         g_http_response_body = unc_str_new(body_start);    
+    }
     return UNC_OK;
 }
 
@@ -258,13 +291,12 @@ static int handle_body(const char *body_start, int body_length)
     else if(body_length > 0)
     {
         //Content-Length
-        return handle_content_length(body_start, body_length);
+        return handle_body_content_length(body_start, body_length);
     }
     else if(body_length== HTTP_BODY_CLOSE)
     {
-        //TODO 处理Connection: Close
-                printf("Something Wrong2");
-        exit(1);
+        //Connection: Close
+        return UNC_NEEDMORE;
     }
     else
     {
@@ -284,7 +316,7 @@ static int handle_body(const char *body_start, int body_length)
  *      UNC_NEEDMORE   : 包长不够，需要框架继续read
  *      UNC_ERR        : 出现未知错误
  */
-static int handle_content_length(const char *body_start, int body_length)
+static int handle_body_content_length(const char *body_start, int body_length)
 {
     int len = strlen(body_start);
     if(len == body_length)

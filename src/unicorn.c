@@ -61,6 +61,7 @@ static unc_so_symbol_t syms[] =
     {"unc_request_post",           (void **)&g_so.request_post,             1}, /* 可选 */
     {"unc_generate_request",       (void **)&g_so.generate_request,         1}, /* 可选 */
     {"unc_check_full_response",    (void **)&g_so.check_full_response,      0}, /* 必选 */
+    {"unc_handle_server_close",    (void **)&g_so.handle_server_close,      1}, /* 可选 */
     {NULL, NULL, 0}
 };
 
@@ -414,8 +415,9 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     } 
     else if (nread == 0) 
     {
-        //server端关闭连接，也算是广义的完成
-        client_done(c, 1);
+        //server端关闭连接
+        if (g_so.handle_server_close) g_so.handle_server_close(&g_conf, c, NULL);
+        client_done(c, 1);//广义的完成请求
         return;
     }
     buffer[nread] = '\0';

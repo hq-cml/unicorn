@@ -80,6 +80,15 @@ int unc_generate_request(void *conf, void *args);
  **/
 int unc_check_full_request(void *conf, void *client, void *args);
 
+/**
+ * 功能: 服务端关闭连接的时候调用
+ * 参数: @conf, @client, @args
+ * 说明: 
+ *       1. 可选函数
+ * 返回:成功:0; 失败:-x
+ **/
+int unc_handle_server_close(void *conf, void *client, void *args);
+
 __END_DECLS
 #endif /* __UNC_PLUGIN_H_INCLUDED__ */
 

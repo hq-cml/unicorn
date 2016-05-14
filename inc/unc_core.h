@@ -170,6 +170,7 @@ typedef struct unc_so_func_struct
     int (*request_post)(void *, void *);                /* 请求结束后调用，此函数可选 */
     int (*generate_request)(void *, void *);            /* 生成request请求 */
     int (*check_full_response)(void *, void *, void *); /* 判断完整的response，必选函数 */
+    int (*handle_server_close)(void *, void *, void *); /* 服务端关闭连接的时候调用，可选函数 */
 } unc_so_func_t;
 
 #endif
