@@ -547,30 +547,32 @@ static void free_all_clients() {
  */
 static void show_final_report(void) 
 {
-    float reqpersec;
+    float qps;
+    char buf[11]; int idx=0, r; memset(buf, ' ', 11);
 
-    /* 最终每秒处理请求出--QPS */
-    reqpersec = (float)g_conf.requests_done / ((float)g_conf.total_latency / 1000);
-
+    qps = (float)g_conf.requests_done / ((float)g_conf.total_latency / 1000);
+    r = (int)qps;
+    
     if (!g_conf.quiet) 
     {
-        fprintf(stdout, "====== %s REPORT ======\n", g_conf.title);
-        fprintf(stdout, " All requests           : %d\n", g_conf.requests);  
-        fprintf(stdout, " All requests sended    : %d\n", g_conf.requests_issued);        
-        fprintf(stdout, " All requests completed : %d\n", g_conf.requests_done);
+        fprintf(stdout, "============== %s REPORT ==============\n", g_conf.title);
+        fprintf(stdout, "*   All requests           : %-10d               *\n", g_conf.requests);  
+        fprintf(stdout, "*   All requests sended    : %-10d               *\n", g_conf.requests_issued);        
+        fprintf(stdout, "*   All requests completed : %-10d               *\n", g_conf.requests_done);
         //如果done_if_srv_close，则done和finished相同，所以只有非done_if_srv_close时打印
-        if(!g_conf.done_if_srv_close) fprintf(stdout, " All requests finished  : %d\n", g_conf.requests_finished);
-        fprintf(stdout, " Complete rate          : %.2f%%\n", 100*((float)g_conf.requests_done/(float)g_conf.requests));
-        fprintf(stdout, " Use time of seconds    : %.2f\n", (float)g_conf.total_latency/1000);
-        fprintf(stdout, " Parallel clients       : %d\n", g_conf.num_clients);
-        fprintf(stdout, " Keep alive             : %d\n", g_conf.keep_alive);
-        fprintf(stdout, "\n");
-
-        fprintf(stdout, " Average QPS            : %.2f r/s\n", reqpersec);
+        if(!g_conf.done_if_srv_close) fprintf(stdout, "*   All requests finished  : %-10d               *\n", g_conf.requests_finished);
+        fprintf(stdout, "*   Use time of seconds    : %-10.2f               *\n", (float)g_conf.total_latency/1000);
+        fprintf(stdout, "*   Parallel clients       : %-10d               *\n", g_conf.num_clients);
+        fprintf(stdout, "*   Keep alive             : %-10d               *\n", g_conf.keep_alive);
+        fprintf(stdout, "*                                                     *\n");
+        fprintf(stdout, "*   Complete rate          : %-6.2f %%                 *\n", 100*((float)g_conf.requests_done/(float)g_conf.requests));
+        while(r>0) { idx++; r /= 10; } idx = 10-idx; buf[idx] = '\0'; //计算最后一行对齐
+        fprintf(stdout, "*   Average QPS            : %.2f r/s        %s*\n", qps, buf);
+        fprintf(stdout, "============ %s REPORT END ============\n\n", g_conf.title);
     } 
     else 
     {
-        fprintf(stdout, "%s:%.2f requests per second\n", g_conf.title, reqpersec);
+        fprintf(stdout, "%s:%.2f requests per second\n\n", g_conf.title, qps);
     }
 }
 
@@ -626,15 +628,18 @@ int main(int argc, char **argv)
     do {
         if (g_so.request_pre) g_so.request_pre(&g_conf, NULL);
         start_request("UNICORN CLIENT", "Hello World!");
-        show_final_report(); 
+        //TODO 每轮测试完毕后的报告
         if (g_so.request_post) g_so.request_post(&g_conf, NULL);
     } while (g_conf.loop);
-    
+
     if (g_so.handle_finish) g_so.handle_finish(&g_conf, NULL);
+
+    //打印测试报告
+    show_final_report();
 
     //释放动态库
     unc_unload_so(&g_handle);
-
+    
     //TODO 释放g_conf
     return 0;
 }

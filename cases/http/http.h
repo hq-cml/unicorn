@@ -31,6 +31,7 @@
 
 static int cal_body_length(char *header_start, int header_length);
 static int handle_body(const char *body_start, int body_length);
+static int handle_body_content_length(const char *body_start, int body_length);
 
 #endif
 

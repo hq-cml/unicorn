@@ -176,19 +176,19 @@ int unc_handle_finish(void *conf, void *args)
     conf_t *p_conf =(conf_t *) conf;
     if(g_http_response_line)
     {
-        fprintf(stdout, "====== THE SERVER STATUS LINE (Length: %d) ======\n", g_http_response_line->len);
+        fprintf(stdout, "====== THE RESPONSE STATUS LINE ( Length:%5d ) =====\n", g_http_response_line->len);
         fprintf(stdout, "%s\n", g_http_response_line->buf);
     }
 
     if(g_http_response_header)
     {
-        fprintf(stdout, "====== THE SERVER HEADER (Length: %d) ======\n", g_http_response_header->len);
+        fprintf(stdout, "======== THE RESPONSE HEADER ( Length:%5d ) ========\n", g_http_response_header->len);
         fprintf(stdout, "%s\n", g_http_response_header->buf);
     }
 
     if(g_http_response_body)
     {
-        fprintf(stdout, "====== THE SERVER BODY (Length: %d) ======\n", g_http_response_body->len);
+        fprintf(stdout, "========= THE RESPONSE BODY ( Length:%5d ) =========\n", g_http_response_body->len);
         fprintf(stdout, "%s\n", g_http_response_body->buf);
     }
     
@@ -196,7 +196,7 @@ int unc_handle_finish(void *conf, void *args)
     {
         //TODO
     }
-    fprintf(stdout, "**************** THANK YOU FOR USE UNICORN. BYE! ****************\n");
+    fprintf(stdout, "**************** THANK YOU FOR USE UNICORN. BYE! ****************\n\n\n");
 
     return UNC_OK;
 }
@@ -210,7 +210,7 @@ int unc_handle_finish(void *conf, void *args)
  **/
 int unc_request_pre(void *conf, void *args) 
 {
-    fprintf(stdout, "*************************** TEST START ***************************\n");
+    fprintf(stdout, "************************** TEST START ****************************\n");
     return UNC_OK;
 }
 
@@ -223,7 +223,7 @@ int unc_request_pre(void *conf, void *args)
  **/
 int unc_request_post(void *conf, void *args) 
 {
-    fprintf(stdout, "*************************** TEST END ***************************\n\n\n\n");
+    fprintf(stdout, "*************************** TEST END *****************************\n\n\n");
     return UNC_OK;
 }
 
