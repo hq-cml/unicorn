@@ -156,7 +156,7 @@ int unc_handle_init(void *conf, void *args)
 {
     conf_t *p_conf =(conf_t *) conf;
     p_conf->title = "HTTP PRESSURE TEST";
-    printf("************* WELCOME TO UNICORN HTTP PRESSURE TEST ***************\n\n");
+    fprintf(stdout, "************* WELCOME TO UNICORN HTTP PRESSURE TEST ***************\n\n");
 
     g_http_response_line = NULL;
     g_http_response_header = NULL;
@@ -176,27 +176,27 @@ int unc_handle_finish(void *conf, void *args)
     conf_t *p_conf =(conf_t *) conf;
     if(g_http_response_line)
     {
-        printf("====== THE SERVER STATUS LINE ======\n");
-        printf("%s\n", g_http_response_line->buf);
+        fprintf(stdout, "====== THE SERVER STATUS LINE (Length: %d) ======\n", g_http_response_line->len);
+        fprintf(stdout, "%s\n", g_http_response_line->buf);
     }
 
     if(g_http_response_header)
     {
-        printf("====== THE SERVER HEADER ======\n");
-        printf("%s\n", g_http_response_header->buf);
+        fprintf(stdout, "====== THE SERVER HEADER (Length: %d) ======\n", g_http_response_header->len);
+        fprintf(stdout, "%s\n", g_http_response_header->buf);
     }
 
     if(g_http_response_body)
     {
-        printf("====== THE SERVER BODY ======\n");
-        printf("%s\n", g_http_response_body->buf);
+        fprintf(stdout, "====== THE SERVER BODY (Length: %d) ======\n", g_http_response_body->len);
+        fprintf(stdout, "%s\n", g_http_response_body->buf);
     }
     
     if(p_conf->response.is_get)
     {
         //TODO
     }
-    printf("**************** THANK YOU FOR USE UNICORN. BYE! ****************\n");
+    fprintf(stdout, "**************** THANK YOU FOR USE UNICORN. BYE! ****************\n");
 
     return UNC_OK;
 }
@@ -210,7 +210,7 @@ int unc_handle_finish(void *conf, void *args)
  **/
 int unc_request_pre(void *conf, void *args) 
 {
-    printf("*************************** TEST START ***************************\n");
+    fprintf(stdout, "*************************** TEST START ***************************\n");
     return UNC_OK;
 }
 
@@ -223,7 +223,7 @@ int unc_request_pre(void *conf, void *args)
  **/
 int unc_request_post(void *conf, void *args) 
 {
-    printf("*************************** TEST END ***************************\n\n\n\n");
+    fprintf(stdout, "*************************** TEST END ***************************\n\n\n\n");
     return UNC_OK;
 }
 
@@ -250,24 +250,31 @@ static int cal_body_length(char *header_start, int header_length)
     //TODO 对比g_http_response_header，看看是否会发生变化
 
     //TODO 查找chunked
-    if ((ptr = strstr(body->buf, "Content-Length:"))) 
+    
+    if((ptr = strcasestr(body->buf, "Content-Length:"))) 
     {
+        //Content-Length:
         len = strtol(ptr + strlen("Content-Length:"), NULL, 10);
         if (len  == 0) 
         {
-            printf("Invalid http protocol");
+            fprintf(stderr, "Invalid http protocol");
             exit(1);
         }
         unc_str_free(body);
         return len;
-    } 
-
-    //TODO 查找Connection: Close
-
-    
-    unc_str_free(body);
-    //返回未知错误
-    return -3;
+    }
+    else if((strcasestr(body->buf, "Connection: close"))
+        || (strcasestr(body->buf, "Connection:close"))) 
+    {
+        //Connection: Close
+        unc_str_free(body);
+        return HTTP_BODY_CLOSE;
+    }
+    else
+    {
+        unc_str_free(body);
+        return HTTP_BODY_ERR;
+    }
 }
 
 /*
