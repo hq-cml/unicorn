@@ -151,6 +151,7 @@ typedef struct config {
     char                *so_file;           /* 库文件 */
     char                *request_file;      /* 请求body内容文件 */
     int                  done_if_srv_close; /* 如果服务端关闭连接，是否算是一个完整请求(default 1) */
+    int                  debug;             /* debug 开关(default 0) */
     unc_str_t           *request_body;      /* 请求内容 */
     response_t           response;          /* 服务器返回内容 */
     
