@@ -71,7 +71,7 @@ int unc_check_full_response(void *conf, void *client, void *args)
 int unc_handle_init(void *conf, void *args) 
 {
     conf_t *p_conf =(conf_t *) conf;
-    p_conf->title = "TCP PRESSURE TEST";
+    p_conf->title = "TCP PRESSURE TESTER";
     printf("************* WELCOME TO UNICORN TCP PRESSURE TEST ***************\n\n");
     return UNC_OK;
 }

@@ -142,7 +142,7 @@ static void parse_options(int argc, char **argv)
 {
     char c;
 
-    while ((c = getopt(argc, argv, "h:p:c:s:f:n:k:w:qlHed")) != -1) 
+    while ((c = getopt(argc, argv, "h:p:c:s:f:n:k:w:qlHED")) != -1) 
     {
         switch (c) {
         case 'h':
@@ -175,10 +175,10 @@ static void parse_options(int argc, char **argv)
         case 'l':
             g_conf.loop = 1;
             break;
-        case 'e':
+        case 'E':
             g_conf.epipe = 1;
             break;
-        case 'd':
+        case 'D':
             g_conf.debug = 1;
             break;
         case 'H':
@@ -207,8 +207,8 @@ static void usage(int status)
     puts(" -w <boolean>       whether define done if server close connection.(default 1)");
     puts(" -q                 quiet. Just show QPS values");
     puts(" -l                 loop. Run the tests forever. For persistent test");
-    puts(" -e                 try to handle EPIPE while server short connection.(default null)");
-    puts(" -d                 debug switch.(default null)");
+    puts(" -E                 try to handle EPIPE while server short connection.(default null)");
+    puts(" -D                 debug switch.(default null)");
     puts(" -H                 show help information\n");
     exit(status);
 }
