@@ -99,27 +99,28 @@ static long long mstime()
 static void init_conf() 
 {
     g_conf.title = NULL;
-    g_conf.requests_issued   = 0;
+    g_conf.requests_sended   = 0;
     g_conf.requests_done     = 0;
     g_conf.requests_finished = 0;
-	g_conf.num_clients = 1;
-	g_conf.requests = 1;
-	g_conf.live_clients = 0;
-	g_conf.keep_alive = 1;
-	g_conf.loop = 0;
-	g_conf.quiet = 0;
-	g_conf.el = unc_ae_create_event_loop();
-	unc_ae_create_time_event(g_conf.el, 3000, show_qps, NULL, NULL);
-	g_conf.clients = unc_dlist_init();
-	g_conf.hostip = "127.0.0.1";
-	g_conf.hostport = 9527;
+    g_conf.num_clients = 1;
+    g_conf.requests = 1;
+    g_conf.live_clients = 0;
+    g_conf.keep_alive = 1;
+    g_conf.loop = 0;
+    g_conf.epipe = 0;
+    g_conf.quiet = 0;
+    g_conf.el = unc_ae_create_event_loop();
+    unc_ae_create_time_event(g_conf.el, 3000, show_qps, NULL, NULL);
+    g_conf.clients = unc_dlist_init();
+    g_conf.hostip = "127.0.0.1";
+    g_conf.hostport = 9527;
     g_conf.so_file = "./libfunc.so";
     g_conf.request_file = NULL;
-	g_conf.response.is_get = 0;
+    g_conf.response.is_get = 0;
     g_conf.response.res_body = NULL;
     g_conf.request_body = NULL;
     g_conf.done_if_srv_close = 1;
-	return;
+    return;
 }
 
 /* 
@@ -140,7 +141,7 @@ static void parse_options(int argc, char **argv)
 {
     char c;
 
-    while ((c = getopt(argc, argv, "h:p:c:s:f:n:k:w:qlH")) != -1) 
+    while ((c = getopt(argc, argv, "h:p:c:s:f:n:k:w:qlHe")) != -1) 
     {
         switch (c) {
         case 'h':
@@ -173,6 +174,9 @@ static void parse_options(int argc, char **argv)
         case 'l':
             g_conf.loop = 1;
             break;
+        case 'e':
+            g_conf.epipe = 1;
+            break;
         case 'H':
             usage(0);
             break;
@@ -199,6 +203,7 @@ static void usage(int status)
     puts(" -q                 quiet. Just show QPS values");
     puts(" -l                 loop. Run the tests forever. For persistent test");
     puts(" -w                 whether define done if server close connection.(default 1)");
+    puts(" -e                 try to handle EPIPE while server short connection.(default null)");
     puts(" -H                 show help information\n");
     exit(status);
 }
@@ -259,7 +264,7 @@ static void start_request(char *title, char *content)
         g_conf.title = title;
     }
     //重置requests_issued和requests_finished
-    g_conf.requests_issued = 0;
+    g_conf.requests_sended = 0;
     g_conf.requests_done   = 0;
     g_conf.requests_finished = 0;
 
@@ -334,22 +339,24 @@ static void create_multi_clients(int num)
 
 /* 
  * 写回调函数(client发送请求)
- * 一直写(通过Ae)，直到将该写的(client->obuf)全部写完了，才启动read回调
  */
 static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask) 
 {
     client_t *c = (client_t *)priv;
+    char *ptr;
+    int nwritten;
+    int first;
 
     /* Initialize request when nothing was written. */
     if (c->written == 0) 
     {   
         //if (g_conf.requests_issued++ >= g_conf.requests) 
-        if (g_conf.requests_issued >= g_conf.requests) 
+        if (g_conf.requests_sended >= g_conf.requests) 
         {
             /*
                * 这个地方原来存在两个bug: 
-               * 1. requests_issued++的位置应该下面，否则，由于write是可能被多次调用的，导致requests_issued远远超过requests
-               * 2. 程序结束的判断是通过requests_issued进行，这导致程序过早结束，因为其他client可能正在读，服务端日志查看发现
+               * 1. requests_sended++的位置应该下面，否则，由于write是可能被多次调用的，导致requests_sended远远超过requests
+               * 2. 原来程序结束的判断是通过requests_sended进行，这导致程序过早结束，因为其他client可能正在读，服务端日志查看发现
                *    client都提前close了连接，问题就出在此处，应该放在read里面判断是否结束程序
                * 3. 一个可能的潜在问题，在read里面判断完成请求数，会不会因为某次请求异常未完成而导致整个程序达不到退出条件呢?
                *    经测试: 会!
@@ -365,27 +372,45 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 
     if (c->sendbuf->len > c->written) 
     {
-        char *ptr = c->sendbuf->buf + c->written;
-        int nwritten = write(c->fd, ptr, c->sendbuf->len - c->written);
+        ptr = c->sendbuf->buf + c->written;
+
+        /* 
+          * 处理服务端EPIPE的问题，每个请求的第一次write的时候需要检测EPIPE
+          * 1. 如果发送的数据只有一个字节，则无法拆分。
+          * 2. 这个方案在Mossad上测试，没有问题，但是在Apache上测试，没法解决问题！！Tcpdump抓包后发现，当请求结束后,
+          *      Apache和Mossad都会发送F包表示关闭连接，此时write数据，Mossad可以正确返回RST包，进而触发unicorn的EPIPE
+          *      错误，但是不知道为什么Apache不返回RST包，unicorn无法感知EPIPE，所以这种方案对于Apache就失效了。
+          */
+        first = 0;
+        printf("%s\n", c->sendbuf->buf);
+        if(g_conf.epipe && c->written == 0 && c->sendbuf->len > 1)
+        {
+            
+            first = write(fd, ptr, 1); //写一个字节
+        }
+        nwritten = write(fd, ptr+first, c->sendbuf->len - c->written - first);
         if (nwritten == -1) 
         {
-            /* When a process writes to a socket that has received an RST, the SIGPIPE signal is sent to the process. */
+            fprintf(stderr, "write failed:%s\n", strerror(errno));
+            //根据TCP机制，此处的EPIPE错误理论上无法触发到，因为需要两次write才能感知，
+            //TODO 暂时未找到感知EPIPE的优雅办法，除非将sendbuf拆成两块write两次
             if (errno != EPIPE) 
             {
                 fprintf(stderr, "write failed:%s\n", strerror(errno));
             }
-            free_client(c);
+            //free_client(c);
+            client_done(c, SERVER_CLOSE_WHEN_WRITE);
             return;
         }
-        c->written += nwritten;
+        c->written += (nwritten+first);
 
         if (c->sendbuf->len == c->written) 
         {
-            g_conf.requests_issued++;
+            g_conf.requests_sended++;
             /* 删除写事件 */
-            unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
+            unc_ae_delete_file_event(g_conf.el, fd, UNC_AE_WRITABLE);
             /* 启动读事件 */
-            unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_READABLE, read_handler, c);
+            unc_ae_create_file_event(g_conf.el, fd, UNC_AE_READABLE, read_handler, c);
         }
     }
 
@@ -415,21 +440,22 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     } 
     else if (nread == 0) 
     {
+
         //server端关闭连接
         if (g_so.handle_server_close) g_so.handle_server_close(&g_conf, c, NULL);
-        client_done(c, 1);//广义的完成请求
+        client_done(c, SERVER_CLOSE_WHEN_READ);//广义的完成请求
         return;
     }
     buffer[nread] = '\0';
     c->read += nread;
     unc_str_cat(&(c->recvbuf), buffer); //append
     
-    //当读取到的数据，和写出去的数据相等时，算是完成了一次请求
-    //if (c->read == c->sendbuf->len && 0==memcmp(c->recvbuf->buf, c->sendbuf->buf, c->sendbuf->len)) 
+    //判断读取到的内容是否完整
     check = g_so.check_full_response(&g_conf, c, NULL);
     if(check == UNC_OK)
     {
-        client_done(c, 0);
+        client_done(c, SERVER_NOT_CLOSE);
+        return;
     }
     else if(check == UNC_NEEDMORE)
     {
@@ -445,6 +471,28 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 
 /* 
  * 重置client,然后开启新一轮写/读流程 
+ * 
+ * 一个潜在的坑:
+ *   如果服务端是长连接，没有任何问题，如果server是短连接服务，即
+ *   server返回的内容满足让check_full_response函数返回ok, 并且随后立刻主动释放了连接。
+ *   在这种情况下，unicorn的统计将失效，并导致发送总请求数变少。问题的原因是TCP的EPIPE机制 ：
+ *
+ *   对于已经关闭的fd，第一次调用write会导致收到RST包，但却是可以成功的。要调用两次write才能感知到EPIPE错误！！！！
+ * 
+ *   当server关闭连接的时候，由于此时client没有read(返回内容满足check_full_response)，无法感知关闭连接，
+ *   这个时候调用了reset_client,重新开启了write_handler函数，则write会认为能够成功(除非凑巧要触发多次write)，
+ *   此时unicorn认为发送了一次完整的request，其实没有，因为服务端已关闭连接，是收不到也不会去收的。然后启动
+ *   read_handler才能感知到服务端close，此时request_sended仍然自增一次。最终导致服务端收到的总请求数减半！！
+ *   
+ *   一个tricky解决办法，write_handler函数，将sendbuf拆成两块，分为两次write，可以感知到EPIPE错误，此时可以
+ *   不自增sended数量，并且free_client。但是，这种方法实在太triky，而且不是特别靠谱:
+ *   1. 如果发送的数据只有一个字节，则无法拆分。
+ *   2. 这个方案在Mossad上测试，没有问题，但是在Apache上测试，没法解决问题！！Tcpdump抓包后发现，当请求结束后,
+ *      Apache和Mossad都会发送F包表示关闭连接，此时write数据，Mossad可以正确返回RST包，进而触发unicorn的EPIPE
+ *      错误，但是不知道为什么Apache不返回RST包，unicorn无法感知EPIPE，所以这种方案对于Apache就失效了。
+ *   
+ *   暂时没想到特别完善的兼容办法，好在一般的服务器都不会随便主动close，诸如Apache这类可能会主动close的server
+ *   也会用Connection:close头来告知client。当检测到Connection:close，则应该以server关闭连接作为完整返回的标志。
  */
 static void reset_client(client_t *c) 
 {
@@ -452,7 +500,7 @@ static void reset_client(client_t *c)
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_READABLE);
     unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE, write_handler, c);
     
-    unc_str_clear(c->recvbuf);
+    unc_str_clear(c->recvbuf); //清空不释放
     c->written = 0;
     c->read = 0;
 }
@@ -460,17 +508,20 @@ static void reset_client(client_t *c)
 /* 
  * 当client完成了一次写/读请求之后调用 
  * 参数:
- *    1. client
- *    2. server_close，server端是否关闭了连接
+ *    @ client
+ *    @ server_close，server端是否关闭了连接 : 
+ *      SERVER_NOT_CLOSE        -- 服务器没有关闭连接
+ *      SERVER_CLOSE_WHEN_READ  -- read的时候发现服务器断开了连接
+ *      SERVER_CLOSE_WHEN_WRITE -- write的时候发现服务器断开了连接( EPIPE )
  *
  */
 static void client_done(client_t *c, int server_close) 
 {
 	int num;
 
-    //服务端没有关闭连接，或者服务端关闭连接但是done_if_srv_close是1，则完成数++，并且记录服务端返回
-    if(server_close != 1 
-       || (server_close == 1 && g_conf.done_if_srv_close))
+    //服务端没有关闭连接 || read服务端关闭连接但是done_if_srv_close是1，则完成数++，并且记录服务端返回
+    if(server_close == SERVER_NOT_CLOSE 
+       || (server_close == SERVER_CLOSE_WHEN_READ && g_conf.done_if_srv_close))
     {
         c->latency = ustime() - c->start;
         ++g_conf.requests_done;
@@ -481,7 +532,11 @@ static void client_done(client_t *c, int server_close)
         }
     }
 
-    ++g_conf.requests_finished;   
+    //写的时候发现服务端close，不能算服务完成
+    if(server_close != SERVER_CLOSE_WHEN_WRITE)
+    {
+        ++g_conf.requests_finished;   
+    }
     //如果达到总预计请求数，则程序停止，用广义的requests_done保证程序能够结束
     if (g_conf.requests_finished == g_conf.requests) 
     {
@@ -492,10 +547,10 @@ static void client_done(client_t *c, int server_close)
 
     // 如果keep_alive且server端没有关闭连接，则重新开始client的写/读流程
     // 否则，释放client，然后重启client,然后开始写/读流程
-    if (g_conf.keep_alive && !server_close) 
+    if (g_conf.keep_alive && server_close == SERVER_NOT_CLOSE) 
     {
         reset_client(c);
-    } 
+    }
     else 
     {
         //先释放当前client，内部live_clients会自减
@@ -557,7 +612,7 @@ static void show_final_report(void)
     {
         fprintf(stdout, "============== %s REPORT ==============\n", g_conf.title);
         fprintf(stdout, "*   All requests           : %-10d               *\n", g_conf.requests);  
-        fprintf(stdout, "*   All requests sended    : %-10d               *\n", g_conf.requests_issued);        
+        fprintf(stdout, "*   All requests sended    : %-10d               *\n", g_conf.requests_sended);        
         fprintf(stdout, "*   All requests completed : %-10d               *\n", g_conf.requests_done);
         //如果done_if_srv_close，则done和finished相同，所以只有非done_if_srv_close时打印
         if(!g_conf.done_if_srv_close) fprintf(stdout, "*   All requests finished  : %-10d               *\n", g_conf.requests_finished);
@@ -579,7 +634,7 @@ static void show_final_report(void)
 int main(int argc, char **argv) 
 {
     signal(SIGHUP, SIG_IGN);
-    signal(SIGPIPE, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);  //忽略SIGPIPE信号，只有在忽略的情况下，两次write关闭的fd，才会得到EPIPE错误
 
 	//全局句柄默认值初始化
 	init_conf();

@@ -118,6 +118,11 @@
 
 #define UNC_IOBUF_SIZE 40960
 
+#define SERVER_NOT_CLOSE        0 //服务器没有关闭连接
+#define SERVER_CLOSE_WHEN_READ  1 //read的时候发现服务器断开了连接
+#define SERVER_CLOSE_WHEN_WRITE 2 //write的时候发现服务器断开了连接( EPIPE )
+
+
 /* ---------------服务器返回内容 ---------------*/
 typedef struct response {
     int          is_get;    /* 是否得到了完整的返回 */
@@ -133,12 +138,13 @@ typedef struct config {
     int                  num_clients;       /* 预计同一时间客户端数(并发数) */
     int                  live_clients;      /* 实际目前活跃的客户数(实时并发数) */
     int                  requests;          /* 期望总请求个数，程序启动时指定 */
-    int                  requests_issued;   /* 已经发出去请求总数 */
+    int                  requests_sended;   /* 已经发出去请求总数 */
     int                  requests_done;     /* 实际完成的请求总数 */
     int                  requests_finished; /* 广义的完成请求数，比如服务端断开连接等异常也算完成 */
     int                  quiet;             /* 是否只显示qps，默认否 */
     int                  keep_alive;        /* 是否维持长连接，1 = keep alive, 0 = reconnect (default 1) */
     int                  loop;              /* 程序是否无终止循环:否 */
+    int                  epipe;             /* 程序是否尽量避免EPIPE，这种办法不完全靠谱，默认: 否 */
     long long            start;             /* 程序开始时间 */
     long long            total_latency;     /* 程序总耗时(毫秒) */
     unc_dlist_t         *clients;           /* client链表 */
@@ -153,12 +159,12 @@ typedef struct config {
 /* ---------------Client结构----------------- */ 
 typedef struct client_st {
     int             fd;         /* client的fd */
-    unc_str_t      *sendbuf;    /* client的sendbuf */
-    unc_str_t      *recvbuf;    /* client的recvbuf */
-    unsigned int    written;    /* bytes of 'obuf' already written */
-    unsigned int    read;       /* bytes already be read */
-    long long       start;      /* start time of request */
-    long long       latency;    /* request latency */
+    unc_str_t      *sendbuf;    /* sendbuf */
+    unc_str_t      *recvbuf;    /* recvbuf */
+    unsigned int    written;    /* 已发送字节数 */
+    unsigned int    read;       /* 一接受字节数 */
+    long long       start;      /* 请求开始时间点 */
+    long long       latency;    /* 请求好事 */
 } client_t;
 
 /* --------------动态库容器句柄-----------------*/
