@@ -14,6 +14,28 @@
  * 
  *       Author:  HQ 
  *
+ * 一个潜在的坑:
+ *   如果目标服务端是长连接服务，那么没有任何问题。但是，如果server是短连接服务，即:
+ *   server返回的内容满足让check_full_response函数返回ok, 并且随后立刻主动释放了连接。
+ *   在这种情况下，unicorn的统计将失效，并导致发送总请求数变少。
+
+ *   经过仔细定位: 问题的原因是TCP的EPIPE机制 ：
+ *   对于已经关闭的fd，第一次调用write会导致收到RST包，但却是可以成功的。要调用第二次write才能感知到EPIPE错误！！！！
+ * 
+ *   server关闭连接的时候，此时unicorn没有read(返回内容满足check_full_response，则unicorn转向继续写)，无法感知连接关闭，
+ *   这个时候调用了reset_client,重新开启了write_handler函数，则write会认为能够成功(除非凑巧要触发多次write)，
+ *   此时unicorn认为发送了一次完整的request(其实没有，因为服务端已关闭连接，是收不到也不会去收request的)。然后uncorn
+ *   启动read_handler才能感知到服务端close，此时request_sended仍然自增一次。最终导致服务端收到的总请求数减半！！
+ *   
+ *   一个tricky解决办法，write_handler函数，将sendbuf拆成两块，分为两次write，可以感知到EPIPE错误，此时可以
+ *   不自增sended数量，并且free_client。但是，这种方法不是特别靠谱:
+ *   1. 如果发送的数据只有一个字节，则无法拆分。
+ *   2. 这个方案在Mossad上测试，没有问题，但是在Apache上测试，没法解决问题！！Tcpdump抓包后发现，当请求结束后,
+ *      Apache和Mossad都会发送F包表示关闭连接，此时write数据，Mossad可以正确返回RST包，进而触发unicorn的EPIPE
+ *      错误，但是不知道为什么Apache不返回RST包，unicorn还是无法感知EPIPE，所以这种方案对于Apache就失效了。
+ *   
+ *   暂时没想到特别完善的兼容办法，好在一般的服务器都不会随便主动close，诸如Apache这类可能会主动close的server
+ *   也会用Connection:close头来告知client。当检测到Connection:close，则应该以server关闭连接作为完整返回的标志。
  **/
 
 /*
@@ -208,7 +230,7 @@ static void usage(int status)
     puts(" -q                 quiet. Just show QPS values");
     puts(" -l                 loop. Run the tests forever. For persistent test");
     puts(" -E                 try to handle EPIPE while server short connection.(default null)");
-    puts(" -D                 debug switch.(default null)");
+    puts(" -D                 print the debug info.(default null)");
     puts(" -H                 show help information\n");
     exit(status);
 }
@@ -316,7 +338,8 @@ static client_t *create_one_client()
     unc_dlist_add_node_tail(g_conf.clients, c);
 	//client数自增
     ++g_conf.live_clients;
-	
+    
+	if(g_conf.debug) fprintf(stdout, " [DEBUG] Create a Client(Fd:%d).\n", c->fd);
     return c;
 }
 
@@ -347,7 +370,7 @@ static void create_multi_clients(int num)
  */
 static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask) 
 {
-    if(g_conf.debug) fprintf(stdout, "Begin to write. Fd:%d\n", fd);
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Begin to write(Fd:%d).\n", fd);
     client_t *c = (client_t *)priv;
     char *ptr;
     int nwritten;
@@ -369,6 +392,7 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
                */
             //free_client(c);
             //unc_ae_stop(g_conf.el);
+            if(g_conf.debug) fprintf(stdout, " [DEBUG] Enought requests sended(%d). No write\n", g_conf.requests_sended);
             return;
         }
 
@@ -392,21 +416,21 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         {
             
             first = write(fd, ptr, 1); //写一个字节
-            if(g_conf.debug) fprintf(stdout, "First byte:%c, len:%d\n", *ptr, first);
+            if(g_conf.debug) fprintf(stdout, " [DEBUG] Write first byte:%c, len:%d\n", *ptr, first);
         }
         nwritten = write(fd, ptr+first, c->sendbuf->len - c->written - first);
 
-        if(g_conf.debug) fprintf(stdout, "Write bytes num:%d\n", nwritten);
+        if(g_conf.debug) fprintf(stdout, " [DEBUG] Write bytes num:%d\n", nwritten);
         if (nwritten == -1) 
         {
-            fprintf(stderr, "write failed:%s\n", strerror(errno));
             //根据TCP机制，此处的EPIPE错误理论上无法触发到，因为需要两次write才能感知，
             //TODO 暂时未找到感知EPIPE的优雅办法，除非将sendbuf拆成两块write两次
             if (errno != EPIPE) 
             {
-                fprintf(stderr, "write failed:%s\n", strerror(errno));
+                fprintf(stderr, "Write failed:%s\n", strerror(errno));
+                exit(1);
             }
-            //free_client(c);
+            fprintf(stderr, "Write failed:%s\n", strerror(errno));
             client_done(c, SERVER_CLOSE_WHEN_WRITE);
             return;
         }
@@ -429,7 +453,7 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
  */
 static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask) 
 {
-    if(g_conf.debug) fprintf(stdout, "Begin to read. Fd:%d\n",fd);
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Begin to read(Fd:%d).\n",fd);
     client_t *c = (client_t *)priv;
     int nread, check = UNC_ERR;
     char buffer[UNC_IOBUF_SIZE];
@@ -449,7 +473,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     } 
     else if (nread == 0) 
     {
-        if(g_conf.debug) fprintf(stdout, "Server close conn. Recv len:%d\n", c->recvbuf->len);
+        if(g_conf.debug) fprintf(stdout, " [DEBUG] Server close conn. Recv len:%d\n", c->recvbuf->len);
 
         //server端关闭连接
         if (g_so.handle_server_close) g_so.handle_server_close(&g_conf, c, NULL);
@@ -460,7 +484,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     c->read += nread;
     unc_str_cat(&(c->recvbuf), buffer); //append
 
-    if(g_conf.debug) fprintf(stdout, "Read bytes num:%d, total: %d\n", nread, c->recvbuf->len);
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Read bytes num:%d, total: %d\n", nread, c->recvbuf->len);
     
     //判断读取到的内容是否完整
     check = g_so.check_full_response(&g_conf, c, NULL);
@@ -483,31 +507,10 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 
 /* 
  * 重置client,然后开启新一轮写/读流程 
- * 
- * 一个潜在的坑:
- *   如果服务端是长连接，没有任何问题，如果server是短连接服务，即
- *   server返回的内容满足让check_full_response函数返回ok, 并且随后立刻主动释放了连接。
- *   在这种情况下，unicorn的统计将失效，并导致发送总请求数变少。问题的原因是TCP的EPIPE机制 ：
- *
- *   对于已经关闭的fd，第一次调用write会导致收到RST包，但却是可以成功的。要调用两次write才能感知到EPIPE错误！！！！
- * 
- *   当server关闭连接的时候，由于此时client没有read(返回内容满足check_full_response)，无法感知关闭连接，
- *   这个时候调用了reset_client,重新开启了write_handler函数，则write会认为能够成功(除非凑巧要触发多次write)，
- *   此时unicorn认为发送了一次完整的request，其实没有，因为服务端已关闭连接，是收不到也不会去收的。然后启动
- *   read_handler才能感知到服务端close，此时request_sended仍然自增一次。最终导致服务端收到的总请求数减半！！
- *   
- *   一个tricky解决办法，write_handler函数，将sendbuf拆成两块，分为两次write，可以感知到EPIPE错误，此时可以
- *   不自增sended数量，并且free_client。但是，这种方法实在太triky，而且不是特别靠谱:
- *   1. 如果发送的数据只有一个字节，则无法拆分。
- *   2. 这个方案在Mossad上测试，没有问题，但是在Apache上测试，没法解决问题！！Tcpdump抓包后发现，当请求结束后,
- *      Apache和Mossad都会发送F包表示关闭连接，此时write数据，Mossad可以正确返回RST包，进而触发unicorn的EPIPE
- *      错误，但是不知道为什么Apache不返回RST包，unicorn无法感知EPIPE，所以这种方案对于Apache就失效了。
- *   
- *   暂时没想到特别完善的兼容办法，好在一般的服务器都不会随便主动close，诸如Apache这类可能会主动close的server
- *   也会用Connection:close头来告知client。当检测到Connection:close，则应该以server关闭连接作为完整返回的标志。
  */
 static void reset_client(client_t *c) 
 {
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Reset client(Fd:%d).\n\n", c->fd);
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_READABLE);
     unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE, write_handler, c);
@@ -530,7 +533,6 @@ static void reset_client(client_t *c)
 static void client_done(client_t *c, int server_close) 
 {
 	int num;
-    if(g_conf.debug) fprintf(stdout, "Client done. Server_close:%d\n", server_close);
 
     //服务端没有关闭连接 || read服务端关闭连接但是done_if_srv_close是1，则完成数++，并且记录服务端返回
     if(server_close == SERVER_NOT_CLOSE 
@@ -540,11 +542,13 @@ static void client_done(client_t *c, int server_close)
         ++g_conf.requests_done;
         if(!g_conf.response.is_get)
         {
-            if(g_conf.debug) fprintf(stdout, "Fill the response only once. len:%d\n", c->recvbuf->len);
+            if(g_conf.debug) fprintf(stdout, " [DEBUG] Fill the g_conf.response only once. Len:%d\n", c->recvbuf->len);
             g_conf.response.is_get = 1;
             g_conf.response.res_body = unc_str_dup(c->recvbuf);
         }
     }
+    
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Client done(Server_close:%d).\n", server_close);
 
     //写的时候发现服务端close，不能算服务完成
     if(server_close != SERVER_CLOSE_WHEN_WRITE)
@@ -555,7 +559,7 @@ static void client_done(client_t *c, int server_close)
     //如果达到总预计请求数，则程序停止，用广义的requests_done保证程序能够结束
     if (g_conf.requests_finished == g_conf.requests) 
     {
-        if(g_conf.debug) fprintf(stdout, "Enough!\n");
+        if(g_conf.debug) fprintf(stdout, " [DEBUG] Enough finished request. Begin to end!\n");
         //free_client(c);
         unc_ae_stop(g_conf.el); //全局Ae直接停止
         return;
@@ -565,12 +569,10 @@ static void client_done(client_t *c, int server_close)
     // 否则，释放client，然后重启client,然后开始写/读流程
     if (g_conf.keep_alive && server_close == SERVER_NOT_CLOSE) 
     {
-        if(g_conf.debug) fprintf(stdout, "Begin to reset client. fd:%d\n", c->fd);
         reset_client(c);
     }
     else 
     {
-        if(g_conf.debug) fprintf(stdout, "Begin to free client. fd:%d\n", c->fd);
         //先释放当前client，内部live_clients会自减
         free_client(c); 
 
@@ -588,6 +590,7 @@ static void client_done(client_t *c, int server_close)
  */
 static void free_client(client_t *c) 
 {
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Free client(Fd:%d).\n\n", c->fd);
     unc_dlist_node_t *node;
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE);
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_READABLE);
