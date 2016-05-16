@@ -548,7 +548,8 @@ static void client_done(client_t *c, int server_close)
         }
     }
     
-    if(g_conf.debug) fprintf(stdout, " [DEBUG] Client done(Server_close:%d).\n", server_close);
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Client done(Server_close: %d, %s).\n", server_close, 
+        server_close==0? "Not close":(server_close==1? "Normal close":"Epipe close"));
 
     //写的时候发现服务端close，不能算服务完成
     if(server_close != SERVER_CLOSE_WHEN_WRITE)
