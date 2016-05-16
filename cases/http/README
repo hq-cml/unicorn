@@ -20,9 +20,19 @@
   #cd bin
   #./Unicorn
 
-============================== Usage ===============================
+============================== request file ===============================
  request.file.1  服务端返回：Connection: close； 没有Transfer-Encoding和Content-Length
  request.file.2  服务端返回：Connection: Keep-Alive；Transfer-Encoding: chunked
  request.file.3  服务端返回：Connection: close； Transfer-Encoding: chunked
  request.file.4  服务端返回：Connection: Keep-Alive； Content-Length:
  request.file.5  服务端返回：Connection: close； Content-Length:
+ 
+============================== dest =============================== 
+info.php:
+<?php
+    phpinfo();
+    
+hello.php:
+<?php
+    for($i=0; $i<10; $i++)
+        echo "hello world!\n";
