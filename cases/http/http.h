@@ -23,15 +23,10 @@
 #include "unc_core.h"
 
 /* -----------------MACRO---------------- */
-#define HTTP_BODY_CHUNKED      -1
-#define HTTP_BODY_CLOSE        -2
-#define HTTP_BODY_ERR          -3
-
-
-
-static int cal_body_length(char *header_start, int header_length);
-static int handle_body(const char *body_start, int body_length);
-static int handle_body_content_length(const char *body_start, int body_length);
+#define HTTP_HEADER_CLOSE       1 //0001: header中找到了Connection:close
+#define HTTP_HEADER_CHUNKED     2 //0010: header中找到了Transfer-Encoding: chunked
+#define HTTP_HEADER_LENGTH      4 //0100: header中找到了Content-Length:
+#define HTTP_HEADER_ERR         8 //0100: 未知错误
 
 #endif
 
