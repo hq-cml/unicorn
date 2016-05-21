@@ -26,6 +26,33 @@
  request.file.3  服务端返回：Connection: close； Transfer-Encoding: chunked
  request.file.4  服务端返回：Connection: Keep-Alive； Content-Length:
  request.file.5  服务端返回：Connection: close； Content-Length:
+
+具体内容：
+
+====request.file.1=====
+GET /info.php HTTP/1.0
+Host:127.0.0.1:80
+Connection:close
+
+====request.file.2=====
+GET /info.php HTTP/1.1
+Host:127.0.0.1:80
+Connection:keep-alive
+
+====request.file.3=====
+GET /info.php HTTP/1.1
+Host:127.0.0.1:80
+Connection:close
+
+====request.file.4=====
+GET /hello.php HTTP/1.1
+Host:127.0.0.1:80
+Connection:keep-alive
+
+====request.file.5=====
+GET /hello.php HTTP/1.1
+Host:127.0.0.1:80
+Connection:close
  
 ============================== dest =============================== 
 info.php:
