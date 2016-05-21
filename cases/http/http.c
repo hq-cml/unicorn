@@ -166,16 +166,8 @@ static int cal_body_length(char *header_start, int header_length)
     body = unc_str_newlen(header_start, header_length);  
     //TODO 对比g_http_response_header，看看是否会发生变化
 
-    
-    if((strcasestr(body->buf, "Connection: close"))
-        || (strcasestr(body->buf, "Connection:close"))) 
-    {
-        //Connection: Close
-        unc_str_free(body);
-        return HTTP_BODY_CLOSE;
-    }
     //TODO 查找chunked else if(chunked)
-    else if((ptr = strcasestr(body->buf, "Content-Length:"))) 
+    if((ptr = strcasestr(body->buf, "Content-Length:"))) 
     {
         //Content-Length:
         len = strtol(ptr + strlen("Content-Length:"), NULL, 10);
@@ -186,6 +178,12 @@ static int cal_body_length(char *header_start, int header_length)
         }
         unc_str_free(body);
         return len;
+    }else if((strcasestr(body->buf, "Connection: close"))
+        || (strcasestr(body->buf, "Connection:close"))) 
+    {
+        //Connection: Close
+        unc_str_free(body);
+        return HTTP_BODY_CLOSE;
     }
     else
     {
