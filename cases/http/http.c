@@ -35,7 +35,8 @@ int unc_generate_request(void *conf, void *args)
     conf_t *p_conf =(conf_t *) conf;
     if(!p_conf->request_body)
     {
-        p_conf->request_body = unc_str_new("GET /hello.php 1.0\r\n\r\n");
+        //拼凑一个最最简单request
+        p_conf->request_body = unc_str_new("GET /info.php HTTP/1.0\r\nHost:127.0.0.1:80\r\n\r\n");
     }
 
     return UNC_OK;
