@@ -15,12 +15,12 @@
  *       Author:  HQ 
  *
  * 一个潜在的坑:
- *   如果目标服务端是长连接服务，那么没有任何问题。但是，如果server是短连接服务，即:
+ *   如果server是长连接服务，那么没有任何问题。但是，如果server是短连接服务，即:
  *   server返回的内容满足让check_full_response函数返回ok, 并且随后立刻主动释放了连接。
  *   在这种情况下，unicorn的统计将失效，并导致发送总请求数变少。
 
- *   经过仔细定位: 问题的原因是TCP的EPIPE机制 ：
- *   对于已经关闭的fd，第一次调用write会导致收到RST包，但却是可以成功的。要调用第二次write才能感知到EPIPE错误！！！！
+ *   问题的原因是TCP的EPIPE机制 ：
+ *   对于对方已经close的fd，第一次调用write会导致收到RST包，但却是可以成功的。要调用第二次write才能感知到EPIPE错误！！！！
  * 
  *   server关闭连接的时候，此时unicorn没有read(返回内容满足check_full_response，则unicorn转向继续写)，无法感知连接关闭，
  *   这个时候调用了reset_client,重新开启了write_handler函数，则write会认为能够成功(除非凑巧要触发多次write)，
@@ -29,30 +29,19 @@
  *   
  *   一个tricky解决办法，write_handler函数，将sendbuf拆成两块，分为两次write，可以感知到EPIPE错误，此时可以
  *   不自增sended数量，并且free_client。但是，这种方法不是特别靠谱:
- *   1. 如果发送的数据只有一个字节，则无法拆分。
- *   2. 这个方案在Mossad上测试，没有问题，但是在Apache上测试，没法解决问题！！Tcpdump抓包后发现，当请求结束后,
- *      Apache和Mossad都会发送F包表示关闭连接，此时write数据，Mossad可以正确返回RST包，进而触发unicorn的EPIPE
- *      错误，但是不知道为什么Apache不返回RST包，unicorn还是无法感知EPIPE，所以这种方案对于Apache就失效了。
+ *   1. 在长连接的场景的时候，如果用这种方案会极大降低unicorn的效率
+ *   2. 如果request的数据只有一个字节，则无法拆分。
+ *   3. 这个方案在Mossad上测试，没有问题，但是在Apache上测试，没法解决问题！！Tcpdump抓包后发现，当请求结束后,
+ *      Apache和Mossad都会发送F包表示关闭连接，此时write数据，Mossad可以返回RST包，进而触发unicorn在第二次write的时候
+ *      感知EPIPE错误，但是为什么Apache不返回RST包，unicorn还是无法感知EPIPE，所以这种方案对于Apache就失效了。个人猜测
+ *      Apache可能是用shutdown(SHUT_WR)而不是close来处理断开连接。
  *   
- *   暂时没想到特别完善的兼容办法，好在一般的服务器都不会随便主动close，诸如Apache这类可能会主动close的server
- *   也会用Connection:close头来告知client。当检测到Connection:close，则应该以server关闭连接作为完整返回的标志。
+ *   暂时没想到特别完善的兼容办法，好在一般的server都不会随便主动close，诸如Apache这类可能会主动close的server
+ *   也会用Connection:close头来告知client。当检测到Connection:close，则:
+ *   1.应该以server关闭连接作为完整返回的标志。
+ *   2.自己主动关闭连接
  **/
 
-/*
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <signal.h>
-#include <errno.h>
-#include <assert.h>
-#include <unistd.h>
-#include <getopt.h>
-#include <sys/time.h>
-#include "unc_ae.h"
-#include "unc_dlist.h"
-#include "unc_string.h"
-#include "unc_anet.h"
-*/
 #include "unc_core.h"
 
 //函数声明
@@ -229,7 +218,7 @@ static void usage(int status)
     puts(" -w <boolean>       whether define done if server close connection.(default 1)");
     puts(" -q                 quiet. Just show QPS values");
     puts(" -l                 loop. Run the tests forever. For persistent test");
-    puts(" -E                 try to handle EPIPE while server short connection.(default null)");
+    //puts(" -E                 try to handle EPIPE while server short connection.(default null)");//隐藏-E选项，因为不靠谱
     puts(" -D                 print the debug info.(default null)");
     puts(" -H                 show help information\n");
     exit(status);
