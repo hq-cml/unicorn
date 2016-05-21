@@ -477,21 +477,23 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     
     //判断读取到的内容是否完整
     check = g_so.check_full_response(&g_conf, c, NULL);
-    if(check == UNC_OK)
-    {
-        client_done(c, SERVER_NOT_CLOSE);
-        return;
+    switch(check){
+        case UNC_OK:
+            client_done(c, SERVER_NOT_CLOSE);
+            break;
+        case UNC_END:
+            client_done(c, SERVER_HINT_CLOSE);
+            break;
+        case UNC_NEEDMORE:
+            //让unicorn框架继续保持read
+            //fprintf(stdout, "Part response:%s\n", c->recvbuf->buf);
+            break;            
+        default:
+            fprintf(stderr, "Something wrong in server!\n"); 
+            exit(1);
+            break;
     }
-    else if(check == UNC_NEEDMORE)
-    {
-        //fprintf(stdout, "Part response:%s\n", c->recvbuf->buf);
-        return;
-    }
-    else
-    {
-       fprintf(stderr, "Something wrong in server!\n"); 
-       exit(1);
-    }
+    return;
 }
 
 /* 
@@ -517,14 +519,15 @@ static void reset_client(client_t *c)
  *      SERVER_NOT_CLOSE        -- 服务器没有关闭连接
  *      SERVER_CLOSE_WHEN_READ  -- read的时候发现服务器断开了连接
  *      SERVER_CLOSE_WHEN_WRITE -- write的时候发现服务器断开了连接( EPIPE )
- *
+ *      SERVER_HINT_CLOSE       -- server暗示client主动关闭
  */
 static void client_done(client_t *c, int server_close) 
 {
 	int num;
 
-    //服务端没有关闭连接 || read服务端关闭连接但是done_if_srv_close是1，则完成数++，并且记录服务端返回
+    //服务端没有关闭连接 || 服务端暗示客户端关闭连接 || read服务端关闭连接但是done_if_srv_close是1，则完成数++，并且记录服务端返回
     if(server_close == SERVER_NOT_CLOSE 
+       || server_close == SERVER_HINT_CLOSE 
        || (server_close == SERVER_CLOSE_WHEN_READ && g_conf.done_if_srv_close))
     {
         c->latency = ustime() - c->start;
@@ -538,9 +541,10 @@ static void client_done(client_t *c, int server_close)
     }
     
     if(g_conf.debug) fprintf(stdout, " [DEBUG] Client done(Server_close: %d, %s).\n", server_close, 
-        server_close==0? "Not close":(server_close==1? "Normal close":"Epipe close"));
+        server_close==SERVER_NOT_CLOSE? "Not close":(server_close==SERVER_CLOSE_WHEN_READ? 
+        "Normal close":(server_close==SERVER_CLOSE_WHEN_WRITE? "Epipe close": "Hint close")));
 
-    //写的时候发现服务端close，不能算服务完成
+    //广义完成数自增( 写的时候发现服务端close，不能算服务完成 )
     if(server_close != SERVER_CLOSE_WHEN_WRITE)
     {
         ++g_conf.requests_finished;   
@@ -550,12 +554,11 @@ static void client_done(client_t *c, int server_close)
     if (g_conf.requests_finished == g_conf.requests) 
     {
         if(g_conf.debug) fprintf(stdout, " [DEBUG] Enough finished request. Begin to end!\n");
-        //free_client(c);
         unc_ae_stop(g_conf.el); //全局Ae直接停止
         return;
     }
 
-    // 如果keep_alive且server端没有关闭连接，则重新开始client的写/读流程
+    // 如果keep_alive且server端没有关闭连接(也没有暗示客户端关闭)，则重新开始client的写/读流程
     // 否则，释放client，然后重启client,然后开始写/读流程
     if (g_conf.keep_alive && server_close == SERVER_NOT_CLOSE) 
     {

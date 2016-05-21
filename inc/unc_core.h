@@ -110,6 +110,7 @@
 #define UNC_FAILED   -2
 #define UNC_NONEED   -3
 #define UNC_NEEDMORE -4
+#define UNC_END      -5
 
 
 #define UNC_PROG_TITLE   "Unicorn"
@@ -118,9 +119,10 @@
 
 #define UNC_IOBUF_SIZE 40960
 
-#define SERVER_NOT_CLOSE        0 //服务器没有关闭连接
+#define SERVER_NOT_CLOSE        0 //server没有关闭连接
 #define SERVER_CLOSE_WHEN_READ  1 //read的时候发现服务器断开了连接
 #define SERVER_CLOSE_WHEN_WRITE 2 //write的时候发现服务器断开了连接( EPIPE )
+#define SERVER_HINT_CLOSE       3 //server没有关闭连接，但却发出某种暗示要求客户端关闭连接，比如http的Connection:close
 
 
 /* ---------------服务器返回内容 ---------------*/
