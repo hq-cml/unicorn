@@ -405,11 +405,11 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         {
             
             first = write(fd, ptr, 1); //写一个字节
-            if(g_conf.debug) fprintf(stdout, " [DEBUG] Write first byte:%c, len:%d\n", *ptr, first);
+            if(g_conf.debug) fprintf(stdout, " [DEBUG] Write first byte(Fd:%d):%c, len:%d\n", fd, *ptr, first);
         }
         nwritten = write(fd, ptr+first, c->sendbuf->len - c->written - first);
 
-        if(g_conf.debug) fprintf(stdout, " [DEBUG] Write bytes num:%d\n", nwritten);
+        if(g_conf.debug) fprintf(stdout, " [DEBUG] Write bytes num(Fd:%d):%d\n", fd, nwritten);
         if (nwritten == -1) 
         {
             //根据TCP机制，此处的EPIPE错误理论上无法触发到，因为需要两次write才能感知，
@@ -462,7 +462,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     } 
     else if (nread == 0) 
     {
-        if(g_conf.debug) fprintf(stdout, " [DEBUG] Server close conn. Recv len:%d\n", c->recvbuf->len);
+        if(g_conf.debug) fprintf(stdout, " [DEBUG] Server close conn(Fd:%d). Recv len:%d\n", fd, c->recvbuf->len);
 
         //server端关闭连接
         if (g_so.handle_server_close) g_so.handle_server_close(&g_conf, c, NULL);
@@ -473,7 +473,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     c->read += nread;
     unc_str_cat(&(c->recvbuf), buffer); //append
 
-    if(g_conf.debug) fprintf(stdout, " [DEBUG] Read bytes num:%d, total: %d\n", nread, c->recvbuf->len);
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Read bytes num(Fd:%d):%d, total: %d\n", fd, nread, c->recvbuf->len);
     
     //判断读取到的内容是否完整
     check = g_so.check_full_response(&g_conf, c, NULL);
@@ -534,13 +534,13 @@ static void client_done(client_t *c, int server_close)
         ++g_conf.requests_done;
         if(!g_conf.response.is_get)
         {
-            if(g_conf.debug) fprintf(stdout, " [DEBUG] Fill the g_conf.response only once. Len:%d\n", c->recvbuf->len);
+            if(g_conf.debug) fprintf(stdout, " [DEBUG] Fill the g_conf.response only once(Fd:%d). Len:%d\n", c->fd, c->recvbuf->len);
             g_conf.response.is_get = 1;
             g_conf.response.res_body = unc_str_dup(c->recvbuf);
         }
     }
     
-    if(g_conf.debug) fprintf(stdout, " [DEBUG] Client done(Server_close: %d, %s).\n", server_close, 
+    if(g_conf.debug) fprintf(stdout, " [DEBUG] Client(Fd:%d) done(Server_close: %d, %s).\n", c->fd, server_close, 
         server_close==SERVER_NOT_CLOSE? "Not close":(server_close==SERVER_CLOSE_WHEN_READ? 
         "Normal close":(server_close==SERVER_CLOSE_WHEN_WRITE? "Epipe close": "Hint close")));
 
@@ -553,7 +553,7 @@ static void client_done(client_t *c, int server_close)
     //如果达到总预计请求数，则程序停止，用广义的requests_done保证程序能够结束
     if (g_conf.requests_finished == g_conf.requests) 
     {
-        if(g_conf.debug) fprintf(stdout, " [DEBUG] Enough finished request. Begin to end!\n");
+        if(g_conf.debug) fprintf(stdout, " [DEBUG] Enough finished request. Begin to end!(Fd:%d)\n", c->fd);
         unc_ae_stop(g_conf.el); //全局Ae直接停止
         return;
     }
@@ -569,9 +569,9 @@ static void client_done(client_t *c, int server_close)
         //先释放当前client，内部live_clients会自减
         free_client(c); 
 
-        //补齐
+        //如果已发送的请求数不够，补充
         num = g_conf.num_clients - g_conf.live_clients;
-        if(num > 0)
+        if(num > 0 && g_conf.requests_sended < g_conf.requests )
         {
             create_multi_clients(num);
         }
