@@ -571,7 +571,7 @@ static void client_done(client_t *c, int server_close)
 
         //如果已发送的请求数不够，补充
         num = g_conf.num_clients - g_conf.live_clients;
-        if(num > 0 && g_conf.requests_sended < g_conf.requests )
+        if(num > 0)
         {
             create_multi_clients(num);
         }
