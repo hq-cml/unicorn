@@ -379,9 +379,9 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
                * 3. 一个可能的潜在问题，在read里面判断完成请求数，会不会因为某次请求异常未完成而导致整个程序达不到退出条件呢?
                *    经测试: 会!
                */
-            //free_client(c);
             //unc_ae_stop(g_conf.el);
             if(g_conf.debug) fprintf(stdout, " [DEBUG] Enought requests sended(%d). No write\n", g_conf.requests_sended);
+            free_client(c);//已发送的请求总数大于，
             return;
         }
 
