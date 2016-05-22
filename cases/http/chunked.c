@@ -19,6 +19,14 @@
 
 #include "http.h"
 
+/*
+ * 功能: 十六进制字符串转成十进制整形
+ * 参数: @hex, @len
+ * 
+ * 返回:
+ *      成功: 十进制数字
+ *      失败: -1
+ */
 int HexStr2Dec(const char *hex, int len)
 {
     int dec = 0;

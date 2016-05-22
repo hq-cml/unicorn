@@ -28,6 +28,8 @@
 #define HTTP_HEADER_LENGTH      4 //0100: header中找到了Content-Length:
 #define HTTP_HEADER_ERR         8 //0100: 未知错误
 
+int HexStr2Dec(const char *hex, int len);
+
 #endif
 
 
