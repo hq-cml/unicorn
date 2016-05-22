@@ -296,29 +296,6 @@ static int handle_body_content_length(const char *body_start, int analysis, int 
  * 功能: 处理Transfer-Encoding: chunked
  * 参数: @body_start, @analysis, @body_length
  * 说明: 
- *     Chunked编码的基本方法是将大块数据分解成多块小数据，每块都可以自指定长度，其具体格式如下(BNF文法)：
- *     Chunked-Body   = *chunk                        //0至多个chunk
- *     last-chunk                                     //最后一个chunk
- *     trailer                                        //尾部
- *     CRLF                                           //结束标记符
- *     chunk  = chunk-size [ chunk-extension ] CRLF
- *     chunk-data CRLF
- *     chunk-size     = 1*HEX
- *     last-chunk     = 1*("0") [ chunk-extension ] CRLF
- *     chunk-extension= *( ";" chunk-ext-name [ "=" chunk-ext-val ] )
- *     chunk-ext-name = token
- *     chunk-ext-val  = token | quoted-string
- *     chunk-data     = chunk-size(OCTET)
- *     trailer        = *(entity-header CRLF)
- *  
- * 解释：
- *     1. Chunked-Body表示经过chunked编码后的报文体。报文体可以分为chunk, last-chunk，trailer和结束符四部分。
- *        chunk的数量在报文体中最少可以为0，无上限；
- *     2. 每个chunk的长度是自指定的，即，起始的数据必然是16进制数字的字符串，代表后面chunk-data的长度（字节数）。
- *        这个16进制的字符串第一个字符如果是“0”，则表示chunk-size为0，该chunk为last-chunk,无chunk-data部分。
- *     3. 可选的chunk-extension由通信双方自行确定，如果接收者不理解它的意义，可以忽略。
- *     4. trailer是附加的在尾部的额外头域，通常包含一些元数据（metadata, meta means "about information"）
- *        这些头域可以在解码后附加在现有头域之后
  * 
  * 返回:
  *      UNC_OK         0: 符合一个完整的包
@@ -328,9 +305,11 @@ static int handle_body_content_length(const char *body_start, int analysis, int 
  */
 static int handle_body_chunked(const char *body_start, int analysis, int body_length, conf_t *config)
 {
-    return UNC_ERR;
-    
-    int len = strlen(body_start);
+    int result = handle_chunked(body_start, body_length, config);
+    exit(1);
+    return (analysis & HTTP_HEADER_CLOSE)? UNC_NEEDMORE : UNC_ERR;
+    /*
+    len = strlen(body_start);
     if(len == body_length)
     {
         if(!g_http_response_body)
@@ -351,7 +330,8 @@ static int handle_body_chunked(const char *body_start, int analysis, int body_le
     {
         if(config->debug) fprintf(stdout, " [DEBUG] Handle_body_content_length return: %d.\n", UNC_NEEDMORE);
         return UNC_NEEDMORE;
-    }    
+    }   
+    */
 }
 
 /**
