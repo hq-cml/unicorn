@@ -95,6 +95,8 @@ int handle_chunked(const char *body_start, conf_t *config)
     int chunk_size;
     unc_str_t *tmp = unc_str_new_empty(); //TODO 防止内存泄漏
 
+    if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked begin.\n");
+
     //读取chunk-size, chunk-extension和CRLF
     do{ 
         chunk_size = get_chunk_size(ptr, &len, config); 
@@ -117,7 +119,7 @@ int handle_chunked(const char *body_start, conf_t *config)
             if(ptr+chunk_size+2 >= body_start+body_sentry)
             {
                 //由于chunk_size>0, 所以不是最后一个chunk，理论上此刻数据肯定不够，还需要继续read
-                if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked Need more\n");
+                if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked Need (%ld) more\n", ((ptr+chunk_size+2) - (body_start+body_sentry)));
                 unc_str_free(tmp);
                 return UNC_NEEDMORE;
             }
@@ -225,7 +227,7 @@ static int get_chunk_size(const char *str, int *p_len, conf_t *config)
     }
     
     chunk_size = HexStr2Dec(buf, len);
-    if(config->debug) fprintf(stdout, " [DEBUG] Get_chunk_size: Hex(%s), Dec(%d).\n", buf, chunk_size);
+    if(!config->quiet && config->debug) fprintf(stdout, " [DEBUG] Get_chunk_size: Hex(%s), Dec(%d).\n", buf, chunk_size);
     return chunk_size;
 }
 
