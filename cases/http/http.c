@@ -389,16 +389,19 @@ int unc_handle_finish(void *conf, void *args)
         fprintf(stdout, "%s\n", g_http_response_header->buf);
     }
 
-    if(g_http_response_body)
+    if(!p_conf->quiet && g_http_response_body)
     {
         fprintf(stdout, "========= THE RESPONSE BODY ( Length:%5d ) =========\n", g_http_response_body->len);
-        //fprintf(stdout, "%s\n", g_http_response_body->buf);
+        fprintf(stdout, "%s\n", g_http_response_body->buf);
     }
-    
+
+    /*
     if(p_conf->response.is_get)
     {
-        //TODO
+        fprintf(stdout, "========= THE ORIGIN RESPONSE (Length:%5d ) =========\n", p_conf->response.res_body->len);
+        fprintf(stdout, "%s\n", p_conf->response.res_body->buf);
     }
+    */
     fprintf(stdout, "**************** THANK YOU FOR USE UNICORN. BYE! ****************\n\n\n");
 
     return UNC_OK;
