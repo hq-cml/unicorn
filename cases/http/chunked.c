@@ -19,6 +19,8 @@
 
 #include "http.h"
 
+static int get_chunk_size(const char *start, int *len, conf_t *config);
+
 /*
  * 功能: 十六进制字符串转成十进制整形
  * 参数: @hex, @len
@@ -32,9 +34,9 @@ int HexStr2Dec(const char *hex, int len)
     int dec = 0;
     int tmp = 0;
     int i;
-    printf("len:%d\n", len);
+
     for(i=0; i< len; i++)
-    {printf("%c\n", hex[i]);
+    {
         if(hex[i]>='a' && hex[i]<='f'){
             tmp=hex[i] - 'a' + 10;
         }else if(hex[i]>='A' && hex[i]<='F'){
@@ -42,7 +44,6 @@ int HexStr2Dec(const char *hex, int len)
         }else if(hex[i]>='0' && hex[i]<='9'){
             tmp=hex[i] - '0';
         }else{
-            printf("%c\n", hex[i]);
             return UNC_ERR;
         }
         dec = dec*16+tmp;
@@ -119,3 +120,44 @@ int handle_chunked(const char *body_start, int body_length, conf_t *config)
     */
     return UNC_ERR;
 }
+
+/*
+ * 功能: 读取chunk-size, chunk-extension和CRLF
+ * 参数: @str, @p_len, @config
+ * 
+ * 说明: 
+ *      p_len告诉外层，用到了多少个字节长度，便于外层处理
+ * 返回:
+ *      成功: chunk-size，忽略chunk-extension
+ *      失败: UNC_ERR 出现未知解析错误
+ */
+static int get_chunk_size(const char *str, int *p_len, conf_t *config)
+{
+    char *p1, *p2;
+    int len, chunk_size=0;
+    char buf[1024] = {0};
+
+    p1 = strstr(str, "\r\n");//读取chunk-size, chunk-extension和CRLF
+    if(!p1)
+    {
+        if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked Err: can not find \\r\\n.\n");
+        return UNC_ERR;
+    }
+
+    len = p1-str;
+    *p_len = len+2;//+2 表示\r\n占用的长度
+    
+    snprintf(buf, len+1, str); //snprintf参数长度包括\0
+
+    //如果存在chunk-extension，则忽略之
+    p2 = strstr(buf, ";");
+    if(p2)
+    {
+        *p2 = '\0';
+    }
+    
+    chunk_size = HexStr2Dec(buf, len);
+    if(config->debug) fprintf(stdout, " [DEBUG] Get_chunk_size: Hex(%s), Dec(%d).\n", buf, chunk_size);
+    return chunk_size;
+}
+
