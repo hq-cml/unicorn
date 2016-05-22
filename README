@@ -14,7 +14,7 @@ and event process. Unicorn is responsible for them.
 unicorn. You can refer them to write your business code.
     
     ./cases/tcp -- a tcp pressure tester for echo back server.
-
+    ./cases/http -- a http pressure tester similar to Apache ab.
 
 ========================== Installation ===========================
 1.compile unicorn
