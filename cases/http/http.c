@@ -51,18 +51,17 @@ int unc_generate_request(void *conf, void *args)
  * 参数: @conf, @client, @args
  * 说明: 
  *       1. 必选函数
+ *       2. 按照HTTP协议标准:
+ *          一个标准的http response包含:
+ *          STATUS LINE\r\n
+ *          HTTP HEADER\r\n
+ *          \r\n
+ *          HTTP BODY
  * 返回:
- *      UNC_OK(0): 符合一个完整的包
- *      UNC_END(-5): 符合一个完整的包，但是请求框架主动关闭连接(处理服务器主动关闭，导致unicorn请求数减半的问题)
- *      UNC_NEEDMORE(-3): 包长不够，需要框架继续read
- *      UNC_ERR(-1): 出现未知错误
- *
- * 按照HTTP协议标准:
- * 一个标准的http response包含:
- *     STATUS LINE\r\n
- *     HTTP HEADER\r\n
- *     \r\n
- *     HTTP BODY
+ *      UNC_OK         0: 符合一个完整的包
+ *      UNC_END       -5: 符合一个完整的包，但是暗示框架主动关闭连接(处理服务器主动关闭，导致unicorn请求数减半的问题)
+ *      UNC_NEEDMORE  -4: 包长不够，需要框架继续read
+ *      UNC_ERR       -1: 出现未知错误
  **/
 int unc_check_full_response(void *conf, void *client, void *args) 
 {
@@ -222,10 +221,10 @@ static int analysis_body_header(char *header_start, int header_length, int *body
  * 说明: 
  *      @analysis，事先分析好的header的结果
  * 返回:
- *      UNC_OK         : 符合一个完整的包
- *      UNC_END        : 符合一个完整的包，但暗示unicorn框架主动close连接
- *      UNC_NEEDMORE   : 包长不够，需要框架继续read
- *      UNC_ERR        : 出现未知错误
+ *      UNC_OK         0: 符合一个完整的包
+ *      UNC_END       -5: 符合一个完整的包，但暗示unicorn框架主动close连接
+ *      UNC_NEEDMORE  -4: 包长不够，需要框架继续read
+ *      UNC_ERR       -1: 出现未知错误
  */
 static int handle_body(const char *body_start, int analysis, int body_length, conf_t *config)
 {
@@ -264,10 +263,10 @@ static int handle_body(const char *body_start, int analysis, int body_length, co
  *       如果body的长度正好，则根据服务端是否会close，决定让unicorn框架是否主动close
  * 
  * 返回:
- *      UNC_OK         : 符合一个完整的包
- *      UNC_END        : 符合一个完整的包，但暗示unicorn框架主动close连接
- *      UNC_NEEDMORE   : 包长不够，需要框架继续read
- *      UNC_ERR        : 出现未知错误
+ *      UNC_OK         0: 符合一个完整的包
+ *      UNC_END       -5: 符合一个完整的包，但暗示unicorn框架主动close连接
+ *      UNC_NEEDMORE  -4: 包长不够，需要框架继续read
+ *      UNC_ERR       -1: 出现未知错误
  */
 static int handle_body_content_length(const char *body_start, int analysis, int body_length, conf_t *config)
 {
