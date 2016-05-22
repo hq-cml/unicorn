@@ -303,35 +303,23 @@ static int handle_body_content_length(const char *body_start, int analysis, int 
  *      UNC_NEEDMORE  -4: 包长不够，需要框架继续read
  *      UNC_ERR       -1: 出现未知错误
  */
-static int handle_body_chunked(const char *body_start, int analysis, int body_length, conf_t *config)
+static int handle_body_chunked(const char *body_start, int analysis, conf_t *config)
 {
-    int result = handle_chunked(body_start, body_length, config);
-    exit(1);
-    return (analysis & HTTP_HEADER_CLOSE)? UNC_NEEDMORE : UNC_ERR;
-    /*
-    len = strlen(body_start);
-    if(len == body_length)
+    int result = handle_chunked(body_start, config);
+
+    if(result == UNC_OK)
     {
-        if(!g_http_response_body)
-        {
-             g_http_response_body = unc_str_newlen(body_start, body_length);   
-             if(config->debug) fprintf(stdout, " [DEBUG] Handle_body_content_length fill the g_http_response_body, Len: %d.\n",g_http_response_body->len);
-        }
-        if(config->debug) fprintf(stdout, " [DEBUG] Handle_body_content_length return: %d.\n", (analysis & HTTP_HEADER_CLOSE)? UNC_END : UNC_OK);
+        if(config->debug) fprintf(stdout, " [DEBUG] Handle_body_chunked return: %d.\n", (analysis & HTTP_HEADER_CLOSE)? UNC_END : UNC_OK);
         return (analysis & HTTP_HEADER_CLOSE)? UNC_END : UNC_OK;
     }
-    else if(len > body_length)
+    else if(result == UNC_NEEDMORE)
     {
-        fprintf(stderr, "Get Too More. Recvbuf len:%d, Expected body len:%d\n", len, body_length);
-        if(config->debug) fprintf(stdout, " [DEBUG] Handle_body_content_length return: %d.\n", UNC_ERR);
-        return UNC_ERR;
+        return UNC_NEEDMORE;
     }
     else
     {
-        if(config->debug) fprintf(stdout, " [DEBUG] Handle_body_content_length return: %d.\n", UNC_NEEDMORE);
-        return UNC_NEEDMORE;
-    }   
-    */
+        return UNC_ERR;
+    }
 }
 
 /**
