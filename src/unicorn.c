@@ -542,7 +542,7 @@ static void client_done(client_t *c, int server_close)
     
     if(g_conf.debug) fprintf(stdout, " [DEBUG] Client(Fd:%d) done(Server_close: %d, %s).\n", c->fd, server_close, 
         server_close==SERVER_NOT_CLOSE? "Not close":(server_close==SERVER_CLOSE_WHEN_READ? 
-        "Normal close":(server_close==SERVER_CLOSE_WHEN_WRITE? "Epipe close": "Hint close")));
+        "Normal server close":(server_close==SERVER_CLOSE_WHEN_WRITE? "Epipe close": "Hint close")));
 
     //广义完成数自增( 写的时候发现服务端close，不能算服务完成 )
     if(server_close != SERVER_CLOSE_WHEN_WRITE)

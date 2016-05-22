@@ -22,7 +22,7 @@
 static int analysis_body_header(char *header_start, int header_length, int *body_length, conf_t *config);
 static int handle_body(const char *body_start, int analysis, int body_length, conf_t *config);
 static int handle_body_content_length(const char *body_start, int analysis, int body_length, conf_t *config);
-static int handle_body_chunked(const char *body_start, int analysis, int body_length, conf_t *config);
+static int handle_body_chunked(const char *body_start, int analysis, conf_t *config);
 
 
 unc_str_t *g_http_response_line;
@@ -100,7 +100,7 @@ int unc_check_full_response(void *conf, void *client, void *args)
     }
     
     //定位header边界
-    body_start = p_end + 4; //+4是/r/n/r/n
+    body_start = p_end + 4; //+4是\r\n\r\n
     header_length = body_start - header_start; 
     if(!g_http_response_header)
     {
@@ -236,7 +236,7 @@ static int handle_body(const char *body_start, int analysis, int body_length, co
     }
     else if(analysis & HTTP_HEADER_CHUNKED)
     {
-        return handle_body_chunked(body_start, analysis, body_length, config);
+        return handle_body_chunked(body_start, analysis, config);
     }
     else if(analysis & HTTP_HEADER_CLOSE)
     {

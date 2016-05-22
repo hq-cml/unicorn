@@ -29,6 +29,7 @@
 #define HTTP_HEADER_ERR         8 //0100: Î´Öª´íÎó
 
 int HexStr2Dec(const char *hex, int len);
+int handle_chunked(const char *body_start, conf_t *config);
 
 #endif
 
