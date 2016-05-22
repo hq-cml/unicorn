@@ -45,7 +45,7 @@ Unicorn [-h <host>] [-p <port>] [-c <clients>] [-n requests]> [-k <boolean>]
  -f <request file>  request file(default NULL)
  -k <boolean>       1 = keep alive, 0 = reconnect (default 1)
  -w <boolean>       whether define done if server close connection.(default 1)
- -q                 quiet. Just show QPS values
+ -q                 quiet. Just print basic info
  -l                 loop. Run the tests forever. For persistent test
  -D                 print the debug info.(default null)
  -H                 show help information
