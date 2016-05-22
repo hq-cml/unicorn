@@ -52,10 +52,10 @@ int unc_generate_request(void *conf, void *args)
  * 说明: 
  *       1. 必选函数
  * 返回:
- *      UNC_OK: 符合一个完整的包
- *      UNC_END: 符合一个完整的包，但是请求框架主动关闭连接(处理服务器主动关闭，导致unicorn请求数减半的问题)
- *      UNC_NEEDMORE: 包长不够，需要框架继续read
- *      UNC_ERR: 出现未知错误
+ *      UNC_OK(0): 符合一个完整的包
+ *      UNC_END(-5): 符合一个完整的包，但是请求框架主动关闭连接(处理服务器主动关闭，导致unicorn请求数减半的问题)
+ *      UNC_NEEDMORE(-3): 包长不够，需要框架继续read
+ *      UNC_ERR(-1): 出现未知错误
  *
  * 按照HTTP协议标准:
  * 一个标准的http response包含:
@@ -107,7 +107,6 @@ int unc_check_full_response(void *conf, void *client, void *args)
     }
 
     //确定body的长度
-    body_length = 0;
     header_analysis = analysis_body_header(header_start, header_length, &body_length, config);
 
     //处理body
@@ -166,10 +165,10 @@ int unc_handle_server_close(void *conf, void *client, void *args)
  *
  * 返回:
  *       或的集合
- *       HTTP_HEADER_CHUNKED   : 表示Transfer-Encoding: chunked
- *       HTTP_HEADER_LENGTH    : 表示Content-Length
- *       HTTP_HEADER_CLOSE     : 表示服务器会断开连接
- *       HTTP_HEADER_ERR       : 未知错误
+ *       HTTP_HEADER_CLOSE     0001: 表示服务器会断开连接
+ *       HTTP_HEADER_CHUNKED   0010: 表示Transfer-Encoding: chunked
+ *       HTTP_HEADER_LENGTH    0100: 表示Content-Length
+ *       HTTP_HEADER_ERR       1000: 未知错误
  */
 static int analysis_body_header(char *header_start, int header_length, int *body_length, conf_t *config)
 {
@@ -177,6 +176,7 @@ static int analysis_body_header(char *header_start, int header_length, int *body
     char *ptr;
     unsigned int result = 0;
     
+    *body_length = 0;
     body = unc_str_newlen(header_start, header_length);  
     //TODO 对比g_http_response_header，看看是否会发生变化
 
@@ -191,7 +191,7 @@ static int analysis_body_header(char *header_start, int header_length, int *body
     if((ptr = strcasestr(body->buf, "Content-Length:"))) 
     {
         *body_length = strtol(ptr + strlen("Content-Length:"), NULL, 10);
-        if (*body_length  == 0) 
+        if (*body_length  <= 0) 
         {
             fprintf(stderr, "Invalid http protocol");
             exit(1);
@@ -199,7 +199,12 @@ static int analysis_body_header(char *header_start, int header_length, int *body
         result |= HTTP_HEADER_LENGTH;
     }
     
-    //TODO 查找chunked else if(chunked)
+    //查找Transfer-Encoding: chunked
+    if((strcasestr(body->buf, "Transfer-Encoding: chunked"))
+        || (strcasestr(body->buf, "Transfer-Encoding:chunked"))) 
+    {
+        result |= HTTP_HEADER_CHUNKED;
+    }
 
     if(result == 0)
     {
