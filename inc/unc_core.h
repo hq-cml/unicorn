@@ -173,13 +173,13 @@ typedef struct client_st {
 /* --------------动态库容器句柄-----------------*/
 typedef struct unc_so_func_struct 
 {
-    int (*handle_init)(void *, void *);                 /* 当进程初始化的时候均会调用，参数是全局变量g_conf，此函数可选 */ 
-    int (*handle_finish)(void *, void *);               /* 当进程结束的时候均会调用，此函数可选 */
-    int (*request_pre)(void *, void *);                 /* 请求开始前调用，此函数可选 */
-    int (*request_post)(void *, void *);                /* 请求结束后调用，此函数可选 */
-    int (*generate_request)(void *, void *);            /* 生成request请求 */
-    int (*check_full_response)(void *, void *, void *); /* 判断完整的response，必选函数 */
-    int (*handle_server_close)(void *, void *, void *); /* 服务端关闭连接的时候调用，可选函数 */
+    int (*unc_handle_init)(void *, void *);                 /* 当进程初始化的时候均会调用，参数是全局变量g_conf，此函数可选 */ 
+    int (*unc_handle_finish)(void *, void *);               /* 当进程结束的时候均会调用，此函数可选 */
+    int (*unc_request_pre)(void *, void *);                 /* 请求开始前调用，此函数可选 */
+    int (*unc_request_post)(void *, void *);                /* 请求结束后调用，此函数可选 */
+    int (*unc_generate_request)(void *, void *);            /* 生成request请求 */
+    int (*unc_check_full_response)(void *, void *, void *); /* 判断完整的response，必选函数 */
+    int (*unc_handle_server_close)(void *, void *, void *); /* 服务端关闭连接的时候调用，可选函数 */
 } unc_so_func_t;
 
 #endif

@@ -66,13 +66,13 @@ void *g_handle;
 static unc_so_symbol_t syms[] = 
 {
     /* symbol_name,                      function pointer,                            optional */
-    {"unc_handle_init",            (void **)&g_so.handle_init,              1}, /* 可选 */
-    {"unc_handle_finish",          (void **)&g_so.handle_finish,            1}, /* 可选 */
-    {"unc_request_pre",            (void **)&g_so.request_pre,              1}, /* 可选 */
-    {"unc_request_post",           (void **)&g_so.request_post,             1}, /* 可选 */
-    {"unc_generate_request",       (void **)&g_so.generate_request,         1}, /* 可选 */
-    {"unc_check_full_response",    (void **)&g_so.check_full_response,      0}, /* 必选 */
-    {"unc_handle_server_close",    (void **)&g_so.handle_server_close,      1}, /* 可选 */
+    {"unc_handle_init",            (void **)&g_so.unc_handle_init,              1}, /* 可选 */
+    {"unc_handle_finish",          (void **)&g_so.unc_handle_finish,            1}, /* 可选 */
+    {"unc_request_pre",            (void **)&g_so.unc_request_pre,              1}, /* 可选 */
+    {"unc_request_post",           (void **)&g_so.unc_request_post,             1}, /* 可选 */
+    {"unc_generate_request",       (void **)&g_so.unc_generate_request,         1}, /* 可选 */
+    {"unc_check_full_response",    (void **)&g_so.unc_check_full_response,      0}, /* 必选 */
+    {"unc_handle_server_close",    (void **)&g_so.unc_handle_server_close,      1}, /* 可选 */
     {NULL, NULL, 0}
 };
 
@@ -465,7 +465,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         if(g_conf.debug) fprintf(stdout, " [DEBUG] Server close conn(Fd:%d). Recv len:%d\n", fd, c->recvbuf->len);
 
         //server端关闭连接
-        if (g_so.handle_server_close) g_so.handle_server_close(&g_conf, c, NULL);
+        if (g_so.unc_handle_server_close) g_so.unc_handle_server_close(&g_conf, c, NULL);
         client_done(c, SERVER_CLOSE_WHEN_READ);//广义的完成请求
         return;
     }
@@ -476,7 +476,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     if(g_conf.debug) fprintf(stdout, " [DEBUG] Read bytes num(Fd:%d):%d, total: %d\n", fd, nread, c->recvbuf->len);
     
     //判断读取到的内容是否完整
-    check = g_so.check_full_response(&g_conf, c, NULL);
+    check = g_so.unc_check_full_response(&g_conf, c, NULL);
     switch(check){
         case UNC_OK:
             client_done(c, SERVER_NOT_CLOSE);
@@ -667,7 +667,7 @@ int main(int argc, char **argv)
         exit(1);
     }
   
-    if (g_so.handle_init) g_so.handle_init(&g_conf, NULL);
+    if (g_so.unc_handle_init) g_so.unc_handle_init(&g_conf, NULL);
     
     if (!g_conf.keep_alive) 
     {
@@ -685,9 +685,9 @@ int main(int argc, char **argv)
     }
     
     //调用用户钩子，对request body做进一步处理
-    if (g_so.generate_request) 
+    if (g_so.unc_generate_request) 
     {
-        if(g_so.generate_request(&g_conf, NULL) != UNC_OK)
+        if(g_so.unc_generate_request(&g_conf, NULL) != UNC_OK)
         {
             fprintf(stderr, "Generate request failed\n");
             exit(1);
@@ -695,13 +695,13 @@ int main(int argc, char **argv)
     }
 
     do {
-        if (g_so.request_pre) g_so.request_pre(&g_conf, NULL);
+        if (g_so.unc_request_pre) g_so.unc_request_pre(&g_conf, NULL);
         start_request("UNICORN CLIENT", "Hello World!");
         //TODO 每轮测试完毕后的报告
-        if (g_so.request_post) g_so.request_post(&g_conf, NULL);
+        if (g_so.unc_request_post) g_so.unc_request_post(&g_conf, NULL);
     } while (g_conf.loop);
 
-    if (g_so.handle_finish) g_so.handle_finish(&g_conf, NULL);
+    if (g_so.unc_handle_finish) g_so.unc_handle_finish(&g_conf, NULL);
 
     //打印测试报告
     show_final_report();
