@@ -9,8 +9,8 @@
  *    Filename :  Unc_vector.c
  * 
  * Description :  Unc_vector, a vector based on vector. Support any type.
- *                ÔÚÒ»ÕûÆ¬(size*slots)Á¬ĞøµÄÄÚ´æÖĞ£¬Ä£Äâ³öÊı×éµÄĞĞÎª.
- *                ÀíÂÛÉÏÊı×éµÄÔªËØ¿ÉÒÔÊÇÈÎÒâÀàĞÍ.
+ *                åœ¨ä¸€æ•´ç‰‡(size*slots)è¿ç»­çš„å†…å­˜ä¸­ï¼Œæ¨¡æ‹Ÿå‡ºæ•°ç»„çš„è¡Œä¸º.
+ *                ç†è®ºä¸Šæ•°ç»„çš„å…ƒç´ å¯ä»¥æ˜¯ä»»æ„ç±»å‹.
  *
  *     Version :  1.0.0
  * 
@@ -20,17 +20,17 @@
 #include "unc_core.h"
 
 /**
- * ¹¦ÄÜ: init vector
- * ²ÎÊı: @vec, @slots, @size
- * ÃèÊö:
- *      1. ÔÚÒ»ÕûÆ¬Á¬ĞøµÄÄÚ´æÖĞ£¬Ä£Äâ³öÊı×éµÄĞĞÎª
- * ·µ»Ø: ³É¹¦ 0£¬ Ê§°Ü£¬-x
+ * åŠŸèƒ½: init vector
+ * å‚æ•°: @vec, @slots, @size
+ * æè¿°:
+ *      1. åœ¨ä¸€æ•´ç‰‡è¿ç»­çš„å†…å­˜ä¸­ï¼Œæ¨¡æ‹Ÿå‡ºæ•°ç»„çš„è¡Œä¸º
+ * è¿”å›: æˆåŠŸ 0ï¼Œ å¤±è´¥ï¼Œ-x
  **/ 
 static int unc_vector_init(unc_vector_t *vec, uint32_t slots, size_t size)
 {
     if((vec->data = calloc(1, slots * size)) == NULL) 
     {
-       //free(vec);//Ôì³ÉµÚ¶ş´ÎÊÍ·Åbug
+       //free(vec);//é€ æˆç¬¬äºŒæ¬¡é‡Šæ”¾bug
        return UNC_ERR;
     }
 
@@ -42,12 +42,12 @@ static int unc_vector_init(unc_vector_t *vec, uint32_t slots, size_t size)
 }
 
 /**
- * ¹¦ÄÜ: Create a vector, and init it
- * ²ÎÊı: @slots, vectorÔªËØ¸öÊı
- *       @size, Ã¿¸öÔªËØµÄ´óĞ¡
- * ÃèÊö:
+ * åŠŸèƒ½: Create a vector, and init it
+ * å‚æ•°: @slots, vectorå…ƒç´ ä¸ªæ•°
+ *       @size, æ¯ä¸ªå…ƒç´ çš„å¤§å°
+ * æè¿°:
  *      1. 
- * ·µ»Ø: ³É¹¦£¬vector½á¹¹µØÖ·£¬Ê§°Ü£¬NULL
+ * è¿”å›: æˆåŠŸï¼Œvectorç»“æ„åœ°å€ï¼Œå¤±è´¥ï¼ŒNULL
  **/
 unc_vector_t *unc_vector_create(uint32_t slots, size_t size)
 {
@@ -68,10 +68,10 @@ unc_vector_t *unc_vector_create(uint32_t slots, size_t size)
 }
 
 /**
- * ¹¦ÄÜ: destroy the vector
- * ²ÎÊı: @vec
- * ÃèÊö:
- *      1. ½öÊÍ·Ådata£¬vec±¾Éí½á¹¹²»ÊÍ·Å
+ * åŠŸèƒ½: destroy the vector
+ * å‚æ•°: @vec
+ * æè¿°:
+ *      1. ä»…é‡Šæ”¾dataï¼Œvecæœ¬èº«ç»“æ„ä¸é‡Šæ”¾
  **/
 static void unc_vector_destroy(unc_vector_t *vec) 
 {
@@ -85,10 +85,10 @@ static void unc_vector_destroy(unc_vector_t *vec)
 }
 
 /**
- * ¹¦ÄÜ: destroy the vector
- * ²ÎÊı: @vec
- * ÃèÊö:
- *      1. ÊÍ·Ådata£¬È»ºóÊÍ·Åvec±¾Éí
+ * åŠŸèƒ½: destroy the vector
+ * å‚æ•°: @vec
+ * æè¿°:
+ *      1. é‡Šæ”¾dataï¼Œç„¶åé‡Šæ”¾vecæœ¬èº«
  **/
 void unc_vector_free(unc_vector_t *vec) 
 {
@@ -97,13 +97,13 @@ void unc_vector_free(unc_vector_t *vec)
 }
 
 /**
- * ¹¦ÄÜ: ¸ø³öÒ»¸öÔªËØµÄµØÖ·£¬»ñµÃ´ËÔªËØÔÚvectorÖĞµÄË÷Òı
- * ²ÎÊı: @vec, @elemÔªËØµØÖ·
- * ·µ»Ø: ³É¹¦£¬Ë÷Òı£¬Ê§°Ü£¬-1
+ * åŠŸèƒ½: ç»™å‡ºä¸€ä¸ªå…ƒç´ çš„åœ°å€ï¼Œè·å¾—æ­¤å…ƒç´ åœ¨vectorä¸­çš„ç´¢å¼•
+ * å‚æ•°: @vec, @elemå…ƒç´ åœ°å€
+ * è¿”å›: æˆåŠŸï¼Œç´¢å¼•ï¼Œå¤±è´¥ï¼Œ-1
  **/
 uint32_t unc_vector_idx(unc_vector_t *vec, void *elem)
 {
-    uint8_t   *p, *q;    //ÄÚ´æ°´×Ö½Ú±àÖ·
+    uint8_t   *p, *q;    //å†…å­˜æŒ‰å­—èŠ‚ç¼–å€
     uint32_t   off, idx;
 
     if(elem < vec->data)
@@ -127,9 +127,9 @@ uint32_t unc_vector_idx(unc_vector_t *vec, void *elem)
 }
 
 /**
- * ¹¦ÄÜ: push a element
- * ²ÎÊı: @vec
- * ·µ»Ø: ³É¹¦ 0 Ê§°Ü -x
+ * åŠŸèƒ½: push a element
+ * å‚æ•°: @vec
+ * è¿”å›: æˆåŠŸ 0 å¤±è´¥ -x
  **/
 void *unc_vector_push(unc_vector_t *vec, void *data)
 {
@@ -157,11 +157,11 @@ void *unc_vector_push(unc_vector_t *vec, void *data)
 }
 
 /**
- * ¹¦ÄÜ: pop a element
- * ²ÎÊı: @vec
- * ÃèÊö:
- *      1. Ë÷Òı´Ó0¿ªÊ¼£¬×¢Òâ±ß½çÌõ¼ş
- * ·µ»Ø: ³É¹¦£¬elementµØÖ·£¬Ê§°Ü£¬NULL
+ * åŠŸèƒ½: pop a element
+ * å‚æ•°: @vec
+ * æè¿°:
+ *      1. ç´¢å¼•ä»0å¼€å§‹ï¼Œæ³¨æ„è¾¹ç•Œæ¡ä»¶
+ * è¿”å›: æˆåŠŸï¼Œelementåœ°å€ï¼Œå¤±è´¥ï¼ŒNULL
  **/
 void *unc_vector_pop(unc_vector_t *vec)
 {
@@ -179,11 +179,11 @@ void *unc_vector_pop(unc_vector_t *vec)
 }
 
 /**
- * ¹¦ÄÜ: »ñµÃÖ¸¶¨Ë÷ÒıµÄÔªËØµÄµØÖ·
- * ²ÎÊı: @vec£¬@idx
- * ÃèÊö:
- *      1. Ë÷Òı´Ó0¿ªÊ¼£¬×¢Òâ±ß½çÌõ¼ş
- * ·µ»Ø: ³É¹¦£¬elementµØÖ·£¬Ê§°Ü£¬NULL
+ * åŠŸèƒ½: è·å¾—æŒ‡å®šç´¢å¼•çš„å…ƒç´ çš„åœ°å€
+ * å‚æ•°: @vecï¼Œ@idx
+ * æè¿°:
+ *      1. ç´¢å¼•ä»0å¼€å§‹ï¼Œæ³¨æ„è¾¹ç•Œæ¡ä»¶
+ * è¿”å›: æˆåŠŸï¼Œelementåœ°å€ï¼Œå¤±è´¥ï¼ŒNULL
  **/
 void *unc_vector_get_at(unc_vector_t *vec, uint32_t idx)
 {
@@ -199,9 +199,9 @@ void *unc_vector_get_at(unc_vector_t *vec, uint32_t idx)
 }
 
 /**
- * ¹¦ÄÜ: »ñµÃÕ»¶¥ÔªËØ£¬µ«ÊÇ²»pop
- * ²ÎÊı: @vec
- * ·µ»Ø: ³É¹¦£¬elementµØÖ·£¬Ê§°Ü£¬NULL
+ * åŠŸèƒ½: è·å¾—æ ˆé¡¶å…ƒç´ ï¼Œä½†æ˜¯ä¸pop
+ * å‚æ•°: @vec
+ * è¿”å›: æˆåŠŸï¼Œelementåœ°å€ï¼Œå¤±è´¥ï¼ŒNULL
  **/
 void *unc_vector_top(unc_vector_t *vec)
 {
@@ -209,9 +209,9 @@ void *unc_vector_top(unc_vector_t *vec)
 }
 
 /**
- * ¹¦ÄÜ: °´ÕÕ¸ø¶¨±È½Ïº¯Êı£¬¶ÔÊı×éµÄÔªËØ½øĞĞÉıĞòÅÅĞò
- * ²ÎÊı: @vec, @cmp
- * ÃèÊö:
+ * åŠŸèƒ½: æŒ‰ç…§ç»™å®šæ¯”è¾ƒå‡½æ•°ï¼Œå¯¹æ•°ç»„çš„å…ƒç´ è¿›è¡Œå‡åºæ’åº
+ * å‚æ•°: @vec, @cmp
+ * æè¿°:
  *       void qsort(void *base, size_t nmemb, size_t size, int(*compar)(const void *, const void *));
  *
  * DESCRIPTION
@@ -219,7 +219,7 @@ void *unc_vector_top(unc_vector_t *vec)
  *       The contents of the array are sorted in ascending order according to a comparison function pointed to by compar, which is called with two arguments that point to the objects being compared.
  *       The  comparison function must return an integer less than, equal to, or greater than zero if the first argument is considered to be respectively less than, equal to, or greater than the second.  If two mem-
  *       bers compare as equal, their order in the sorted array is undefined.
- * ·µ»Ø: ³É¹¦£¬0£¬Ê§°Ü£¬-1
+ * è¿”å›: æˆåŠŸï¼Œ0ï¼Œå¤±è´¥ï¼Œ-1
  **/
 int unc_vector_sort(unc_vector_t *vec, unc_vector_cmp_t cmp)
 {
@@ -232,12 +232,12 @@ int unc_vector_sort(unc_vector_t *vec, unc_vector_cmp_t cmp)
 }
 
 /**
- * ¹¦ÄÜ: ¶ÔÊı×éµÄÃ¿¸öÔªËØ£¬Ö´ĞĞÌØ¶¨²Ù×÷
- * ²ÎÊı: @vec, @func, 
- *       @data£¬º¯ÊıfuncµÄÍâ´ø²ÎÊı
- * ÃèÊö:
- *      1. Èç¹ûÄ³¸öÔªËØÖ´ĞĞÊ§°Ü£¬ÔòÖ±½Ó·µ»Ø´íÎó
- * ·µ»Ø: ³É¹¦£¬0£¬Ê§°Ü£¬NULL
+ * åŠŸèƒ½: å¯¹æ•°ç»„çš„æ¯ä¸ªå…ƒç´ ï¼Œæ‰§è¡Œç‰¹å®šæ“ä½œ
+ * å‚æ•°: @vec, @func, 
+ *       @dataï¼Œå‡½æ•°funcçš„å¤–å¸¦å‚æ•°
+ * æè¿°:
+ *      1. å¦‚æœæŸä¸ªå…ƒç´ æ‰§è¡Œå¤±è´¥ï¼Œåˆ™ç›´æ¥è¿”å›é”™è¯¯
+ * è¿”å›: æˆåŠŸï¼Œ0ï¼Œå¤±è´¥ï¼ŒNULL
  **/
 int unc_vector_each(unc_vector_t *vec, unc_vector_each_t func, void *data)
 {
@@ -266,7 +266,7 @@ int unc_vector_each(unc_vector_t *vec, unc_vector_each_t func, void *data)
 
 #ifdef __UNC_VECTOR_TEST_MAIN__
 
-//#define COUNT       100   #²âÊÔresize
+//#define COUNT       100   #æµ‹è¯•resize
 #define COUNT 10
 
 typedef struct _test{
@@ -311,7 +311,7 @@ int main(int argc, char **argv)
         unc_vector_push(vec, &t);
     }
 
-    //²åÈëÖØ¸´Öµ
+    //æ’å…¥é‡å¤å€¼
     t.a = 3;t.b = 97;
     unc_vector_push(vec, &t);
     unc_vector_push(vec, &t);
@@ -327,7 +327,7 @@ int main(int argc, char **argv)
     printf("slots:%d\n", vec->slots);
     printf("count:%d\n\n\n", vec->count);
 
-    //ÅÅĞò
+    //æ’åº
     unc_vector_sort(vec, my_cmp);
     unc_vector_each(vec, my_print, vec);
     printf("slots:%d\n", vec->slots);

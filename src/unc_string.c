@@ -11,8 +11,8 @@
  * Description :  Unc_string, a C dynamic strings library.
  *                Derived from redis.
  *
- *        ×¢Òâ :  ËùÓĞÄÚ²¿µ÷ÓÃunc_str_expand_roomµÄº¯Êı£¬·µ»ØµÄunc_str_t *¿ÉÄÜ
- *                ÊÇÒ»¸öĞÂµØÖ·£¬ËùÒÔĞèÒªÓÃÁ´Ê½±í´ï£¬ÈçÏÂ£º
+ *        æ³¨æ„ :  æ‰€æœ‰å†…éƒ¨è°ƒç”¨unc_str_expand_roomçš„å‡½æ•°ï¼Œè¿”å›çš„unc_str_t *å¯èƒ½
+ *                æ˜¯ä¸€ä¸ªæ–°åœ°å€ï¼Œæ‰€ä»¥éœ€è¦ç”¨é“¾å¼è¡¨è¾¾ï¼Œå¦‚ä¸‹ï¼š
  *                g_instance->conf_path = unc_str_cpy(g_instance->conf_path,
  *                                                    "./mossad.conf");
  * 
@@ -24,14 +24,14 @@
 
 #include "unc_core.h"
  
-/* Ä¬ÈÏ·Ö¸î×Ö·û£º'\t',' ','\r','\n' */
+/* é»˜è®¤åˆ†å‰²å­—ç¬¦ï¼š'\t',' ','\r','\n' */
 static const unsigned char g_default_ifs[256] = {[9]=1, [10]=1, [13]=1, [32]=1};
 
 unc_str_t* unc_str_newlen(const void *init, size_t init_len);
 //static void unc_str_dump(unc_str_t *pstr);
 
 /**
- * ¹¦ÄÜ:»ñµÃ×Ö·û´®³¤¶È 
+ * åŠŸèƒ½:è·å¾—å­—ç¬¦ä¸²é•¿åº¦ 
  **/
 static inline size_t unc_str_len(const unc_str_t *pstr)
 {
@@ -42,7 +42,7 @@ static inline size_t unc_str_len(const unc_str_t *pstr)
 }
 
 /**
- * ¹¦ÄÜ:»ñµÃ×Ö·û´®µÄÊ£ÓàÈİÁ¿(free) 
+ * åŠŸèƒ½:è·å¾—å­—ç¬¦ä¸²çš„å‰©ä½™å®¹é‡(free) 
  **/
 static inline size_t unc_str_avail(const unc_str_t *pstr)
 {
@@ -53,7 +53,7 @@ static inline size_t unc_str_avail(const unc_str_t *pstr)
 }
 
 /*
- * ¹¦ÄÜ: »ñµÃ×Ö·û´®½á¹¹Ò»¹²·ÖÅäµÄ¿Õ¼ä
+ * åŠŸèƒ½: è·å¾—å­—ç¬¦ä¸²ç»“æ„ä¸€å…±åˆ†é…çš„ç©ºé—´
  **/
 static inline size_t unc_str_alloc_size(const unc_str_t *pstr)
 {
@@ -61,13 +61,13 @@ static inline size_t unc_str_alloc_size(const unc_str_t *pstr)
 }
 
 /**
- * ¹¦ÄÜ:³õÊ¼»¯×Ö·û´® 
- * ²ÎÊı:@init:³õÊ¼×Ö·û´® 
- *      @init_len:³õÊ¼×Ö·û´®³¤¶È 
- * ÃèÊö:
- *      1. ÒÔinit±íÊ¾µÄ×Ö·û´®£¬³õÊ¼»¯Ò»¸öĞÂ´®
- *      2. ´Ëº¯Êı²»¶ÔÍâ£¬ÒòÎªÈç¹ûinit_len²»¶Ô£¬»áÔì³É×Ö·û´®"¿Õ¶´"
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:åˆå§‹åŒ–å­—ç¬¦ä¸² 
+ * å‚æ•°:@init:åˆå§‹å­—ç¬¦ä¸² 
+ *      @init_len:åˆå§‹å­—ç¬¦ä¸²é•¿åº¦ 
+ * æè¿°:
+ *      1. ä»¥initè¡¨ç¤ºçš„å­—ç¬¦ä¸²ï¼Œåˆå§‹åŒ–ä¸€ä¸ªæ–°ä¸²
+ *      2. æ­¤å‡½æ•°ä¸å¯¹å¤–ï¼Œå› ä¸ºå¦‚æœinit_lenä¸å¯¹ï¼Œä¼šé€ æˆå­—ç¬¦ä¸²"ç©ºæ´"
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t* unc_str_newlen(const void *init, size_t init_len)
 {
@@ -96,10 +96,10 @@ unc_str_t* unc_str_newlen(const void *init, size_t init_len)
 }
 
 /**
- * ¹¦ÄÜ:³õÊ¼»¯×Ö·û´® 
- * ²ÎÊı:@init:³õÊ¼×Ö·û´® 
- * ÃèÊö:ÒÔinit±íÊ¾µÄ×Ö·û´®£¬³õÊ¼»¯Ò»¸öĞÂ´®
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:åˆå§‹åŒ–å­—ç¬¦ä¸² 
+ * å‚æ•°:@init:åˆå§‹å­—ç¬¦ä¸² 
+ * æè¿°:ä»¥initè¡¨ç¤ºçš„å­—ç¬¦ä¸²ï¼Œåˆå§‹åŒ–ä¸€ä¸ªæ–°ä¸²
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t* unc_str_new(const void *init)
 {
@@ -108,8 +108,8 @@ unc_str_t* unc_str_new(const void *init)
 }
 
 /**
- * ¹¦ÄÜ:³õÊ¼»¯¿Õ×Ö·û´® 
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:åˆå§‹åŒ–ç©ºå­—ç¬¦ä¸² 
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t* unc_str_new_empty(void)
 {
@@ -117,10 +117,10 @@ unc_str_t* unc_str_new_empty(void)
 }    
 
 /**
- * ¹¦ÄÜ:×Ö·û´®duplicate 
- * ²ÎÊı:@init:³õÊ¼×Ö·û´® 
- * ÃèÊö:ÒÔinit±íÊ¾µÄ×Ö·û´®£¬¿ËÂ¡Ò»·İĞÂ´®
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:å­—ç¬¦ä¸²duplicate 
+ * å‚æ•°:@init:åˆå§‹å­—ç¬¦ä¸² 
+ * æè¿°:ä»¥initè¡¨ç¤ºçš„å­—ç¬¦ä¸²ï¼Œå…‹éš†ä¸€ä»½æ–°ä¸²
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t* unc_str_dup(unc_str_t *init)
 {
@@ -132,8 +132,8 @@ unc_str_t* unc_str_dup(unc_str_t *init)
 }
 
 /**
- * ¹¦ÄÜ:ÊÍ·Å×Ö·û´® 
- * ²ÎÊı:@str 
+ * åŠŸèƒ½:é‡Šæ”¾å­—ç¬¦ä¸² 
+ * å‚æ•°:@str 
  **/
 void unc_str_free(unc_str_t *pstr)
 {
@@ -147,9 +147,9 @@ void unc_str_free(unc_str_t *pstr)
 }
 
 /**
- * ¹¦ÄÜ:Çå¿Õ×Ö·û´® 
- * ²ÎÊı:@str 
- * ÃèÊö:½öÇå¿Õ£¬²»ÊÍ·Å
+ * åŠŸèƒ½:æ¸…ç©ºå­—ç¬¦ä¸² 
+ * å‚æ•°:@str 
+ * æè¿°:ä»…æ¸…ç©ºï¼Œä¸é‡Šæ”¾
  **/
 void unc_str_clear(unc_str_t *pstr)
 {
@@ -159,16 +159,16 @@ void unc_str_clear(unc_str_t *pstr)
 }
 
 /**
- * ¹¦ÄÜ:×Ö·û´®À©Èİ 
- * ²ÎÊı:@pstr:³õÊ¼×Ö·û´®Ö¸ÕëµÄÖ¸Õë 
- *      @add_len:À©ÈİµÄÁ¿ 
- * ÃèÊö:
- *      1.Èç¹ûfree¿Õ¼ä×ã¹»£¬ÔòÖ±½ÓÍË³ö
- *      2.Èç¹ûfree¿Õ¼ä²»¹»£¬ÔòÖÁÉÙÄÜÀ©Èİ2±¶new_len
- *      3.Ö´ĞĞÍê¸Ãº¯Êıºó£¬len×Ö¶Î²»»á±ä»¯£¬±ä»¯µÄÊÇfree
- *      4.ÓÉÓÚreallocÌØĞÔ£¬ĞÂµÄµØÖ·¿ÉÄÜºÍpstr²»Í¬£¬ËùÒÔpstrÊÇ¶ş¼¶Ö¸Õë
- *      5.ÓÉÓÚreallocÌØĞÔ£¬ÎŞĞèÊÍ·ÅÔ­À´µÄpstr(×Ô¶¯ÊÍ·Å)
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë(¿ÉÄÜÊÇĞÂµØÖ·);Ê§°Ü:NULL
+ * åŠŸèƒ½:å­—ç¬¦ä¸²æ‰©å®¹ 
+ * å‚æ•°:@pstr:åˆå§‹å­—ç¬¦ä¸²æŒ‡é’ˆçš„æŒ‡é’ˆ 
+ *      @add_len:æ‰©å®¹çš„é‡ 
+ * æè¿°:
+ *      1.å¦‚æœfreeç©ºé—´è¶³å¤Ÿï¼Œåˆ™ç›´æ¥é€€å‡º
+ *      2.å¦‚æœfreeç©ºé—´ä¸å¤Ÿï¼Œåˆ™è‡³å°‘èƒ½æ‰©å®¹2å€new_len
+ *      3.æ‰§è¡Œå®Œè¯¥å‡½æ•°åï¼Œlenå­—æ®µä¸ä¼šå˜åŒ–ï¼Œå˜åŒ–çš„æ˜¯free
+ *      4.ç”±äºreallocç‰¹æ€§ï¼Œæ–°çš„åœ°å€å¯èƒ½å’Œpsträ¸åŒï¼Œæ‰€ä»¥pstræ˜¯äºŒçº§æŒ‡é’ˆ
+ *      5.ç”±äºreallocç‰¹æ€§ï¼Œæ— éœ€é‡Šæ”¾åŸæ¥çš„pstr(è‡ªåŠ¨é‡Šæ”¾)
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ(å¯èƒ½æ˜¯æ–°åœ°å€);å¤±è´¥:NULL
  **/
 static unc_str_t* unc_str_expand_room(unc_str_t **pstr, size_t add_len)
 {
@@ -205,13 +205,13 @@ static unc_str_t* unc_str_expand_room(unc_str_t **pstr, size_t add_len)
 }
 
 /**
- * ¹¦ÄÜ:×Ö·û´®lenÔö³¤ 
- * ²ÎÊı:@pstr:×Ö·û´®Ö¸Õë 
- *      @incr:lenÔö³¤Öµ 
- * ÃèÊö:
- *      1.Ò»°ãÓÃÓÚ×Ö·û´®¶ÁÈëÁËÒ»¶ÎÄÚÈİÖ®ºó,lenËæÖ®Ôö´ó
- *      2.incr¿ÉÒÔÊÇ¸ºÖµ£¬´Ó¶ø´ïµ½×Ö·û´®rtrimµÄÄ¿µÄ
- *      3.Ò»°ãºÍº¯Êıunc_str_expand_room()°´¹Ì¶¨Ä£Ê½Ê¹ÓÃ
+ * åŠŸèƒ½:å­—ç¬¦ä¸²lenå¢é•¿ 
+ * å‚æ•°:@pstr:å­—ç¬¦ä¸²æŒ‡é’ˆ 
+ *      @incr:lenå¢é•¿å€¼ 
+ * æè¿°:
+ *      1.ä¸€èˆ¬ç”¨äºå­—ç¬¦ä¸²è¯»å…¥äº†ä¸€æ®µå†…å®¹ä¹‹å,lenéšä¹‹å¢å¤§
+ *      2.incrå¯ä»¥æ˜¯è´Ÿå€¼ï¼Œä»è€Œè¾¾åˆ°å­—ç¬¦ä¸²rtrimçš„ç›®çš„
+ *      3.ä¸€èˆ¬å’Œå‡½æ•°unc_str_expand_room()æŒ‰å›ºå®šæ¨¡å¼ä½¿ç”¨
  *      
  *          oldlen = unc_str_len(pstr); 
  *          pstr   = unc_str_expand_room(s, BUFFER_SIZE); 
@@ -229,14 +229,14 @@ void unc_str_incr_len(unc_str_t *pstr, int incr)
 }
 
 /**
- * ¹¦ÄÜ:×Ö·û´®Æ´½Ó 
- * ²ÎÊı:@pstr:³õÊ¼×Ö·û´®¶ş¼¶Ö¸Õë 
- *      @t:´ıÆ´½Ó´® 
- *      @len:Æ´½Ó³¤¶È 
- * ÃèÊö:
- *      1.unc_str_expand_room²¢²»Ò»¶¨ÕæµÄ»áÀ©Èİ(free¹»ÓÃ)
- *      2.·µ»ØµÄpstr_new¿ÉÄÜºÍpstr²»Í¬
- * ·µ»Ø:³É¹¦:ĞÂ×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:å­—ç¬¦ä¸²æ‹¼æ¥ 
+ * å‚æ•°:@pstr:åˆå§‹å­—ç¬¦ä¸²äºŒçº§æŒ‡é’ˆ 
+ *      @t:å¾…æ‹¼æ¥ä¸² 
+ *      @len:æ‹¼æ¥é•¿åº¦ 
+ * æè¿°:
+ *      1.unc_str_expand_roomå¹¶ä¸ä¸€å®šçœŸçš„ä¼šæ‰©å®¹(freeå¤Ÿç”¨)
+ *      2.è¿”å›çš„pstr_newå¯èƒ½å’Œpsträ¸åŒ
+ * è¿”å›:æˆåŠŸ:æ–°å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t *unc_str_cat_len(unc_str_t **pstr, const void *t, size_t len)
 {
@@ -256,10 +256,10 @@ unc_str_t *unc_str_cat_len(unc_str_t **pstr, const void *t, size_t len)
 }
 
 /**
- * ¹¦ÄÜ:×Ö·û´®Æ´½Ó 
- * ²ÎÊı:@pstr:³õÊ¼×Ö·û´®¶ş¼¶Ö¸Õë  
- *      @t:´ıÆ´½Ó´® 
- * ·µ»Ø:³É¹¦:ĞÂ×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:å­—ç¬¦ä¸²æ‹¼æ¥ 
+ * å‚æ•°:@pstr:åˆå§‹å­—ç¬¦ä¸²äºŒçº§æŒ‡é’ˆ  
+ *      @t:å¾…æ‹¼æ¥ä¸² 
+ * è¿”å›:æˆåŠŸ:æ–°å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t *unc_str_cat(unc_str_t **pstr, const void *t)
 {
@@ -267,11 +267,11 @@ unc_str_t *unc_str_cat(unc_str_t **pstr, const void *t)
 }
 
 /**
- * ¹¦ÄÜ:×Ö·û´®Æ´½Ó 
- * ²ÎÊı:@init:³õÊ¼×Ö·û´®¶ş¼¶Ö¸Õë  
- *      @init_len:³õÊ¼×Ö·û´®³¤¶È 
- * ÃèÊö:ÒÔinit±íÊ¾µÄ×Ö·û´®£¬³õÊ¼»¯Ò»¸öĞÂ´®
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:å­—ç¬¦ä¸²æ‹¼æ¥ 
+ * å‚æ•°:@init:åˆå§‹å­—ç¬¦ä¸²äºŒçº§æŒ‡é’ˆ  
+ *      @init_len:åˆå§‹å­—ç¬¦ä¸²é•¿åº¦ 
+ * æè¿°:ä»¥initè¡¨ç¤ºçš„å­—ç¬¦ä¸²ï¼Œåˆå§‹åŒ–ä¸€ä¸ªæ–°ä¸²
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t *unc_str_cat_unc_str(unc_str_t **pstr, unc_str_t *pstr1)
 {
@@ -279,11 +279,11 @@ unc_str_t *unc_str_cat_unc_str(unc_str_t **pstr, unc_str_t *pstr1)
 }
 
 /**
- * ¹¦ÄÜ:×Ö·û´®¿½±´ 
- * ²ÎÊı:@pstr:³õÊ¼×Ö·û´®¶ş¼¶Ö¸Õë  
- *      @t:´ı¿½±´´® 
- *      @len:´ı¿½±´´®³¤¶È 
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:å­—ç¬¦ä¸²æ‹·è´ 
+ * å‚æ•°:@pstr:åˆå§‹å­—ç¬¦ä¸²äºŒçº§æŒ‡é’ˆ  
+ *      @t:å¾…æ‹·è´ä¸² 
+ *      @len:å¾…æ‹·è´ä¸²é•¿åº¦ 
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t *unc_str_cpy_len(unc_str_t **pstr, const void *t, size_t len)
 {
@@ -309,10 +309,10 @@ unc_str_t *unc_str_cpy_len(unc_str_t **pstr, const void *t, size_t len)
 }
 
 /**
- * ¹¦ÄÜ:³õÊ¼¿½±´ 
- * ²ÎÊı:@pstr:³õÊ¼×Ö·û´®¶ş¼¶Ö¸Õë  
- *      @t:´ı¿½±´´® 
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:åˆå§‹æ‹·è´ 
+ * å‚æ•°:@pstr:åˆå§‹å­—ç¬¦ä¸²äºŒçº§æŒ‡é’ˆ  
+ *      @t:å¾…æ‹·è´ä¸² 
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t *unc_str_cpy(unc_str_t **pstr, const void *t)
 {
@@ -320,18 +320,18 @@ unc_str_t *unc_str_cpy(unc_str_t **pstr, const void *t)
 }
 
 /**
- * ¹¦ÄÜ:¸ñÊ½»¯Æ´½Ó×Ö·û´® 
- * ²ÎÊı:@pstr:³õÊ¼×Ö·û´®¶ş¼¶Ö¸Õë 
- *      @fmt:¸ñÊ½
- *      @...:²»¶¨²ÎÊı
- * ÃèÊö:
- *      1. ²»¶ÏÌ½²âbufÊÊÒËµÄ³¤¶È£¬È»ºó½øĞĞÆ´½Ó
- *      2. ÓÉÓÚvsnprintfµÄÌØĞÔ£¬ËùÒÔĞèÒªÑ¡Ôñµ¹ÊıµÚ¶şÎ»×÷Îª±ê¼ÇÀ´ÅĞ¶ÏÊÇ·ñ·ÖÅä¹»ÁË×ã¹»µÄ³¤¶È 
- * ËµÃ÷:
- *      1. vsnprintf»á×Ô¶¯ÔÚÄ©Î²²¹³ä'\0',²¢Õ¼ÓÃ×îºóÒ»¸ö×Ö½Ú
- *      2. vsnprintf·µ»ØĞèÒª´òÓ¡µÄ×Ö·ûÊıÁ¿£¬²»°üÀ¨×îºóµÄ'\0'(ÓÉÓÚlenµÄÏŞÖÆ£¬¿ÉÄÜÊµ¼Ê´òÓ¡²¢Ã»ÓĞÕâÃ´¶à)
- *      3. vsnprintfÈç¹ûlenµÄ³¤¶ÈĞ¡ÓÚĞèÒª´òÓ¡µÄ³¤¶È£¬ÔòÖ»»á,¸´ÖÆlen-1¸ö×Ö½Ú£¬×îºóÒ»¸ö²¹³ä'\0'
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:æ ¼å¼åŒ–æ‹¼æ¥å­—ç¬¦ä¸² 
+ * å‚æ•°:@pstr:åˆå§‹å­—ç¬¦ä¸²äºŒçº§æŒ‡é’ˆ 
+ *      @fmt:æ ¼å¼
+ *      @...:ä¸å®šå‚æ•°
+ * æè¿°:
+ *      1. ä¸æ–­æ¢æµ‹bufé€‚å®œçš„é•¿åº¦ï¼Œç„¶åè¿›è¡Œæ‹¼æ¥
+ *      2. ç”±äºvsnprintfçš„ç‰¹æ€§ï¼Œæ‰€ä»¥éœ€è¦é€‰æ‹©å€’æ•°ç¬¬äºŒä½ä½œä¸ºæ ‡è®°æ¥åˆ¤æ–­æ˜¯å¦åˆ†é…å¤Ÿäº†è¶³å¤Ÿçš„é•¿åº¦ 
+ * è¯´æ˜:
+ *      1. vsnprintfä¼šè‡ªåŠ¨åœ¨æœ«å°¾è¡¥å……'\0',å¹¶å ç”¨æœ€åä¸€ä¸ªå­—èŠ‚
+ *      2. vsnprintfè¿”å›éœ€è¦æ‰“å°çš„å­—ç¬¦æ•°é‡ï¼Œä¸åŒ…æ‹¬æœ€åçš„'\0'(ç”±äºlençš„é™åˆ¶ï¼Œå¯èƒ½å®é™…æ‰“å°å¹¶æ²¡æœ‰è¿™ä¹ˆå¤š)
+ *      3. vsnprintfå¦‚æœlençš„é•¿åº¦å°äºéœ€è¦æ‰“å°çš„é•¿åº¦ï¼Œåˆ™åªä¼š,å¤åˆ¶len-1ä¸ªå­—èŠ‚ï¼Œæœ€åä¸€ä¸ªè¡¥å……'\0'
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t * unc_str_cat_sprintf(unc_str_t **pstr, const char *fmt, ...)
 {
@@ -366,18 +366,18 @@ unc_str_t * unc_str_cat_sprintf(unc_str_t **pstr, const char *fmt, ...)
 }
 
 /**
- * ¹¦ÄÜ:¸ñÊ½»¯×Ö·û´® 
- * ²ÎÊı:@pstr:³õÊ¼×Ö·û´® 
- *      @fmt:¸ñÊ½
- *      @...:²»¶¨²ÎÊı
- * ÃèÊö:
- *      1. ²»¶ÏÌ½²âbufÊÊÒËµÄ³¤¶È£¬È»ºó½øĞĞÆ´½Ó
- *      2. ÓÉÓÚvsnprintfµÄÌØĞÔ£¬ËùÒÔĞèÒªÑ¡Ôñµ¹ÊıµÚ¶şÎ»×÷Îª±ê¼ÇÀ´ÅĞ¶ÏÊÇ·ñ·ÖÅä¹»ÁË×ã¹»µÄ³¤¶È 
- * ËµÃ÷:
- *      1. vsnprintf»á×Ô¶¯ÔÚÄ©Î²²¹³ä'\0',²¢Õ¼ÓÃ×îºóÒ»¸ö×Ö½Ú
- *      2. vsnprintf·µ»ØĞèÒª´òÓ¡µÄ×Ö·ûÊıÁ¿£¬²»°üÀ¨×îºóµÄ'\0'(ÓÉÓÚlenµÄÏŞÖÆ£¬¿ÉÄÜÊµ¼Ê´òÓ¡²¢Ã»ÓĞÕâÃ´¶à)
- *      3. vsnprintfÈç¹ûlenµÄ³¤¶ÈĞ¡ÓÚĞèÒª´òÓ¡µÄ³¤¶È£¬ÔòÖ»»á,¸´ÖÆlen-1¸ö×Ö½Ú£¬×îºóÒ»¸ö²¹³ä'\0'
- * ·µ»Ø:³É¹¦:×Ö·û´®Ö¸Õë;Ê§°Ü:NULL
+ * åŠŸèƒ½:æ ¼å¼åŒ–å­—ç¬¦ä¸² 
+ * å‚æ•°:@pstr:åˆå§‹å­—ç¬¦ä¸² 
+ *      @fmt:æ ¼å¼
+ *      @...:ä¸å®šå‚æ•°
+ * æè¿°:
+ *      1. ä¸æ–­æ¢æµ‹bufé€‚å®œçš„é•¿åº¦ï¼Œç„¶åè¿›è¡Œæ‹¼æ¥
+ *      2. ç”±äºvsnprintfçš„ç‰¹æ€§ï¼Œæ‰€ä»¥éœ€è¦é€‰æ‹©å€’æ•°ç¬¬äºŒä½ä½œä¸ºæ ‡è®°æ¥åˆ¤æ–­æ˜¯å¦åˆ†é…å¤Ÿäº†è¶³å¤Ÿçš„é•¿åº¦ 
+ * è¯´æ˜:
+ *      1. vsnprintfä¼šè‡ªåŠ¨åœ¨æœ«å°¾è¡¥å……'\0',å¹¶å ç”¨æœ€åä¸€ä¸ªå­—èŠ‚
+ *      2. vsnprintfè¿”å›éœ€è¦æ‰“å°çš„å­—ç¬¦æ•°é‡ï¼Œä¸åŒ…æ‹¬æœ€åçš„'\0'(ç”±äºlençš„é™åˆ¶ï¼Œå¯èƒ½å®é™…æ‰“å°å¹¶æ²¡æœ‰è¿™ä¹ˆå¤š)
+ *      3. vsnprintfå¦‚æœlençš„é•¿åº¦å°äºéœ€è¦æ‰“å°çš„é•¿åº¦ï¼Œåˆ™åªä¼š,å¤åˆ¶len-1ä¸ªå­—èŠ‚ï¼Œæœ€åä¸€ä¸ªè¡¥å……'\0'
+ * è¿”å›:æˆåŠŸ:å­—ç¬¦ä¸²æŒ‡é’ˆ;å¤±è´¥:NULL
  **/
 unc_str_t * unc_str_sprintf(unc_str_t **pstr, const char *fmt, ...)
 {
@@ -413,10 +413,10 @@ unc_str_t * unc_str_sprintf(unc_str_t **pstr, const char *fmt, ...)
 }
 
 /**
- * ¹¦ÄÜ:trim
- * ²ÎÊı:@pstr 
- *      @cset,ĞèÒªtrimµÄ×Ö·û¼¯ºÏ 
- * ÃèÊö:
+ * åŠŸèƒ½:trim
+ * å‚æ•°:@pstr 
+ *      @cset,éœ€è¦trimçš„å­—ç¬¦é›†åˆ 
+ * æè¿°:
  **/
 void unc_str_trim(unc_str_t *pstr, const char *cset)
 {
@@ -438,20 +438,20 @@ void unc_str_trim(unc_str_t *pstr, const char *cset)
 }
 
 /**
- * ¹¦ÄÜ:×Ö·û´®±£Áô¸ø¶¨·¶Î§£¬ÆäÓà²¿·ÖÂË³ı 
- * ²ÎÊı:@pstr 
- *      @start, ¿ªÊ¼·¶Î§, [0, len-1] 
- *      @end,   ½áÊø·¶Î§, [0, len-1] 
- * ÃèÊö:
- *      Í¨³£ÓÃÓÚ´Ó×Ö·û´®¶Á³ö²¿·ÖÊı¾İÖ®ºóµÄÇĞ¸î£¬Ä£Ê½£º
+ * åŠŸèƒ½:å­—ç¬¦ä¸²ä¿ç•™ç»™å®šèŒƒå›´ï¼Œå…¶ä½™éƒ¨åˆ†æ»¤é™¤ 
+ * å‚æ•°:@pstr 
+ *      @start, å¼€å§‹èŒƒå›´, [0, len-1] 
+ *      @end,   ç»“æŸèŒƒå›´, [0, len-1] 
+ * æè¿°:
+ *      é€šå¸¸ç”¨äºä»å­—ç¬¦ä¸²è¯»å‡ºéƒ¨åˆ†æ•°æ®ä¹‹åçš„åˆ‡å‰²ï¼Œæ¨¡å¼ï¼š
  *      buflen = xxx; 
  *      memcpy(buf, pstr->buf, buflen);
  *      unc_str_range(pstr, buflen, unc_str_len(pstr)-1);
  *      ....handle buf...
- * ×¢Òâ:
- *      µ÷ÓÃµÄÊ±ºòÓ¦¸ÃÅĞ¶Ï·µ»ØÖµ£¬Èç¹û·µ»ØNONEED£¬Ó¦¸Ã¿¼ÂÇclear×Ö·û´®
- * ·µ»Ø:
- *      ³É¹¦£¬0£»Ê§°Ü£¬-1£»Ã»±ØÒª£¬-3
+ * æ³¨æ„:
+ *      è°ƒç”¨çš„æ—¶å€™åº”è¯¥åˆ¤æ–­è¿”å›å€¼ï¼Œå¦‚æœè¿”å›NONEEDï¼Œåº”è¯¥è€ƒè™‘clearå­—ç¬¦ä¸²
+ * è¿”å›:
+ *      æˆåŠŸï¼Œ0ï¼›å¤±è´¥ï¼Œ-1ï¼›æ²¡å¿…è¦ï¼Œ-3
  **/
 int unc_str_range(unc_str_t *pstr, int start, int end)
 {
@@ -474,8 +474,8 @@ int unc_str_range(unc_str_t *pstr, int start, int end)
 }
 
 /**
- * ¹¦ÄÜ:×ª»»³ÉĞ¡Ğ´ 
- * ²ÎÊı:@char *s
+ * åŠŸèƒ½:è½¬æ¢æˆå°å†™ 
+ * å‚æ•°:@char *s
  **/
 void unc_str_tolower(char *s)
 {
@@ -486,8 +486,8 @@ void unc_str_tolower(char *s)
 }
 
 /**
- * ¹¦ÄÜ:×ª»»³É´óĞ´ 
- * ²ÎÊı:@char *s
+ * åŠŸèƒ½:è½¬æ¢æˆå¤§å†™ 
+ * å‚æ•°:@char *s
  **/
 void unc_str_toupper(char *s)
 {
@@ -498,10 +498,10 @@ void unc_str_toupper(char *s)
 }
 
 /**
- * ¹¦ÄÜ:×Ö·û´®±È½Ï 
- * ²ÎÊı:@char *s1 
+ * åŠŸèƒ½:å­—ç¬¦ä¸²æ¯”è¾ƒ 
+ * å‚æ•°:@char *s1 
  *      @char *s2 
- * ·µ»Ø:int
+ * è¿”å›:int
  **/
 int unc_str_cmp(const char *s1, const char *s2)
 {
@@ -518,16 +518,16 @@ int unc_str_cmp(const char *s1, const char *s2)
 }
 
 /**
- * ¹¦ÄÜ: string explode
- * ²ÎÊı:@ buf´ıÇĞ¸îµÄ×Ö·û´®
- *      @ fieldÇĞ¸îÍê³Éºó£¬Ã¿·İµÄÊ×µØÖ·
- *      @ n´ıÇĞ¸îµÄ·İÊı
- *      @ const unsigned char *ifs£¬Ö¸¶¨µÄ·Ö¸ô·û
- * ÃèÊö:
- *      1.½«bufÇĞ¸î³É×î¶àn·İ£¬Ã¿·İ¶¼ÓÃ\0½áÎ²£¬Ã¿·İµÄÊ×µØÖ·´æÈëfield
- * ·µ»Ø: ÕæÊµÇĞ¸îµÄ·İÊı
- * ×¢Òâ: 
- *      1.unc_str_t->buf²»ÄÜÖ±½Ó´«Èë£¬»áÔì³É¿×¶´
+ * åŠŸèƒ½: string explode
+ * å‚æ•°:@ bufå¾…åˆ‡å‰²çš„å­—ç¬¦ä¸²
+ *      @ fieldåˆ‡å‰²å®Œæˆåï¼Œæ¯ä»½çš„é¦–åœ°å€
+ *      @ nå¾…åˆ‡å‰²çš„ä»½æ•°
+ *      @ const unsigned char *ifsï¼ŒæŒ‡å®šçš„åˆ†éš”ç¬¦
+ * æè¿°:
+ *      1.å°†bufåˆ‡å‰²æˆæœ€å¤šnä»½ï¼Œæ¯ä»½éƒ½ç”¨\0ç»“å°¾ï¼Œæ¯ä»½çš„é¦–åœ°å€å­˜å…¥field
+ * è¿”å›: çœŸå®åˆ‡å‰²çš„ä»½æ•°
+ * æ³¨æ„: 
+ *      1.unc_str_t->bufä¸èƒ½ç›´æ¥ä¼ å…¥ï¼Œä¼šé€ æˆå­”æ´
  **/
 int unc_str_explode(unsigned char *buf, unsigned char *field[], 
                     int n, const unsigned char *ifs)
@@ -544,7 +544,7 @@ int unc_str_explode(unsigned char *buf, unsigned char *field[],
     }
     else if(*ifs)
     {
-        tempifs = (unsigned char *)alloca(256);/*ÔÚÕ»ÉÏÉêÇë¿Õ¼ä*/
+        tempifs = (unsigned char *)alloca(256);/*åœ¨æ ˆä¸Šç”³è¯·ç©ºé—´*/
         memset((void*)tempifs, 0, 256);
         while(*ifs)
         {
@@ -566,7 +566,7 @@ int unc_str_explode(unsigned char *buf, unsigned char *field[],
             buf++;
         }
 
-        if(!*buf)/* ×Ö·û´®½áÊø */
+        if(!*buf)/* å­—ç¬¦ä¸²ç»“æŸ */
         {
             break;
         }
@@ -593,7 +593,7 @@ int unc_str_explode(unsigned char *buf, unsigned char *field[],
             buf++;
         }
 
-        if(!*buf)/* ×Ö·û´®½áÊø */
+        if(!*buf)/* å­—ç¬¦ä¸²ç»“æŸ */
         {
             break;
         }
@@ -605,7 +605,7 @@ int unc_str_explode(unsigned char *buf, unsigned char *field[],
 
 #ifdef __UNC_STRING_TEST_MAIN__
 /**
- * ¹¦ÄÜ: string dump
+ * åŠŸèƒ½: string dump
  **/
 static void unc_str_dump(unc_str_t *pstr)
 {
@@ -644,14 +644,14 @@ int main()
     unc_str_free(pstr);
     */
     /*
-    //Ò»°ãÓÃ·¨
+    //ä¸€èˆ¬ç”¨æ³•
     pstr = unc_str_newlen("hello",strlen("hello"));
     unc_str_dump(pstr);
     unc_str_free(pstr);
     */
 
     /*
-    //²âÊÔduplication
+    //æµ‹è¯•duplication
     pstr = unc_str_new("hello");
     pstr_new = unc_str_dup(pstr);
     unc_str_dump(pstr_new);
@@ -663,7 +663,7 @@ int main()
     pstr = unc_str_new_empty();
     unc_str_dump(pstr);
     pstr_new = unc_str_dup(pstr);
-    unc_str_dump(pstr_new); //#segment fault£¬ÒòÎªÈç¹ûÊÇ¿Õ´®£¬Ôòdup·µ»ØNULL
+    unc_str_dump(pstr_new); //#segment faultï¼Œå› ä¸ºå¦‚æœæ˜¯ç©ºä¸²ï¼Œåˆ™dupè¿”å›NULL
     unc_str_free(pstr);
     unc_str_free(pstr_new);
     */
@@ -688,7 +688,7 @@ int main()
     */
 
     /*
-    //²âÊÔexpand
+    //æµ‹è¯•expand
     pstr = unc_str_new("hello");
     unc_str_dump(pstr);
     unc_str_expand_room(&pstr, 100);
@@ -698,7 +698,7 @@ int main()
     */ 
     
     /*
-    //²âÊÔunc_str_incr_len
+    //æµ‹è¯•unc_str_incr_len
     pstr = unc_str_new("hello");
     unc_str_expand_room(&pstr, 100);
     i = read(0, pstr->buf+pstr->len, 100);
@@ -724,7 +724,7 @@ int main()
     */ 
     
    
-    //ÀûÓÃÁ¬ĞøµÄÄÚ´æ·ÖÅä£¬ÆÈÊ¹realloc±ØÈ»»á±ä¸ü³õÊ¼µØÖ·
+    //åˆ©ç”¨è¿ç»­çš„å†…å­˜åˆ†é…ï¼Œè¿«ä½¿reallocå¿…ç„¶ä¼šå˜æ›´åˆå§‹åœ°å€
     pstr = unc_str_new("hello");
     pstr_new = unc_str_new("12345"); 
 
@@ -732,7 +732,7 @@ int main()
     unc_str_dump(pstr);
     unc_str_dump(pstr_new); 
     
-    printf("addr1:%p\n", unc_str_cpy(&pstr, "abcdefghigklmn")); //ptrµØÖ·½«±ä¸ü!
+    printf("addr1:%p\n", unc_str_cpy(&pstr, "abcdefghigklmn")); //ptråœ°å€å°†å˜æ›´!
     printf("addr2:%p\n", unc_str_cpy(&pstr_new, "a"));
     
     printf("%p, %p\n", pstr, pstr_new);
@@ -774,7 +774,7 @@ int main()
     */
     
     /*
-    //Ä£Äâ´Ó×Ö·û´®ÇĞ×ßÒ»²¿·Ö
+    //æ¨¡æ‹Ÿä»å­—ç¬¦ä¸²åˆ‡èµ°ä¸€éƒ¨åˆ†
     pstr = unc_str_new("abcdefghigklmn");
     unc_str_dump(pstr);
     i=5;

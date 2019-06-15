@@ -8,43 +8,43 @@
  *
  *     Filename:  unicorn.c 
  * 
- *  Description:  ¿ò¼ÜÖ÷Âß¼­¡£ 
+ *  Description:  æ¡†æ¶ä¸»é€»è¾‘ã€‚ 
  * 
  *      Version:  1.0.0 
  * 
  *       Author:  HQ 
  *
- * Ò»¸öÇ±ÔÚµÄ¿Ó:
- *   Èç¹ûserverÊÇ³¤Á¬½Ó·şÎñ£¬ÄÇÃ´Ã»ÓĞÈÎºÎÎÊÌâ¡£µ«ÊÇ£¬Èç¹ûserverÊÇ¶ÌÁ¬½Ó·şÎñ£¬¼´:
- *   server·µ»ØµÄÄÚÈİÂú×ãÈÃcheck_full_responseº¯Êı·µ»Øok, ²¢ÇÒËæºóÁ¢¿ÌÖ÷¶¯ÊÍ·ÅÁËÁ¬½Ó¡£
- *   ÔÚÕâÖÖÇé¿öÏÂ£¬unicornµÄÍ³¼Æ½«Ê§Ğ§£¬²¢µ¼ÖÂ·¢ËÍ×ÜÇëÇóÊı±äÉÙ¡£
+ * ä¸€ä¸ªæ½œåœ¨çš„å‘:
+ *   å¦‚æœserveræ˜¯é•¿è¿æ¥æœåŠ¡ï¼Œé‚£ä¹ˆæ²¡æœ‰ä»»ä½•é—®é¢˜ã€‚ä½†æ˜¯ï¼Œå¦‚æœserveræ˜¯çŸ­è¿æ¥æœåŠ¡ï¼Œå³:
+ *   serverè¿”å›çš„å†…å®¹æ»¡è¶³è®©check_full_responseå‡½æ•°è¿”å›ok, å¹¶ä¸”éšåç«‹åˆ»ä¸»åŠ¨é‡Šæ”¾äº†è¿æ¥ã€‚
+ *   åœ¨è¿™ç§æƒ…å†µä¸‹ï¼Œunicornçš„ç»Ÿè®¡å°†å¤±æ•ˆï¼Œå¹¶å¯¼è‡´å‘é€æ€»è¯·æ±‚æ•°å˜å°‘ã€‚
 
- *   ÎÊÌâµÄÔ­ÒòÊÇTCPµÄEPIPE»úÖÆ £º
- *   ¶ÔÓÚ¶Ô·½ÒÑ¾­closeµÄfd£¬µÚÒ»´Îµ÷ÓÃwrite»áµ¼ÖÂÊÕµ½RST°ü£¬µ«È´ÊÇ¿ÉÒÔ³É¹¦µÄ¡£Òªµ÷ÓÃµÚ¶ş´Îwrite²ÅÄÜ¸ĞÖªµ½EPIPE´íÎó£¡£¡£¡£¡
+ *   é—®é¢˜çš„åŸå› æ˜¯TCPçš„EPIPEæœºåˆ¶ ï¼š
+ *   å¯¹äºå¯¹æ–¹å·²ç»closeçš„fdï¼Œç¬¬ä¸€æ¬¡è°ƒç”¨writeä¼šå¯¼è‡´æ”¶åˆ°RSTåŒ…ï¼Œä½†å´æ˜¯å¯ä»¥æˆåŠŸçš„ã€‚è¦è°ƒç”¨ç¬¬äºŒæ¬¡writeæ‰èƒ½æ„ŸçŸ¥åˆ°EPIPEé”™è¯¯ï¼ï¼ï¼ï¼
  * 
- *   server¹Ø±ÕÁ¬½ÓµÄÊ±ºò£¬´ËÊ±unicornÃ»ÓĞread(·µ»ØÄÚÈİÂú×ãcheck_full_response£¬Ôòunicorn×ªÏò¼ÌĞøĞ´)£¬ÎŞ·¨¸ĞÖªÁ¬½Ó¹Ø±Õ£¬
- *   Õâ¸öÊ±ºòµ÷ÓÃÁËreset_client,ÖØĞÂ¿ªÆôÁËwrite_handlerº¯Êı£¬Ôòwrite»áÈÏÎªÄÜ¹»³É¹¦(³ı·Ç´ÕÇÉÒª´¥·¢¶à´Îwrite)£¬
- *   ´ËÊ±unicornÈÏÎª·¢ËÍÁËÒ»´ÎÍêÕûµÄrequest(ÆäÊµÃ»ÓĞ£¬ÒòÎª·şÎñ¶ËÒÑ¹Ø±ÕÁ¬½Ó£¬ÊÇÊÕ²»µ½Ò²²»»áÈ¥ÊÕrequestµÄ)¡£È»ºóuncorn
- *   Æô¶¯read_handler²ÅÄÜ¸ĞÖªµ½·şÎñ¶Ëclose£¬´ËÊ±request_sendedÈÔÈ»×ÔÔöÒ»´Î¡£×îÖÕµ¼ÖÂ·şÎñ¶ËÊÕµ½µÄ×ÜÇëÇóÊı¼õ°ë£¡£¡
+ *   serverå…³é—­è¿æ¥çš„æ—¶å€™ï¼Œæ­¤æ—¶unicornæ²¡æœ‰read(è¿”å›å†…å®¹æ»¡è¶³check_full_responseï¼Œåˆ™unicornè½¬å‘ç»§ç»­å†™)ï¼Œæ— æ³•æ„ŸçŸ¥è¿æ¥å…³é—­ï¼Œ
+ *   è¿™ä¸ªæ—¶å€™è°ƒç”¨äº†reset_client,é‡æ–°å¼€å¯äº†write_handlerå‡½æ•°ï¼Œåˆ™writeä¼šè®¤ä¸ºèƒ½å¤ŸæˆåŠŸ(é™¤éå‡‘å·§è¦è§¦å‘å¤šæ¬¡write)ï¼Œ
+ *   æ­¤æ—¶unicornè®¤ä¸ºå‘é€äº†ä¸€æ¬¡å®Œæ•´çš„request(å…¶å®æ²¡æœ‰ï¼Œå› ä¸ºæœåŠ¡ç«¯å·²å…³é—­è¿æ¥ï¼Œæ˜¯æ”¶ä¸åˆ°ä¹Ÿä¸ä¼šå»æ”¶requestçš„)ã€‚ç„¶åuncorn
+ *   å¯åŠ¨read_handleræ‰èƒ½æ„ŸçŸ¥åˆ°æœåŠ¡ç«¯closeï¼Œæ­¤æ—¶request_sendedä»ç„¶è‡ªå¢ä¸€æ¬¡ã€‚æœ€ç»ˆå¯¼è‡´æœåŠ¡ç«¯æ”¶åˆ°çš„æ€»è¯·æ±‚æ•°å‡åŠï¼ï¼
  *   
- *   Ò»¸ötricky½â¾ö°ì·¨£¬write_handlerº¯Êı£¬½«sendbuf²ğ³ÉÁ½¿é£¬·ÖÎªÁ½´Îwrite£¬¿ÉÒÔ¸ĞÖªµ½EPIPE´íÎó£¬´ËÊ±¿ÉÒÔ
- *   ²»×ÔÔösendedÊıÁ¿£¬²¢ÇÒfree_client¡£µ«ÊÇ£¬ÕâÖÖ·½·¨²»ÊÇÌØ±ğ¿¿Æ×:
- *   1. ÔÚ³¤Á¬½ÓµÄ³¡¾°µÄÊ±ºò£¬Èç¹ûÓÃÕâÖÖ·½°¸»á¼«´ó½µµÍunicornµÄĞ§ÂÊ
- *   2. Èç¹ûrequestµÄÊı¾İÖ»ÓĞÒ»¸ö×Ö½Ú£¬ÔòÎŞ·¨²ğ·Ö¡£
- *   3. Õâ¸ö·½°¸ÔÚMossadÉÏ²âÊÔ£¬Ã»ÓĞÎÊÌâ£¬µ«ÊÇÔÚApacheÉÏ²âÊÔ£¬Ã»·¨½â¾öÎÊÌâ£¡£¡Tcpdump×¥°üºó·¢ÏÖ£¬µ±ÇëÇó½áÊøºó,
- *      ApacheºÍMossad¶¼»á·¢ËÍF°ü±íÊ¾¹Ø±ÕÁ¬½Ó£¬´ËÊ±writeÊı¾İ£¬Mossad¿ÉÒÔ·µ»ØRST°ü£¬½ø¶ø´¥·¢unicornÔÚµÚ¶ş´ÎwriteµÄÊ±ºò
- *      ¸ĞÖªEPIPE´íÎó£¬µ«ÊÇÎªÊ²Ã´Apache²»·µ»ØRST°ü£¬unicorn»¹ÊÇÎŞ·¨¸ĞÖªEPIPE£¬ËùÒÔÕâÖÖ·½°¸¶ÔÓÚApache¾ÍÊ§Ğ§ÁË¡£¸öÈË²Â²â
- *      Apache¿ÉÄÜÊÇÓÃshutdown(SHUT_WR)¶ø²»ÊÇcloseÀ´´¦Àí¶Ï¿ªÁ¬½Ó¡£
+ *   ä¸€ä¸ªtrickyè§£å†³åŠæ³•ï¼Œwrite_handlerå‡½æ•°ï¼Œå°†sendbufæ‹†æˆä¸¤å—ï¼Œåˆ†ä¸ºä¸¤æ¬¡writeï¼Œå¯ä»¥æ„ŸçŸ¥åˆ°EPIPEé”™è¯¯ï¼Œæ­¤æ—¶å¯ä»¥
+ *   ä¸è‡ªå¢sendedæ•°é‡ï¼Œå¹¶ä¸”free_clientã€‚ä½†æ˜¯ï¼Œè¿™ç§æ–¹æ³•ä¸æ˜¯ç‰¹åˆ«é è°±:
+ *   1. åœ¨é•¿è¿æ¥çš„åœºæ™¯çš„æ—¶å€™ï¼Œå¦‚æœç”¨è¿™ç§æ–¹æ¡ˆä¼šæå¤§é™ä½unicornçš„æ•ˆç‡
+ *   2. å¦‚æœrequestçš„æ•°æ®åªæœ‰ä¸€ä¸ªå­—èŠ‚ï¼Œåˆ™æ— æ³•æ‹†åˆ†ã€‚
+ *   3. è¿™ä¸ªæ–¹æ¡ˆåœ¨Mossadä¸Šæµ‹è¯•ï¼Œæ²¡æœ‰é—®é¢˜ï¼Œä½†æ˜¯åœ¨Apacheä¸Šæµ‹è¯•ï¼Œæ²¡æ³•è§£å†³é—®é¢˜ï¼ï¼TcpdumpæŠ“åŒ…åå‘ç°ï¼Œå½“è¯·æ±‚ç»“æŸå,
+ *      Apacheå’ŒMossadéƒ½ä¼šå‘é€FåŒ…è¡¨ç¤ºå…³é—­è¿æ¥ï¼Œæ­¤æ—¶writeæ•°æ®ï¼ŒMossadå¯ä»¥è¿”å›RSTåŒ…ï¼Œè¿›è€Œè§¦å‘unicornåœ¨ç¬¬äºŒæ¬¡writeçš„æ—¶å€™
+ *      æ„ŸçŸ¥EPIPEé”™è¯¯ï¼Œä½†æ˜¯ä¸ºä»€ä¹ˆApacheä¸è¿”å›RSTåŒ…ï¼Œunicornè¿˜æ˜¯æ— æ³•æ„ŸçŸ¥EPIPEï¼Œæ‰€ä»¥è¿™ç§æ–¹æ¡ˆå¯¹äºApacheå°±å¤±æ•ˆäº†ã€‚ä¸ªäººçŒœæµ‹
+ *      Apacheå¯èƒ½æ˜¯ç”¨shutdown(SHUT_WR)è€Œä¸æ˜¯closeæ¥å¤„ç†æ–­å¼€è¿æ¥ã€‚
  *   
- *   ÔİÊ±Ã»Ïëµ½ÌØ±ğÍêÉÆµÄ¼æÈİ°ì·¨£¬ºÃÔÚÒ»°ãµÄserver¶¼²»»áËæ±ãÖ÷¶¯close£¬ÖîÈçApacheÕâÀà¿ÉÄÜ»áÖ÷¶¯closeµÄserver
- *   Ò²»áÓÃConnection:closeÍ·À´¸æÖªclient¡£µ±¼ì²âµ½Connection:close£¬Ôò:
- *   1.Ó¦¸ÃÒÔserver¹Ø±ÕÁ¬½Ó×÷ÎªÍêÕû·µ»ØµÄ±êÖ¾¡£
- *   2.×Ô¼ºÖ÷¶¯¹Ø±ÕÁ¬½Ó
+ *   æš‚æ—¶æ²¡æƒ³åˆ°ç‰¹åˆ«å®Œå–„çš„å…¼å®¹åŠæ³•ï¼Œå¥½åœ¨ä¸€èˆ¬çš„serveréƒ½ä¸ä¼šéšä¾¿ä¸»åŠ¨closeï¼Œè¯¸å¦‚Apacheè¿™ç±»å¯èƒ½ä¼šä¸»åŠ¨closeçš„server
+ *   ä¹Ÿä¼šç”¨Connection:closeå¤´æ¥å‘ŠçŸ¥clientã€‚å½“æ£€æµ‹åˆ°Connection:closeï¼Œåˆ™:
+ *   1.åº”è¯¥ä»¥serverå…³é—­è¿æ¥ä½œä¸ºå®Œæ•´è¿”å›çš„æ ‡å¿—ã€‚
+ *   2.è‡ªå·±ä¸»åŠ¨å…³é—­è¿æ¥
  **/
 
 #include "unc_core.h"
 
-//º¯ÊıÉùÃ÷
+//å‡½æ•°å£°æ˜
 static void client_done(client_t *c, int server_close);
 static int show_qps(unc_ae_event_loop *el, long long id, void *priv);
 static void usage(int status);
@@ -55,29 +55,29 @@ static void free_all_clients();
 static void show_final_report(void);
 static void free_client(client_t *c);
 
-//È«¾Ö¾ä±ú¶¨Òå
+//å…¨å±€å¥æŸ„å®šä¹‰
 static conf_t g_conf;
 
-//¶¯Ì¬¿â¾ä±ú¶¨Òå
+//åŠ¨æ€åº“å¥æŸ„å®šä¹‰
 unc_so_func_t    g_so;
 void *g_handle;
 
-/* ÀûÓÃsyms¶Ôg_so¸÷¸öº¯ÊıµÄ±éÀú³õÊ¼»¯ */
+/* åˆ©ç”¨symså¯¹g_soå„ä¸ªå‡½æ•°çš„éå†åˆå§‹åŒ– */
 static unc_so_symbol_t syms[] = 
 {
     /* symbol_name,                      function pointer,                            optional */
-    {"unc_handle_init",            (void **)&g_so.unc_handle_init,              1}, /* ¿ÉÑ¡ */
-    {"unc_handle_finish",          (void **)&g_so.unc_handle_finish,            1}, /* ¿ÉÑ¡ */
-    {"unc_request_pre",            (void **)&g_so.unc_request_pre,              1}, /* ¿ÉÑ¡ */
-    {"unc_request_post",           (void **)&g_so.unc_request_post,             1}, /* ¿ÉÑ¡ */
-    {"unc_generate_request",       (void **)&g_so.unc_generate_request,         1}, /* ¿ÉÑ¡ */
-    {"unc_check_full_response",    (void **)&g_so.unc_check_full_response,      0}, /* ±ØÑ¡ */
-    {"unc_handle_server_close",    (void **)&g_so.unc_handle_server_close,      1}, /* ¿ÉÑ¡ */
+    {"unc_handle_init",            (void **)&g_so.unc_handle_init,              1}, /* å¯é€‰ */
+    {"unc_handle_finish",          (void **)&g_so.unc_handle_finish,            1}, /* å¯é€‰ */
+    {"unc_request_pre",            (void **)&g_so.unc_request_pre,              1}, /* å¯é€‰ */
+    {"unc_request_post",           (void **)&g_so.unc_request_post,             1}, /* å¯é€‰ */
+    {"unc_generate_request",       (void **)&g_so.unc_generate_request,         1}, /* å¯é€‰ */
+    {"unc_check_full_response",    (void **)&g_so.unc_check_full_response,      0}, /* å¿…é€‰ */
+    {"unc_handle_server_close",    (void **)&g_so.unc_handle_server_close,      1}, /* å¯é€‰ */
     {NULL, NULL, 0}
 };
 
 /* 
- * »ñµÃµ±Ç°Î¢ÃîÊı 
+ * è·å¾—å½“å‰å¾®å¦™æ•° 
  */
 static long long ustime() 
 {
@@ -91,7 +91,7 @@ static long long ustime()
 }
 
 /* 
- * »ñµÃµ±Ç°ºÁÃëÊı 
+ * è·å¾—å½“å‰æ¯«ç§’æ•° 
  */
 static long long mstime() 
 {
@@ -105,7 +105,7 @@ static long long mstime()
 }
 
 /*
- * È«¾Ö¾ä±úÄ¬ÈÏÖµ³õÊ¼»¯
+ * å…¨å±€å¥æŸ„é»˜è®¤å€¼åˆå§‹åŒ–
  */
 static void init_conf() 
 {
@@ -136,7 +136,7 @@ static void init_conf()
 }
 
 /* 
- * Ê±¼äÊÂ¼ş: ´òÓ¡µ±Ç°µÄQPS(´Ó¿ªÊ¼µ½µ±Ç°µÄÀÛ¼ÆÖµ) 
+ * æ—¶é—´äº‹ä»¶: æ‰“å°å½“å‰çš„QPS(ä»å¼€å§‹åˆ°å½“å‰çš„ç´¯è®¡å€¼) 
  */
 static int show_qps(unc_ae_event_loop *el, long long id, void *priv) 
 {
@@ -147,7 +147,7 @@ static int show_qps(unc_ae_event_loop *el, long long id, void *priv)
 }
 
 /*
- * ²ÎÊı½âÎö
+ * å‚æ•°è§£æ
  */
 static void parse_options(int argc, char **argv) 
 {
@@ -202,7 +202,7 @@ static void parse_options(int argc, char **argv)
 }
 
 /*
- * ´òÓ¡Ê¹ÓÃ°ïÖúº¯Êı
+ * æ‰“å°ä½¿ç”¨å¸®åŠ©å‡½æ•°
  */
 static void usage(int status) 
 {
@@ -218,14 +218,14 @@ static void usage(int status)
     puts(" -w <boolean>       whether define done if server close connection.(default 1)");
     puts(" -q                 quiet. Just print basic info");
     puts(" -l                 loop. Run the tests forever. For persistent test");
-    //puts(" -E                 try to handle EPIPE while server short connection.(default null)");//Òş²Ø-EÑ¡Ïî£¬ÒòÎª²»¿¿Æ×
+    //puts(" -E                 try to handle EPIPE while server short connection.(default null)");//éšè—-Eé€‰é¡¹ï¼Œå› ä¸ºä¸é è°±
     puts(" -D                 print the debug info.(default null)");
     puts(" -H                 show help information\n");
     exit(status);
 }
 
 /*
- * ¶ÁÈ¡request_fileÎÄ¼ş£¬Éú³Érequest_body
+ * è¯»å–request_fileæ–‡ä»¶ï¼Œç”Ÿæˆrequest_body
  */
 static void read_quest_file()
 {
@@ -243,18 +243,18 @@ static void read_quest_file()
         exit(1);
     }
     
-    //´ò¿ªÔ´ÎÄ¼ş
+    //æ‰“å¼€æºæ–‡ä»¶
     if ((fd = open(g_conf.request_file, O_RDONLY)) == -1) 
     {  
         fprintf(stderr, "FATAL!! Open %s Failed. Error: %s\n", g_conf.request_file, strerror(errno));  
         exit(1);
     }  
   
-    //Ò»¸ö¾­µäµÄ¶ÁÈ¡ÎÄ¼şµÄ´úÂë
+    //ä¸€ä¸ªç»å…¸çš„è¯»å–æ–‡ä»¶çš„ä»£ç 
     memset(buffer, 0, UNC_IOBUF_SIZE);
     while ((bytes_read = read(fd, buffer, UNC_IOBUF_SIZE))) 
     {  
-        //·¢ÉúÒ»¸öÖÂÃüµÄ´íÎó
+        //å‘ç”Ÿä¸€ä¸ªè‡´å‘½çš„é”™è¯¯
         if ((bytes_read == -1) && (errno != EINTR))
         {
             fprintf(stderr, "FATAL!! Read file %s failed.Error: %s\n", g_conf.request_file, strerror(errno));
@@ -271,7 +271,7 @@ static void read_quest_file()
 }
 
 /* 
- * Æô¶¯Ñ¹Á¦²âÊÔ 
+ * å¯åŠ¨å‹åŠ›æµ‹è¯• 
  */
 static void start_request(char *title, char *content) 
 {
@@ -279,7 +279,7 @@ static void start_request(char *title, char *content)
     {
         g_conf.title = title;
     }
-    //ÖØÖÃrequests_issuedºÍrequests_finished
+    //é‡ç½®requests_issuedå’Œrequests_finished
     g_conf.requests_sended = 0;
     g_conf.requests_done   = 0;
     g_conf.requests_finished = 0;
@@ -289,7 +289,7 @@ static void start_request(char *title, char *content)
         g_conf.request_body = unc_str_new(content);
     }
     
-    /* ´´½¨Ö¸¶¨ÊıÄ¿µÄclient */
+    /* åˆ›å»ºæŒ‡å®šæ•°ç›®çš„client */
     create_multi_clients(g_conf.num_clients);
 
     g_conf.start = mstime();
@@ -299,17 +299,17 @@ static void start_request(char *title, char *content)
 }
 
 /* 
- * ´´½¨Ò»¸öclient
- * ²ÎÊı: content,·¢ËÍÄÚÈİ
- * ·µ»Ø: client_tÖ¸Õë
+ * åˆ›å»ºä¸€ä¸ªclient
+ * å‚æ•°: content,å‘é€å†…å®¹
+ * è¿”å›: client_tæŒ‡é’ˆ
  */
 static client_t *create_one_client() 
 {
     char buf[2048];
 
-	//³õÊ¼»¯client_t
+	//åˆå§‹åŒ–client_t
     client_t *c = (client_t *)malloc(sizeof(*c));
-	//·Ç×èÈû·½Ê½½¨Á¢ÓëserverµÄÁ¬½Ó
+	//éé˜»å¡æ–¹å¼å»ºç«‹ä¸serverçš„è¿æ¥
     c->fd = unc_anet_tcp_nonblock_connect(buf, g_conf.hostip, g_conf.hostport);
     if (c->fd == UNC_ERR) 
     {
@@ -321,11 +321,11 @@ static client_t *create_one_client()
     c->written = 0;
     c->read = 0;
 	
-	//×¢²áĞ´ÊÂ¼ş
+	//æ³¨å†Œå†™äº‹ä»¶
     unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE, write_handler, c);
-	//×ÔÉí¼ÓÈëclient¶ÓÁĞ
+	//è‡ªèº«åŠ å…¥clienté˜Ÿåˆ—
     unc_dlist_add_node_tail(g_conf.clients, c);
-	//clientÊı×ÔÔö
+	//clientæ•°è‡ªå¢
     ++g_conf.live_clients;
     
 	if(g_conf.debug) fprintf(stdout, " [DEBUG] Create a Client(Fd:%d).\n", c->fd);
@@ -333,9 +333,9 @@ static client_t *create_one_client()
 }
 
 /* 
- * ´´½¨¶à¸öclient 
- * ²ÎÊı: num,     ´´½¨clientµÄ¸öÊı
- *       content, ·¢ËÍÄÚÈİ
+ * åˆ›å»ºå¤šä¸ªclient 
+ * å‚æ•°: num,     åˆ›å»ºclientçš„ä¸ªæ•°
+ *       content, å‘é€å†…å®¹
  */
 static void create_multi_clients(int num) 
 {
@@ -355,7 +355,7 @@ static void create_multi_clients(int num)
 }
 
 /* 
- * Ğ´»Øµ÷º¯Êı(client·¢ËÍÇëÇó)
+ * å†™å›è°ƒå‡½æ•°(clientå‘é€è¯·æ±‚)
  */
 static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask) 
 {
@@ -372,16 +372,16 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         if (g_conf.requests_sended >= g_conf.requests) 
         {
             /*
-               * Õâ¸öµØ·½Ô­À´´æÔÚÁ½¸öbug: 
-               * 1. requests_sended++µÄÎ»ÖÃÓ¦¸ÃÏÂÃæ£¬·ñÔò£¬ÓÉÓÚwriteÊÇ¿ÉÄÜ±»¶à´Îµ÷ÓÃµÄ£¬µ¼ÖÂrequests_sendedÔ¶Ô¶³¬¹ırequests
-               * 2. Ô­À´³ÌĞò½áÊøµÄÅĞ¶ÏÊÇÍ¨¹ırequests_sended½øĞĞ£¬Õâµ¼ÖÂ³ÌĞò¹ıÔç½áÊø£¬ÒòÎªÆäËûclient¿ÉÄÜÕıÔÚ¶Á£¬·şÎñ¶ËÈÕÖ¾²é¿´·¢ÏÖ
-               *    client¶¼ÌáÇ°closeÁËÁ¬½Ó£¬ÎÊÌâ¾Í³öÔÚ´Ë´¦£¬Ó¦¸Ã·ÅÔÚreadÀïÃæÅĞ¶ÏÊÇ·ñ½áÊø³ÌĞò
-               * 3. Ò»¸ö¿ÉÄÜµÄÇ±ÔÚÎÊÌâ£¬ÔÚreadÀïÃæÅĞ¶ÏÍê³ÉÇëÇóÊı£¬»á²»»áÒòÎªÄ³´ÎÇëÇóÒì³£Î´Íê³É¶øµ¼ÖÂÕû¸ö³ÌĞò´ï²»µ½ÍË³öÌõ¼şÄØ?
-               *    ¾­²âÊÔ: »á!
+               * è¿™ä¸ªåœ°æ–¹åŸæ¥å­˜åœ¨ä¸¤ä¸ªbug: 
+               * 1. requests_sended++çš„ä½ç½®åº”è¯¥ä¸‹é¢ï¼Œå¦åˆ™ï¼Œç”±äºwriteæ˜¯å¯èƒ½è¢«å¤šæ¬¡è°ƒç”¨çš„ï¼Œå¯¼è‡´requests_sendedè¿œè¿œè¶…è¿‡requests
+               * 2. åŸæ¥ç¨‹åºç»“æŸçš„åˆ¤æ–­æ˜¯é€šè¿‡requests_sendedè¿›è¡Œï¼Œè¿™å¯¼è‡´ç¨‹åºè¿‡æ—©ç»“æŸï¼Œå› ä¸ºå…¶ä»–clientå¯èƒ½æ­£åœ¨è¯»ï¼ŒæœåŠ¡ç«¯æ—¥å¿—æŸ¥çœ‹å‘ç°
+               *    clientéƒ½æå‰closeäº†è¿æ¥ï¼Œé—®é¢˜å°±å‡ºåœ¨æ­¤å¤„ï¼Œåº”è¯¥æ”¾åœ¨readé‡Œé¢åˆ¤æ–­æ˜¯å¦ç»“æŸç¨‹åº
+               * 3. ä¸€ä¸ªå¯èƒ½çš„æ½œåœ¨é—®é¢˜ï¼Œåœ¨readé‡Œé¢åˆ¤æ–­å®Œæˆè¯·æ±‚æ•°ï¼Œä¼šä¸ä¼šå› ä¸ºæŸæ¬¡è¯·æ±‚å¼‚å¸¸æœªå®Œæˆè€Œå¯¼è‡´æ•´ä¸ªç¨‹åºè¾¾ä¸åˆ°é€€å‡ºæ¡ä»¶å‘¢?
+               *    ç»æµ‹è¯•: ä¼š!
                */
             //unc_ae_stop(g_conf.el);
             if(g_conf.debug) fprintf(stdout, " [DEBUG] Enought requests sended(%d). No write\n", g_conf.requests_sended);
-            free_client(c);//ÒÑ·¢ËÍµÄÇëÇó×ÜÊı´óÓÚ£¬
+            free_client(c);//å·²å‘é€çš„è¯·æ±‚æ€»æ•°å¤§äºï¼Œ
             return;
         }
 
@@ -394,17 +394,17 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         ptr = c->sendbuf->buf + c->written;
 
         /* 
-          * ´¦Àí·şÎñ¶ËEPIPEµÄÎÊÌâ£¬Ã¿¸öÇëÇóµÄµÚÒ»´ÎwriteµÄÊ±ºòĞèÒª¼ì²âEPIPE£¬Õâ¸ö·½·¨²¢²»ÍêÈ«¿¿Æ×:
-          * 1. Èç¹û·¢ËÍµÄÊı¾İÖ»ÓĞÒ»¸ö×Ö½Ú£¬ÔòÎŞ·¨²ğ·Ö¡£
-          * 2. Õâ¸ö·½°¸ÔÚMossadÉÏ²âÊÔ£¬Ã»ÓĞÎÊÌâ£¬µ«ÊÇÔÚApacheÉÏ²âÊÔ£¬Ã»·¨½â¾öÎÊÌâ£¡£¡Tcpdump×¥°üºó·¢ÏÖ£¬µ±ÇëÇó½áÊøºó,
-          *      ApacheºÍMossad¶¼»á·¢ËÍF°ü±íÊ¾¹Ø±ÕÁ¬½Ó£¬´ËÊ±writeÊı¾İ£¬Mossad¿ÉÒÔÕıÈ··µ»ØRST°ü£¬½ø¶ø´¥·¢unicornµÄEPIPE
-          *      ´íÎó£¬µ«ÊÇ²»ÖªµÀÎªÊ²Ã´Apache²»·µ»ØRST°ü£¬unicornÎŞ·¨¸ĞÖªEPIPE£¬ËùÒÔÕâÖÖ·½°¸¶ÔÓÚApache¾ÍÊ§Ğ§ÁË¡£
+          * å¤„ç†æœåŠ¡ç«¯EPIPEçš„é—®é¢˜ï¼Œæ¯ä¸ªè¯·æ±‚çš„ç¬¬ä¸€æ¬¡writeçš„æ—¶å€™éœ€è¦æ£€æµ‹EPIPEï¼Œè¿™ä¸ªæ–¹æ³•å¹¶ä¸å®Œå…¨é è°±:
+          * 1. å¦‚æœå‘é€çš„æ•°æ®åªæœ‰ä¸€ä¸ªå­—èŠ‚ï¼Œåˆ™æ— æ³•æ‹†åˆ†ã€‚
+          * 2. è¿™ä¸ªæ–¹æ¡ˆåœ¨Mossadä¸Šæµ‹è¯•ï¼Œæ²¡æœ‰é—®é¢˜ï¼Œä½†æ˜¯åœ¨Apacheä¸Šæµ‹è¯•ï¼Œæ²¡æ³•è§£å†³é—®é¢˜ï¼ï¼TcpdumpæŠ“åŒ…åå‘ç°ï¼Œå½“è¯·æ±‚ç»“æŸå,
+          *      Apacheå’ŒMossadéƒ½ä¼šå‘é€FåŒ…è¡¨ç¤ºå…³é—­è¿æ¥ï¼Œæ­¤æ—¶writeæ•°æ®ï¼ŒMossadå¯ä»¥æ­£ç¡®è¿”å›RSTåŒ…ï¼Œè¿›è€Œè§¦å‘unicornçš„EPIPE
+          *      é”™è¯¯ï¼Œä½†æ˜¯ä¸çŸ¥é“ä¸ºä»€ä¹ˆApacheä¸è¿”å›RSTåŒ…ï¼Œunicornæ— æ³•æ„ŸçŸ¥EPIPEï¼Œæ‰€ä»¥è¿™ç§æ–¹æ¡ˆå¯¹äºApacheå°±å¤±æ•ˆäº†ã€‚
           */
         first = 0;
         if(g_conf.epipe && c->written == 0 && c->sendbuf->len > 1)
         {
             
-            first = write(fd, ptr, 1); //Ğ´Ò»¸ö×Ö½Ú
+            first = write(fd, ptr, 1); //å†™ä¸€ä¸ªå­—èŠ‚
             if(g_conf.debug) fprintf(stdout, " [DEBUG] Write first byte(Fd:%d):%c, len:%d\n", fd, *ptr, first);
         }
         nwritten = write(fd, ptr+first, c->sendbuf->len - c->written - first);
@@ -412,8 +412,8 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         if(g_conf.debug) fprintf(stdout, " [DEBUG] Write bytes num(Fd:%d):%d\n", fd, nwritten);
         if (nwritten == -1) 
         {
-            //¸ù¾İTCP»úÖÆ£¬´Ë´¦µÄEPIPE´íÎóÀíÂÛÉÏÎŞ·¨´¥·¢µ½£¬ÒòÎªĞèÒªÁ½´Îwrite²ÅÄÜ¸ĞÖª£¬
-            //TODO ÔİÊ±Î´ÕÒµ½¸ĞÖªEPIPEµÄÓÅÑÅ°ì·¨£¬³ı·Ç½«sendbuf²ğ³ÉÁ½¿éwriteÁ½´Î
+            //æ ¹æ®TCPæœºåˆ¶ï¼Œæ­¤å¤„çš„EPIPEé”™è¯¯ç†è®ºä¸Šæ— æ³•è§¦å‘åˆ°ï¼Œå› ä¸ºéœ€è¦ä¸¤æ¬¡writeæ‰èƒ½æ„ŸçŸ¥ï¼Œ
+            //TODO æš‚æ—¶æœªæ‰¾åˆ°æ„ŸçŸ¥EPIPEçš„ä¼˜é›…åŠæ³•ï¼Œé™¤éå°†sendbufæ‹†æˆä¸¤å—writeä¸¤æ¬¡
             if (errno != EPIPE) 
             {
                 fprintf(stderr, "Write failed:%s\n", strerror(errno));
@@ -428,9 +428,9 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
         if (c->sendbuf->len == c->written) 
         {
             g_conf.requests_sended++;
-            /* É¾³ıĞ´ÊÂ¼ş */
+            /* åˆ é™¤å†™äº‹ä»¶ */
             unc_ae_delete_file_event(g_conf.el, fd, UNC_AE_WRITABLE);
-            /* Æô¶¯¶ÁÊÂ¼ş */
+            /* å¯åŠ¨è¯»äº‹ä»¶ */
             unc_ae_create_file_event(g_conf.el, fd, UNC_AE_READABLE, read_handler, c);
         }
     }
@@ -438,7 +438,7 @@ static void write_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 }
 
 /* 
- * ¶ÁÈ¡»Øµ÷º¯Êı 
+ * è¯»å–å›è°ƒå‡½æ•° 
  */
 static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask) 
 {
@@ -448,13 +448,13 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     char buffer[UNC_IOBUF_SIZE];
     memset(buffer, 0, UNC_IOBUF_SIZE);
 
-    //´Ó·şÎñ¶Ë¶ÁÈ¡Êı¾İ£¬²¢½«¶ÁÈ¡µÄÄÚÈİappendµ½recvbufÉÏ
+    //ä»æœåŠ¡ç«¯è¯»å–æ•°æ®ï¼Œå¹¶å°†è¯»å–çš„å†…å®¹appendåˆ°recvbufä¸Š
     nread = read(fd, buffer, UNC_IOBUF_SIZE-1);
     if (nread == -1) 
     {
         if (errno == EAGAIN) 
         {
-            /* ÔİÊ±²»¿É¶Á£¬¶ÁÈ¡nonblockµÄfdÊ±£¬¿ÉÄÜ»áÓöµ½ */
+            /* æš‚æ—¶ä¸å¯è¯»ï¼Œè¯»å–nonblockçš„fdæ—¶ï¼Œå¯èƒ½ä¼šé‡åˆ° */
             return;
         }
         fprintf(stderr, "Read Error: %s\n", strerror(errno));
@@ -464,9 +464,9 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
     {
         if(g_conf.debug) fprintf(stdout, " [DEBUG] Server close conn(Fd:%d). Recv len:%d\n", fd, c->recvbuf->len);
 
-        //server¶Ë¹Ø±ÕÁ¬½Ó
+        //serverç«¯å…³é—­è¿æ¥
         if (g_so.unc_handle_server_close) g_so.unc_handle_server_close(&g_conf, c, NULL);
-        client_done(c, SERVER_CLOSE_WHEN_READ);//¹ãÒåµÄÍê³ÉÇëÇó
+        client_done(c, SERVER_CLOSE_WHEN_READ);//å¹¿ä¹‰çš„å®Œæˆè¯·æ±‚
         return;
     }
     buffer[nread] = '\0';
@@ -475,7 +475,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 
     if(g_conf.debug) fprintf(stdout, " [DEBUG] Read bytes num(Fd:%d):%d, total: %d\n", fd, nread, c->recvbuf->len);
     
-    //ÅĞ¶Ï¶ÁÈ¡µ½µÄÄÚÈİÊÇ·ñÍêÕû
+    //åˆ¤æ–­è¯»å–åˆ°çš„å†…å®¹æ˜¯å¦å®Œæ•´
     check = g_so.unc_check_full_response(&g_conf, c, NULL);
     switch(check){
         case UNC_OK:
@@ -485,7 +485,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
             client_done(c, SERVER_HINT_CLOSE);
             break;
         case UNC_NEEDMORE:
-            //ÈÃunicorn¿ò¼Ü¼ÌĞø±£³Öread
+            //è®©unicornæ¡†æ¶ç»§ç»­ä¿æŒread
             //fprintf(stdout, "Part response:%s\n", c->recvbuf->buf);
             break;            
         default:
@@ -497,7 +497,7 @@ static void read_handler(unc_ae_event_loop *el, int fd, void *priv, int mask)
 }
 
 /* 
- * ÖØÖÃclient,È»ºó¿ªÆôĞÂÒ»ÂÖĞ´/¶ÁÁ÷³Ì 
+ * é‡ç½®client,ç„¶åå¼€å¯æ–°ä¸€è½®å†™/è¯»æµç¨‹ 
  */
 static void reset_client(client_t *c) 
 {
@@ -506,26 +506,26 @@ static void reset_client(client_t *c)
     unc_ae_delete_file_event(g_conf.el, c->fd, UNC_AE_READABLE);
     unc_ae_create_file_event(g_conf.el, c->fd, UNC_AE_WRITABLE, write_handler, c);
     
-    unc_str_clear(c->recvbuf); //Çå¿Õ²»ÊÍ·Å
+    unc_str_clear(c->recvbuf); //æ¸…ç©ºä¸é‡Šæ”¾
     c->written = 0;
     c->read = 0;
 }
 
 /* 
- * µ±clientÍê³ÉÁËÒ»´ÎĞ´/¶ÁÇëÇóÖ®ºóµ÷ÓÃ 
- * ²ÎÊı:
+ * å½“clientå®Œæˆäº†ä¸€æ¬¡å†™/è¯»è¯·æ±‚ä¹‹åè°ƒç”¨ 
+ * å‚æ•°:
  *    @ client
- *    @ server_close£¬server¶ËÊÇ·ñ¹Ø±ÕÁËÁ¬½Ó : 
- *      SERVER_NOT_CLOSE        -- ·şÎñÆ÷Ã»ÓĞ¹Ø±ÕÁ¬½Ó
- *      SERVER_CLOSE_WHEN_READ  -- readµÄÊ±ºò·¢ÏÖ·şÎñÆ÷¶Ï¿ªÁËÁ¬½Ó
- *      SERVER_CLOSE_WHEN_WRITE -- writeµÄÊ±ºò·¢ÏÖ·şÎñÆ÷¶Ï¿ªÁËÁ¬½Ó( EPIPE )
- *      SERVER_HINT_CLOSE       -- server°µÊ¾clientÖ÷¶¯¹Ø±Õ
+ *    @ server_closeï¼Œserverç«¯æ˜¯å¦å…³é—­äº†è¿æ¥ : 
+ *      SERVER_NOT_CLOSE        -- æœåŠ¡å™¨æ²¡æœ‰å…³é—­è¿æ¥
+ *      SERVER_CLOSE_WHEN_READ  -- readçš„æ—¶å€™å‘ç°æœåŠ¡å™¨æ–­å¼€äº†è¿æ¥
+ *      SERVER_CLOSE_WHEN_WRITE -- writeçš„æ—¶å€™å‘ç°æœåŠ¡å™¨æ–­å¼€äº†è¿æ¥( EPIPE )
+ *      SERVER_HINT_CLOSE       -- serveræš—ç¤ºclientä¸»åŠ¨å…³é—­
  */
 static void client_done(client_t *c, int server_close) 
 {
 	int num;
 
-    //·şÎñ¶ËÃ»ÓĞ¹Ø±ÕÁ¬½Ó || ·şÎñ¶Ë°µÊ¾¿Í»§¶Ë¹Ø±ÕÁ¬½Ó || read·şÎñ¶Ë¹Ø±ÕÁ¬½Óµ«ÊÇdone_if_srv_closeÊÇ1£¬ÔòÍê³ÉÊı++£¬²¢ÇÒ¼ÇÂ¼·şÎñ¶Ë·µ»Ø
+    //æœåŠ¡ç«¯æ²¡æœ‰å…³é—­è¿æ¥ || æœåŠ¡ç«¯æš—ç¤ºå®¢æˆ·ç«¯å…³é—­è¿æ¥ || readæœåŠ¡ç«¯å…³é—­è¿æ¥ä½†æ˜¯done_if_srv_closeæ˜¯1ï¼Œåˆ™å®Œæˆæ•°++ï¼Œå¹¶ä¸”è®°å½•æœåŠ¡ç«¯è¿”å›
     if(server_close == SERVER_NOT_CLOSE 
        || server_close == SERVER_HINT_CLOSE 
        || (server_close == SERVER_CLOSE_WHEN_READ && g_conf.done_if_srv_close))
@@ -544,32 +544,32 @@ static void client_done(client_t *c, int server_close)
         server_close==SERVER_NOT_CLOSE? "Not close":(server_close==SERVER_CLOSE_WHEN_READ? 
         "Normal server close":(server_close==SERVER_CLOSE_WHEN_WRITE? "Epipe close": "Hint close")));
 
-    //¹ãÒåÍê³ÉÊı×ÔÔö( Ğ´µÄÊ±ºò·¢ÏÖ·şÎñ¶Ëclose£¬²»ÄÜËã·şÎñÍê³É )
+    //å¹¿ä¹‰å®Œæˆæ•°è‡ªå¢( å†™çš„æ—¶å€™å‘ç°æœåŠ¡ç«¯closeï¼Œä¸èƒ½ç®—æœåŠ¡å®Œæˆ )
     if(server_close != SERVER_CLOSE_WHEN_WRITE)
     {
         ++g_conf.requests_finished;   
     }
     
-    //Èç¹û´ïµ½×ÜÔ¤¼ÆÇëÇóÊı£¬Ôò³ÌĞòÍ£Ö¹£¬ÓÃ¹ãÒåµÄrequests_done±£Ö¤³ÌĞòÄÜ¹»½áÊø
+    //å¦‚æœè¾¾åˆ°æ€»é¢„è®¡è¯·æ±‚æ•°ï¼Œåˆ™ç¨‹åºåœæ­¢ï¼Œç”¨å¹¿ä¹‰çš„requests_doneä¿è¯ç¨‹åºèƒ½å¤Ÿç»“æŸ
     if (g_conf.requests_finished == g_conf.requests) 
     {
         if(g_conf.debug) fprintf(stdout, " [DEBUG] Enough finished request. Begin to end!(Fd:%d)\n", c->fd);
-        unc_ae_stop(g_conf.el); //È«¾ÖAeÖ±½ÓÍ£Ö¹
+        unc_ae_stop(g_conf.el); //å…¨å±€Aeç›´æ¥åœæ­¢
         return;
     }
 
-    // Èç¹ûkeep_aliveÇÒserver¶ËÃ»ÓĞ¹Ø±ÕÁ¬½Ó(Ò²Ã»ÓĞ°µÊ¾¿Í»§¶Ë¹Ø±Õ)£¬ÔòÖØĞÂ¿ªÊ¼clientµÄĞ´/¶ÁÁ÷³Ì
-    // ·ñÔò£¬ÊÍ·Åclient£¬È»ºóÖØÆôclient,È»ºó¿ªÊ¼Ğ´/¶ÁÁ÷³Ì
+    // å¦‚æœkeep_aliveä¸”serverç«¯æ²¡æœ‰å…³é—­è¿æ¥(ä¹Ÿæ²¡æœ‰æš—ç¤ºå®¢æˆ·ç«¯å…³é—­)ï¼Œåˆ™é‡æ–°å¼€å§‹clientçš„å†™/è¯»æµç¨‹
+    // å¦åˆ™ï¼Œé‡Šæ”¾clientï¼Œç„¶åé‡å¯client,ç„¶åå¼€å§‹å†™/è¯»æµç¨‹
     if (g_conf.keep_alive && server_close == SERVER_NOT_CLOSE) 
     {
         reset_client(c);
     }
     else 
     {
-        //ÏÈÊÍ·Åµ±Ç°client£¬ÄÚ²¿live_clients»á×Ô¼õ
+        //å…ˆé‡Šæ”¾å½“å‰clientï¼Œå†…éƒ¨live_clientsä¼šè‡ªå‡
         free_client(c); 
 
-        //Èç¹ûÒÑ·¢ËÍµÄÇëÇóÊı²»¹»£¬²¹³ä
+        //å¦‚æœå·²å‘é€çš„è¯·æ±‚æ•°ä¸å¤Ÿï¼Œè¡¥å……
         num = g_conf.num_clients - g_conf.live_clients;
         if(num > 0 && g_conf.requests_sended < g_conf.requests )
         {
@@ -579,7 +579,7 @@ static void client_done(client_t *c, int server_close)
 }
 
 /* 
- * ÊÍ·ÅÒ»¸öclient 
+ * é‡Šæ”¾ä¸€ä¸ªclient 
  */
 static void free_client(client_t *c) 
 {
@@ -598,7 +598,7 @@ static void free_client(client_t *c)
 }
 
 /* 
- * ÊÍ·ÅÈ«²¿client 
+ * é‡Šæ”¾å…¨éƒ¨client 
  */
 static void free_all_clients() {
     unc_dlist_node_t *node = g_conf.clients->head;
@@ -612,7 +612,7 @@ static void free_all_clients() {
 }
 
 /* 
- * ´òÓ¡×îÖÕ²âÊÔ±¨¸æ 
+ * æ‰“å°æœ€ç»ˆæµ‹è¯•æŠ¥å‘Š 
  */
 static void show_final_report(void) 
 {
@@ -626,14 +626,14 @@ static void show_final_report(void)
     fprintf(stdout, "*   All requests           : %-10d               *\n", g_conf.requests);  
     fprintf(stdout, "*   All requests sended    : %-10d               *\n", g_conf.requests_sended);        
     fprintf(stdout, "*   All requests completed : %-10d               *\n", g_conf.requests_done);
-    //Èç¹ûdone_if_srv_close£¬ÔòdoneºÍfinishedÏàÍ¬£¬ËùÒÔÖ»ÓĞ·Çdone_if_srv_closeÊ±´òÓ¡
+    //å¦‚æœdone_if_srv_closeï¼Œåˆ™doneå’Œfinishedç›¸åŒï¼Œæ‰€ä»¥åªæœ‰édone_if_srv_closeæ—¶æ‰“å°
     if(!g_conf.done_if_srv_close) fprintf(stdout, "*   All requests finished  : %-10d               *\n", g_conf.requests_finished);
     fprintf(stdout, "*   Use time of seconds    : %-10.2f               *\n", (float)g_conf.total_latency/1000);
     fprintf(stdout, "*   Parallel clients       : %-10d               *\n", g_conf.num_clients);
     fprintf(stdout, "*   Keep alive             : %-10d               *\n", g_conf.keep_alive);
     fprintf(stdout, "*                                                     *\n");
     fprintf(stdout, "*   Complete rate          : %-6.2f %%                 *\n", 100*((float)g_conf.requests_done/(float)g_conf.requests));
-    while(r>0) { idx++; r /= 10; } idx = 10-idx; buf[idx] = '\0'; //¼ÆËã×îºóÒ»ĞĞ¶ÔÆë
+    while(r>0) { idx++; r /= 10; } idx = 10-idx; buf[idx] = '\0'; //è®¡ç®—æœ€åä¸€è¡Œå¯¹é½
     fprintf(stdout, "*   Average QPS            : %.2f r/s        %s*\n", qps, buf);
     fprintf(stdout, "============ %s REPORT END ============\n\n", g_conf.title);
 }
@@ -641,19 +641,19 @@ static void show_final_report(void)
 int main(int argc, char **argv) 
 {
     signal(SIGHUP, SIG_IGN);
-    signal(SIGPIPE, SIG_IGN);  //ºöÂÔSIGPIPEĞÅºÅ£¬Ö»ÓĞÔÚºöÂÔµÄÇé¿öÏÂ£¬Á½´Îwrite¹Ø±ÕµÄfd£¬²Å»áµÃµ½EPIPE´íÎó
+    signal(SIGPIPE, SIG_IGN);  //å¿½ç•¥SIGPIPEä¿¡å·ï¼Œåªæœ‰åœ¨å¿½ç•¥çš„æƒ…å†µä¸‹ï¼Œä¸¤æ¬¡writeå…³é—­çš„fdï¼Œæ‰ä¼šå¾—åˆ°EPIPEé”™è¯¯
 
-	//È«¾Ö¾ä±úÄ¬ÈÏÖµ³õÊ¼»¯
+	//å…¨å±€å¥æŸ„é»˜è®¤å€¼åˆå§‹åŒ–
 	init_conf();
 
-	//²ÎÊı½âÎö
+	//å‚æ•°è§£æ
     parse_options(argc, argv);
     if (optind < argc) 
     {
         usage(1);
     }
 
-    //¶¯Ì¬¿â¼ÓÔØ
+    //åŠ¨æ€åº“åŠ è½½
     if (unc_load_so(&g_handle, syms, g_conf.so_file) < 0) 
     {
         fprintf(stderr, "Load file %s failed\n", g_conf.so_file);
@@ -671,13 +671,13 @@ int main(int argc, char **argv)
             " in order to use a lot of clients/requests\n");
     }
 
-    //Èç¹û´æÔÚrequest_file£¬Ôò³¢ÊÔ¶ÁÈ¡Éú³Érequest body
+    //å¦‚æœå­˜åœ¨request_fileï¼Œåˆ™å°è¯•è¯»å–ç”Ÿæˆrequest body
     if(g_conf.request_file)
     {
         read_quest_file();
     }
     
-    //µ÷ÓÃÓÃ»§¹³×Ó£¬¶Ôrequest body×ö½øÒ»²½´¦Àí
+    //è°ƒç”¨ç”¨æˆ·é’©å­ï¼Œå¯¹request bodyåšè¿›ä¸€æ­¥å¤„ç†
     if (g_so.unc_generate_request) 
     {
         if(g_so.unc_generate_request(&g_conf, NULL) != UNC_OK)
@@ -690,18 +690,18 @@ int main(int argc, char **argv)
     do {
         if (g_so.unc_request_pre) g_so.unc_request_pre(&g_conf, NULL);
         start_request("UNICORN CLIENT", "Hello World!");
-        //TODO Ã¿ÂÖ²âÊÔÍê±ÏºóµÄ±¨¸æ
+        //TODO æ¯è½®æµ‹è¯•å®Œæ¯•åçš„æŠ¥å‘Š
         if (g_so.unc_request_post) g_so.unc_request_post(&g_conf, NULL);
     } while (g_conf.loop);
 
     if (g_so.unc_handle_finish) g_so.unc_handle_finish(&g_conf, NULL);
 
-    //´òÓ¡²âÊÔ±¨¸æ
+    //æ‰“å°æµ‹è¯•æŠ¥å‘Š
     show_final_report();
 
-    //ÊÍ·Å¶¯Ì¬¿â
+    //é‡Šæ”¾åŠ¨æ€åº“
     unc_unload_so(&g_handle);
     
-    //TODO ÊÍ·Åg_conf
+    //TODO é‡Šæ”¾g_conf
     return 0;
 }
