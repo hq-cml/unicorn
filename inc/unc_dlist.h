@@ -34,18 +34,18 @@ typedef struct unc_dlist_node
 
 typedef struct unc_dlist 
 {
-    unsigned int len;                     /* ÔªËØ¸öÊı */
-    unc_dlist_node_t *head;               /* µÚÒ»¸ö½Úµã */
-    unc_dlist_node_t *tail;               /* ×îºóÒ»¸ö½Úµã */
+    unsigned int len;                     /* å…ƒç´ ä¸ªæ•° */
+    unc_dlist_node_t *head;               /* ç¬¬ä¸€ä¸ªèŠ‚ç‚¹ */
+    unc_dlist_node_t *tail;               /* æœ€åä¸€ä¸ªèŠ‚ç‚¹ */
     void *(*dup)(void *ptr);            
-    void (*free)(void *ptr);              /* freeÃ¿¸ö½Úµã */
+    void (*free)(void *ptr);              /* freeæ¯ä¸ªèŠ‚ç‚¹ */
     int (*match)(void *ptr, void *key);
 
 } unc_dlist_t;
 
 typedef struct unc_dlist_iter 
 {
-    unc_dlist_node_t *node; /* ¸Ãµü´úÆ÷¶ÔÓ¦µÄÔªËØµÄµØÖ· */
+    unc_dlist_node_t *node; /* è¯¥è¿­ä»£å™¨å¯¹åº”çš„å…ƒç´ çš„åœ°å€ */
     int direction;
 } unc_dlist_iter_t;
 

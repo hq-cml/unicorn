@@ -9,8 +9,8 @@
  *    Filename :  Unc_vector.h
  * 
  * Description :  Unc_vector, a vector based on array. Support any type.
- *                ÔÚÒ»ÕûÆ¬(size*slots)Á¬ĞøµÄÄÚ´æÖĞ£¬Ä£Äâ³öÊı×éµÄĞĞÎª.
- *                ÀíÂÛÉÏÊı×éµÄÔªËØ¿ÉÒÔÊÇÈÎÒâÀàĞÍ
+ *                åœ¨ä¸€æ•´ç‰‡(size*slots)è¿ç»­çš„å†…å­˜ä¸­ï¼Œæ¨¡æ‹Ÿå‡ºæ•°ç»„çš„è¡Œä¸º.
+ *                ç†è®ºä¸Šæ•°ç»„çš„å…ƒç´ å¯ä»¥æ˜¯ä»»æ„ç±»å‹
  *
  *
  *     Version :  0.0.1 
@@ -26,10 +26,10 @@ include <assert.h>
 */
 
 typedef struct{
-    uint32_t    count;  /*  vectorÖĞÔªËØ¸öÊı£¬VectorµÄË÷Òı´Ó0¿ªÊ¼£¬¼´count<=slots */
-    void       *data;   /* Êı×éÔªËØÆğÊ¼µØÖ· */
-    size_t      size;   /* the size of a member£¬Ã¿¸öÔªËØµÄ´óĞ¡ */
-    uint32_t    slots;  /* ÒÑ¾­·ÖÅäµÄÄÚ´æ£¬ÄÜÈİÄÉmemberµÄÊıÁ¿ */
+    uint32_t    count;  /*  vectorä¸­å…ƒç´ ä¸ªæ•°ï¼ŒVectorçš„ç´¢å¼•ä»0å¼€å§‹ï¼Œå³count<=slots */
+    void       *data;   /* æ•°ç»„å…ƒç´ èµ·å§‹åœ°å€ */
+    size_t      size;   /* the size of a memberï¼Œæ¯ä¸ªå…ƒç´ çš„å¤§å° */
+    uint32_t    slots;  /* å·²ç»åˆ†é…çš„å†…å­˜ï¼Œèƒ½å®¹çº³memberçš„æ•°é‡ */
 }unc_vector_t;
 
 typedef int (*unc_vector_cmp_t)(const void *, const void *); 

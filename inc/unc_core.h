@@ -119,67 +119,67 @@
 
 #define UNC_IOBUF_SIZE 40960
 
-#define SERVER_NOT_CLOSE        0 //serverÃ»ÓĞ¹Ø±ÕÁ¬½Ó
-#define SERVER_CLOSE_WHEN_READ  1 //readµÄÊ±ºò·¢ÏÖ·şÎñÆ÷¶Ï¿ªÁËÁ¬½Ó
-#define SERVER_CLOSE_WHEN_WRITE 2 //writeµÄÊ±ºò·¢ÏÖ·şÎñÆ÷¶Ï¿ªÁËÁ¬½Ó( EPIPE )
-#define SERVER_HINT_CLOSE       3 //serverÃ»ÓĞ¹Ø±ÕÁ¬½Ó£¬µ«È´·¢³öÄ³ÖÖ°µÊ¾ÒªÇó¿Í»§¶Ë¹Ø±ÕÁ¬½Ó£¬±ÈÈçhttpµÄConnection:close
+#define SERVER_NOT_CLOSE        0 //serveræ²¡æœ‰å…³é—­è¿æ¥
+#define SERVER_CLOSE_WHEN_READ  1 //readçš„æ—¶å€™å‘ç°æœåŠ¡å™¨æ–­å¼€äº†è¿æ¥
+#define SERVER_CLOSE_WHEN_WRITE 2 //writeçš„æ—¶å€™å‘ç°æœåŠ¡å™¨æ–­å¼€äº†è¿æ¥( EPIPE )
+#define SERVER_HINT_CLOSE       3 //serveræ²¡æœ‰å…³é—­è¿æ¥ï¼Œä½†å´å‘å‡ºæŸç§æš—ç¤ºè¦æ±‚å®¢æˆ·ç«¯å…³é—­è¿æ¥ï¼Œæ¯”å¦‚httpçš„Connection:close
 
 
-/* ---------------·şÎñÆ÷·µ»ØÄÚÈİ ---------------*/
+/* ---------------æœåŠ¡å™¨è¿”å›å†…å®¹ ---------------*/
 typedef struct response {
-    int          is_get;    /* ÊÇ·ñµÃµ½ÁËÍêÕûµÄ·µ»Ø */
-    unc_str_t   *res_body;       /* ¾ßÌåµÄ·µ»ØÄÚÈİ */
+    int          is_get;    /* æ˜¯å¦å¾—åˆ°äº†å®Œæ•´çš„è¿”å› */
+    unc_str_t   *res_body;       /* å…·ä½“çš„è¿”å›å†…å®¹ */
 }response_t;
 
-/* ----------------È«¾Ö¾ä±ú-------------------- */
+/* ----------------å…¨å±€å¥æŸ„-------------------- */
 typedef struct config {
-    char                *title;             /* ³ÌĞòÃû³Æ */
-    unc_ae_event_loop   *el;                /* ae¾ä±ú */
-    char                *hostip;            /* ²âÊÔÄ¿±êIP */
-    int                  hostport;          /* ²âÊÔÄ¿±ê¶Ë¿Ú */
-    int                  num_clients;       /* Ô¤¼ÆÍ¬Ò»Ê±¼ä¿Í»§¶ËÊı(²¢·¢Êı) */
-    int                  live_clients;      /* Êµ¼ÊÄ¿Ç°»îÔ¾µÄ¿Í»§Êı(ÊµÊ±²¢·¢Êı) */
-    int                  requests;          /* ÆÚÍû×ÜÇëÇó¸öÊı£¬³ÌĞòÆô¶¯Ê±Ö¸¶¨ */
-    int                  requests_sended;   /* ÒÑ¾­·¢³öÈ¥ÇëÇó×ÜÊı */
-    int                  requests_done;     /* Êµ¼ÊÍê³ÉµÄÇëÇó×ÜÊı */
-    int                  requests_finished; /* ¹ãÒåµÄÍê³ÉÇëÇóÊı£¬±ÈÈç·şÎñ¶Ë¶Ï¿ªÁ¬½ÓµÈÒì³£Ò²ËãÍê³É */
-    int                  quiet;             /* ÊÇ·ñÖ»ÏÔÊ¾qps£¬Ä¬ÈÏ·ñ */
-    int                  keep_alive;        /* ÊÇ·ñÎ¬³Ö³¤Á¬½Ó£¬1 = keep alive, 0 = reconnect (default 1) */
-    int                  loop;              /* ³ÌĞòÊÇ·ñÎŞÖÕÖ¹Ñ­»·:·ñ */
-    int                  epipe;             /* ³ÌĞòÊÇ·ñ¾¡Á¿±ÜÃâEPIPE£¬ÕâÖÖ°ì·¨²»ÍêÈ«¿¿Æ×£¬Ä¬ÈÏ: ·ñ */
-    long long            start;             /* ³ÌĞò¿ªÊ¼Ê±¼ä */
-    long long            total_latency;     /* ³ÌĞò×ÜºÄÊ±(ºÁÃë) */
-    unc_dlist_t         *clients;           /* clientÁ´±í */
-    char                *so_file;           /* ¿âÎÄ¼ş */
-    char                *request_file;      /* ÇëÇóbodyÄÚÈİÎÄ¼ş */
-    int                  done_if_srv_close; /* Èç¹û·şÎñ¶Ë¹Ø±ÕÁ¬½Ó£¬ÊÇ·ñËãÊÇÒ»¸öÍêÕûÇëÇó(default 1) */
-    int                  debug;             /* debug ¿ª¹Ø(default 0) */
-    unc_str_t           *request_body;      /* ÇëÇóÄÚÈİ */
-    response_t           response;          /* ·şÎñÆ÷·µ»ØÄÚÈİ */
+    char                *title;             /* ç¨‹åºåç§° */
+    unc_ae_event_loop   *el;                /* aeå¥æŸ„ */
+    char                *hostip;            /* æµ‹è¯•ç›®æ ‡IP */
+    int                  hostport;          /* æµ‹è¯•ç›®æ ‡ç«¯å£ */
+    int                  num_clients;       /* é¢„è®¡åŒä¸€æ—¶é—´å®¢æˆ·ç«¯æ•°(å¹¶å‘æ•°) */
+    int                  live_clients;      /* å®é™…ç›®å‰æ´»è·ƒçš„å®¢æˆ·æ•°(å®æ—¶å¹¶å‘æ•°) */
+    int                  requests;          /* æœŸæœ›æ€»è¯·æ±‚ä¸ªæ•°ï¼Œç¨‹åºå¯åŠ¨æ—¶æŒ‡å®š */
+    int                  requests_sended;   /* å·²ç»å‘å‡ºå»è¯·æ±‚æ€»æ•° */
+    int                  requests_done;     /* å®é™…å®Œæˆçš„è¯·æ±‚æ€»æ•° */
+    int                  requests_finished; /* å¹¿ä¹‰çš„å®Œæˆè¯·æ±‚æ•°ï¼Œæ¯”å¦‚æœåŠ¡ç«¯æ–­å¼€è¿æ¥ç­‰å¼‚å¸¸ä¹Ÿç®—å®Œæˆ */
+    int                  quiet;             /* æ˜¯å¦åªæ˜¾ç¤ºqpsï¼Œé»˜è®¤å¦ */
+    int                  keep_alive;        /* æ˜¯å¦ç»´æŒé•¿è¿æ¥ï¼Œ1 = keep alive, 0 = reconnect (default 1) */
+    int                  loop;              /* ç¨‹åºæ˜¯å¦æ— ç»ˆæ­¢å¾ªç¯:å¦ */
+    int                  epipe;             /* ç¨‹åºæ˜¯å¦å°½é‡é¿å…EPIPEï¼Œè¿™ç§åŠæ³•ä¸å®Œå…¨é è°±ï¼Œé»˜è®¤: å¦ */
+    long long            start;             /* ç¨‹åºå¼€å§‹æ—¶é—´ */
+    long long            total_latency;     /* ç¨‹åºæ€»è€—æ—¶(æ¯«ç§’) */
+    unc_dlist_t         *clients;           /* clienté“¾è¡¨ */
+    char                *so_file;           /* åº“æ–‡ä»¶ */
+    char                *request_file;      /* è¯·æ±‚bodyå†…å®¹æ–‡ä»¶ */
+    int                  done_if_srv_close; /* å¦‚æœæœåŠ¡ç«¯å…³é—­è¿æ¥ï¼Œæ˜¯å¦ç®—æ˜¯ä¸€ä¸ªå®Œæ•´è¯·æ±‚(default 1) */
+    int                  debug;             /* debug å¼€å…³(default 0) */
+    unc_str_t           *request_body;      /* è¯·æ±‚å†…å®¹ */
+    response_t           response;          /* æœåŠ¡å™¨è¿”å›å†…å®¹ */
     
 } conf_t;
 
-/* ---------------Client½á¹¹----------------- */ 
+/* ---------------Clientç»“æ„----------------- */ 
 typedef struct client_st {
-    int             fd;         /* clientµÄfd */
+    int             fd;         /* clientçš„fd */
     unc_str_t      *sendbuf;    /* sendbuf */
     unc_str_t      *recvbuf;    /* recvbuf */
-    unsigned int    written;    /* ÒÑ·¢ËÍ×Ö½ÚÊı */
-    unsigned int    read;       /* Ò»½ÓÊÜ×Ö½ÚÊı */
-    long long       start;      /* ÇëÇó¿ªÊ¼Ê±¼äµã */
-    long long       latency;    /* ÇëÇóºÃÊÂ */
+    unsigned int    written;    /* å·²å‘é€å­—èŠ‚æ•° */
+    unsigned int    read;       /* ä¸€æ¥å—å­—èŠ‚æ•° */
+    long long       start;      /* è¯·æ±‚å¼€å§‹æ—¶é—´ç‚¹ */
+    long long       latency;    /* è¯·æ±‚å¥½äº‹ */
 } client_t;
 
-/* --------------¶¯Ì¬¿âÈİÆ÷¾ä±ú-----------------*/
+/* --------------åŠ¨æ€åº“å®¹å™¨å¥æŸ„-----------------*/
 typedef struct unc_so_func_struct 
 {
-    int (*unc_handle_init)(void *, void *);                 /* µ±½ø³Ì³õÊ¼»¯µÄÊ±ºò¾ù»áµ÷ÓÃ£¬²ÎÊıÊÇÈ«¾Ö±äÁ¿g_conf£¬´Ëº¯Êı¿ÉÑ¡ */ 
-    int (*unc_handle_finish)(void *, void *);               /* µ±½ø³Ì½áÊøµÄÊ±ºò¾ù»áµ÷ÓÃ£¬´Ëº¯Êı¿ÉÑ¡ */
-    int (*unc_request_pre)(void *, void *);                 /* ÇëÇó¿ªÊ¼Ç°µ÷ÓÃ£¬´Ëº¯Êı¿ÉÑ¡ */
-    int (*unc_request_post)(void *, void *);                /* ÇëÇó½áÊøºóµ÷ÓÃ£¬´Ëº¯Êı¿ÉÑ¡ */
-    int (*unc_generate_request)(void *, void *);            /* Éú³ÉrequestÇëÇó */
-    int (*unc_check_full_response)(void *, void *, void *); /* ÅĞ¶ÏÍêÕûµÄresponse£¬±ØÑ¡º¯Êı */
-    int (*unc_handle_server_close)(void *, void *, void *); /* ·şÎñ¶Ë¹Ø±ÕÁ¬½ÓµÄÊ±ºòµ÷ÓÃ£¬¿ÉÑ¡º¯Êı */
+    int (*unc_handle_init)(void *, void *);                 /* å½“è¿›ç¨‹åˆå§‹åŒ–çš„æ—¶å€™å‡ä¼šè°ƒç”¨ï¼Œå‚æ•°æ˜¯å…¨å±€å˜é‡g_confï¼Œæ­¤å‡½æ•°å¯é€‰ */ 
+    int (*unc_handle_finish)(void *, void *);               /* å½“è¿›ç¨‹ç»“æŸçš„æ—¶å€™å‡ä¼šè°ƒç”¨ï¼Œæ­¤å‡½æ•°å¯é€‰ */
+    int (*unc_request_pre)(void *, void *);                 /* è¯·æ±‚å¼€å§‹å‰è°ƒç”¨ï¼Œæ­¤å‡½æ•°å¯é€‰ */
+    int (*unc_request_post)(void *, void *);                /* è¯·æ±‚ç»“æŸåè°ƒç”¨ï¼Œæ­¤å‡½æ•°å¯é€‰ */
+    int (*unc_generate_request)(void *, void *);            /* ç”Ÿæˆrequestè¯·æ±‚ */
+    int (*unc_check_full_response)(void *, void *, void *); /* åˆ¤æ–­å®Œæ•´çš„responseï¼Œå¿…é€‰å‡½æ•° */
+    int (*unc_handle_server_close)(void *, void *, void *); /* æœåŠ¡ç«¯å…³é—­è¿æ¥çš„æ—¶å€™è°ƒç”¨ï¼Œå¯é€‰å‡½æ•° */
 } unc_so_func_t;
 
 #endif

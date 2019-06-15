@@ -8,9 +8,9 @@
  *
  *    Filename :  Unc_plugin.h
  * 
- * Description :  ÒÀ¸½ÓÚUnicorn¿ò¼ÜµÄ³ÌÐò£¬ÓÃ»§Ö»ÐèÒªÊµÏÖ´ËÍ·ÎÄ¼þÏÂµÄº¯Êý£¬ÕâÐ©º¯Êý£¬»áÔÚÊÊµ±µÄÊ±»ú£¬±»unicorn¿ò¼Üµ÷ÓÃ¡£
+ * Description :  ä¾é™„äºŽUnicornæ¡†æž¶çš„ç¨‹åºï¼Œç”¨æˆ·åªéœ€è¦å®žçŽ°æ­¤å¤´æ–‡ä»¶ä¸‹çš„å‡½æ•°ï¼Œè¿™äº›å‡½æ•°ï¼Œä¼šåœ¨é€‚å½“çš„æ—¶æœºï¼Œè¢«unicornæ¡†æž¶è°ƒç”¨ã€‚
  *
- *                ¸ÃÎÄ¼þµÄ×÷ÓÃÔÚÓÚÔ¼¶¨²¢ÇÒ¹æ·¶»¯soº¯ÊýµÄ¶¨ÒåºÍµ÷ÓÃ²ÎÊýµÈ¡£
+ *                è¯¥æ–‡ä»¶çš„ä½œç”¨åœ¨äºŽçº¦å®šå¹¶ä¸”è§„èŒƒåŒ–soå‡½æ•°çš„å®šä¹‰å’Œè°ƒç”¨å‚æ•°ç­‰ã€‚
  * 
  *     Version :  1.0.0
  * 
@@ -27,65 +27,65 @@
 __BEGIN_DECLS
 
 /**
- * ¹¦ÄÜ: ³õÊ¼»¯»Øµ÷
- * ²ÎÊý: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êý
- *       2. unicorn³õÊ¼»¯½×¶Î£¬µ÷ÓÃ´Ëº¯Êý£¬¿ÉÒÔ×öÒ»Ð©³õÊ¼»¯¹¤×÷
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: åˆå§‹åŒ–å›žè°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜Ž: 
+ *       1. å¯é€‰å‡½æ•°
+ *       2. unicornåˆå§‹åŒ–é˜¶æ®µï¼Œè°ƒç”¨æ­¤å‡½æ•°ï¼Œå¯ä»¥åšä¸€äº›åˆå§‹åŒ–å·¥ä½œ
+ * è¿”å›ž:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_handle_init(void *conf, void *args);
 
 /**
- * ¹¦ÄÜ: ½áÊø»Øµ÷
- * ²ÎÊý: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êý
+ * åŠŸèƒ½: ç»“æŸå›žè°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜Ž: 
+ *       1. å¯é€‰å‡½æ•°
  **/
 int unc_handle_finish(void *conf, void *args);
 
 /**
- * ¹¦ÄÜ: ÇëÇóÇ°»Øµ÷
- * ²ÎÊý: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êý
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: è¯·æ±‚å‰å›žè°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜Ž: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›ž:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_request_pre(void *conf, void *args);
 
 /**
- * ¹¦ÄÜ: ÇëÇóºó»Øµ÷
- * ²ÎÊý: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êý
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: è¯·æ±‚åŽå›žè°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜Ž: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›ž:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_request_post(void *conf, void *args);
 
 /**
- * ¹¦ÄÜ: Éú³ÉTcpÇëÇóbody
- * ²ÎÊý: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êý
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: ç”ŸæˆTcpè¯·æ±‚body
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜Ž: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›ž:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_generate_request(void *conf, void *args);
 
 /**
- * ¹¦ÄÜ: ÅÐ¶Ïµ±Ç°µÄresponseÄÚÈÝ£¬ÊÇ·ñÊÇÒ»¸öÍêÕûµÄresoponse
- * ²ÎÊý: @conf, @client, @args
- * ËµÃ÷: 
- *       1. ±ØÑ¡º¯Êý
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: åˆ¤æ–­å½“å‰çš„responseå†…å®¹ï¼Œæ˜¯å¦æ˜¯ä¸€ä¸ªå®Œæ•´çš„resoponse
+ * å‚æ•°: @conf, @client, @args
+ * è¯´æ˜Ž: 
+ *       1. å¿…é€‰å‡½æ•°
+ * è¿”å›ž:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_check_full_request(void *conf, void *client, void *args);
 
 /**
- * ¹¦ÄÜ: ·þÎñ¶Ë¹Ø±ÕÁ¬½ÓµÄÊ±ºòµ÷ÓÃ
- * ²ÎÊý: @conf, @client, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êý
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: æœåŠ¡ç«¯å…³é—­è¿žæŽ¥çš„æ—¶å€™è°ƒç”¨
+ * å‚æ•°: @conf, @client, @args
+ * è¯´æ˜Ž: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›ž:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_handle_server_close(void *conf, void *client, void *args);
 

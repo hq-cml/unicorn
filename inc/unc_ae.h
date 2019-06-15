@@ -42,9 +42,9 @@
 */
 
 #ifdef UNC_EPOLL_MODE
-#define UNC_AE_SETSIZE     (1024 * 100)    /* Max number of fd supported ÒòÎªËùÓĞÏß³Ì¶¼ÊÇÍ¬Ò»¸ö½ø³Ì£¬ËùÒÔ´ËÊıÖµ¾ö¶¨ÁËmossadµÄ×î´óÁ¬½ÓÊıÁ¿ */
+#define UNC_AE_SETSIZE     (1024 * 100)    /* Max number of fd supported å› ä¸ºæ‰€æœ‰çº¿ç¨‹éƒ½æ˜¯åŒä¸€ä¸ªè¿›ç¨‹ï¼Œæ‰€ä»¥æ­¤æ•°å€¼å†³å®šäº†mossadçš„æœ€å¤§è¿æ¥æ•°é‡ */
 #else
-#define UNC_AE_SETSIZE     1024            /* select ×î¶à¼àÌı1024¸öfd */
+#define UNC_AE_SETSIZE     1024            /* select æœ€å¤šç›‘å¬1024ä¸ªfd */
 #endif
 
 #define UNC_AE_NONE         0
@@ -58,7 +58,7 @@
 
 #define UNC_AE_NOMORE       -1
 
-/* Macros£¬²»Ê¹ÓÃ£¬É¶Ò²²»¸É */
+/* Macrosï¼Œä¸ä½¿ç”¨ï¼Œå•¥ä¹Ÿä¸å¹² */
 #define UNC_AE_NOTUSED(V)   ((void)V)
 
 struct unc_ae_event_loop;
@@ -77,7 +77,7 @@ typedef struct unc_ae_file_event {
     int                  mask; /* one of AE_(READABLE|WRITABLE) */
     unc_ae_file_proc    *r_file_proc;
     unc_ae_file_proc    *w_file_proc;
-    /* Ae bug£¬ ¶ÁĞ´º¯ÊıÓÃÍ¬Ò»¸ö²ÎÊı£¬»á³öÏÖ¸²¸Ç */
+    /* Ae bugï¼Œ è¯»å†™å‡½æ•°ç”¨åŒä¸€ä¸ªå‚æ•°ï¼Œä¼šå‡ºç°è¦†ç›– */
     //void                 *client_data;
     void                *read_client_data;
     void                *write_client_data;
@@ -86,12 +86,12 @@ typedef struct unc_ae_file_event {
 
 /* Time event structure */
 typedef struct unc_ae_time_event {
-    long long id;                                /* Ê±¼äÊÂ¼ş×¢²áid */
-    long when_sec;                               /* ÊÂ¼ş·¢ÉúµÄ¾ø¶ÔÊ±¼äµÄÃëÊı */
-    long when_ms;                                /* ÊÂ¼ş·¢ÉúµÄ¾ø¶ÔÊ±¼äµÄºÁÃëÊı */
-    unc_ae_time_proc    *time_proc;              /* ³¬Ê±»Øµ÷º¯Êı */
-    unc_ae_event_finalizer_proc *finalizer_proc; /* Ê±¼äÊÂ¼şµÄÎö¹¹»Øµ÷ */
-    void *client_data;                           /* ³¬Ê±»Øµ÷º¯Êı/Îö¹¹º¯ÊıµÄ²ÎÊı */
+    long long id;                                /* æ—¶é—´äº‹ä»¶æ³¨å†Œid */
+    long when_sec;                               /* äº‹ä»¶å‘ç”Ÿçš„ç»å¯¹æ—¶é—´çš„ç§’æ•° */
+    long when_ms;                                /* äº‹ä»¶å‘ç”Ÿçš„ç»å¯¹æ—¶é—´çš„æ¯«ç§’æ•° */
+    unc_ae_time_proc    *time_proc;              /* è¶…æ—¶å›è°ƒå‡½æ•° */
+    unc_ae_event_finalizer_proc *finalizer_proc; /* æ—¶é—´äº‹ä»¶çš„ææ„å›è°ƒ */
+    void *client_data;                           /* è¶…æ—¶å›è°ƒå‡½æ•°/ææ„å‡½æ•°çš„å‚æ•° */
     struct unc_ae_time_event *next;
 } unc_ae_time_event;
 
@@ -110,7 +110,7 @@ typedef struct unc_ae_api_state
 } unc_ae_api_state;
 #else
 
-/* select×î´ófdÖ»Ö§³Ö1024! */
+/* selectæœ€å¤§fdåªæ”¯æŒ1024! */
 typedef struct unc_ae_api_state 
 {
     fd_set rfds, wfds;
@@ -123,13 +123,13 @@ typedef struct unc_ae_api_state
 /* State of an event base program */
 typedef struct unc_ae_event_loop {
     int maxfd;                                  /* highest file descriptor currently registered */
-    long long           time_event_next_id;     /* µ±ÓĞĞÂµÄÊ±¼äÊÂ¼ş×¢²áÊ±£¬Ó¦¸Ã¸³ÓèËüµÄ×¢²áid */
+    long long           time_event_next_id;     /* å½“æœ‰æ–°çš„æ—¶é—´äº‹ä»¶æ³¨å†Œæ—¶ï¼Œåº”è¯¥èµ‹äºˆå®ƒçš„æ³¨å†Œid */
     time_t              last_time;              /* Used to detect system clock skew */
-    unc_ae_file_event   events[UNC_AE_SETSIZE]; /* ÎÄ¼şÊÂ¼şÊı×é£¬fd×÷ÎªË÷Òı£¬ËüºÍapi_dataÊÇ¶ÔÓ¦µÄ */
-    unc_ae_fired_event  fired[UNC_AE_SETSIZE];  /* Fired events£¬Õâ¸ö²»ÊÇÓÃfd×÷ÎªË÷ÒıµÄ£¬´Ó0¿ªÊ¼ */
+    unc_ae_file_event   events[UNC_AE_SETSIZE]; /* æ–‡ä»¶äº‹ä»¶æ•°ç»„ï¼Œfdä½œä¸ºç´¢å¼•ï¼Œå®ƒå’Œapi_dataæ˜¯å¯¹åº”çš„ */
+    unc_ae_fired_event  fired[UNC_AE_SETSIZE];  /* Fired eventsï¼Œè¿™ä¸ªä¸æ˜¯ç”¨fdä½œä¸ºç´¢å¼•çš„ï¼Œä»0å¼€å§‹ */
     unc_ae_time_event   *time_event_head;
     int stop;
-    unc_ae_api_state    *api_data;              /* fdÎªË÷Òı£¬ÓëeventsÒ»Ò»¶ÔÓ¦£¬ÓÃÓÚselec/epollº¯ÊıÂÖÑ¯ */
+    unc_ae_api_state    *api_data;              /* fdä¸ºç´¢å¼•ï¼Œä¸eventsä¸€ä¸€å¯¹åº”ï¼Œç”¨äºselec/epollå‡½æ•°è½®è¯¢ */
     unc_ae_before_sleep_proc    *before_sleep;
 } unc_ae_event_loop;
 

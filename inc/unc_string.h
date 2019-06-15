@@ -11,8 +11,8 @@
  * Description :  Unc_string, a C dynamic strings library.
  *                Derived from redis.
  *
- *        ×¢Òâ :  ËùÓĞÄÚ²¿µ÷ÓÃunc_str_expand_roomµÄº¯Êı£¬·µ»ØµÄunc_str_t *¿ÉÄÜ
- *                ÊÇÒ»¸öĞÂµØÖ·£¬ËùÒÔĞèÒªÓÃÁ´Ê½±í´ï£¬ÈçÏÂ£º
+ *        æ³¨æ„ :  æ‰€æœ‰å†…éƒ¨è°ƒç”¨unc_str_expand_roomçš„å‡½æ•°ï¼Œè¿”å›çš„unc_str_t *å¯èƒ½
+ *                æ˜¯ä¸€ä¸ªæ–°åœ°å€ï¼Œæ‰€ä»¥éœ€è¦ç”¨é“¾å¼è¡¨è¾¾ï¼Œå¦‚ä¸‹ï¼š
  *                g_instance->conf_path = unc_str_cpy(g_instance->conf_path,
  *                                                    "./mossad.conf");
  * 
@@ -37,10 +37,10 @@
 
 typedef struct _unc_string_s
 {
-    int  len;    /* Êµ¼Ê×Ö·û´®³¤¶È,²»°üÀ¨'\0' */
-    int  free;   /* ¿ÕÏĞ³¤¶È,²»°üÀ¨'\0' */
-                 /* ×ÛÉÏ£¬ËùÒÔbufµÄ×Ü¿Õ¼ä=len+free+1 */
-    char buf[];  /* Êı¾İ¿ªÊ¼Ö¸Õë */
+    int  len;    /* å®é™…å­—ç¬¦ä¸²é•¿åº¦,ä¸åŒ…æ‹¬'\0' */
+    int  free;   /* ç©ºé—²é•¿åº¦,ä¸åŒ…æ‹¬'\0' */
+                 /* ç»¼ä¸Šï¼Œæ‰€ä»¥bufçš„æ€»ç©ºé—´=len+free+1 */
+    char buf[];  /* æ•°æ®å¼€å§‹æŒ‡é’ˆ */
 }unc_str_t;    /* sizeof(unc_str_t) == 8 */
 
 unc_str_t* unc_str_new(const void *init);

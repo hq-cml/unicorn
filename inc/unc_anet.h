@@ -57,6 +57,6 @@ int unc_anet_tcp_keepalive(char *err, int fd);
 int unc_anet_peer_tostring(char *err, int fd, char *ip, int *port);
 int unc_anet_set_send_buffer(char *err, int fd, int buffsize);
 
-//ÖÐÎÄ
+//ä¸­æ–‡
 #endif /* __UNC_ANET_H_INCLUDED__ */
 
