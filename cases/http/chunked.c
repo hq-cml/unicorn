@@ -8,8 +8,8 @@
  *
  *    Filename :  http.c
  * 
- * Description :  »ùÓÚUnicorn¿ò¼ÜµÄHTTPÑ¹²â¿Í»§¶Ë
- *                ¸ºÔğHTTPµÄchunkedÏà¹ØÂß¼­´¦Àí
+ * Description :  åŸºäºUnicornæ¡†æ¶çš„HTTPå‹æµ‹å®¢æˆ·ç«¯
+ *                è´Ÿè´£HTTPçš„chunkedç›¸å…³é€»è¾‘å¤„ç†
  * 
  *     Version :  1.0.0 
  * 
@@ -23,12 +23,12 @@ static int get_chunk_size(const char *start, int *len, conf_t *config);
 extern unc_str_t *g_http_response_body;
 
 /*
- * ¹¦ÄÜ: Ê®Áù½øÖÆ×Ö·û´®×ª³ÉÊ®½øÖÆÕûĞÎ
- * ²ÎÊı: @hex, @len
+ * åŠŸèƒ½: åå…­è¿›åˆ¶å­—ç¬¦ä¸²è½¬æˆåè¿›åˆ¶æ•´å½¢
+ * å‚æ•°: @hex, @len
  * 
- * ·µ»Ø:
- *      ³É¹¦: Ê®½øÖÆÊı×Ö
- *      Ê§°Ü: -1
+ * è¿”å›:
+ *      æˆåŠŸ: åè¿›åˆ¶æ•°å­—
+ *      å¤±è´¥: -1
  */
 int HexStr2Dec(const char *hex, int len)
 {
@@ -53,14 +53,14 @@ int HexStr2Dec(const char *hex, int len)
 }
 
 /*
- * ¹¦ÄÜ: ´¦ÀíTransfer-Encoding: chunked
- * ²ÎÊı: @body_start, @analysis
- * ËµÃ÷: 
- *     Chunked±àÂëµÄ»ù±¾·½·¨ÊÇ½«´ó¿éÊı¾İ·Ö½â³É¶à¿éĞ¡Êı¾İ£¬Ã¿¿é¶¼¿ÉÒÔ×ÔÖ¸¶¨³¤¶È£¬Æä¾ßÌå¸ñÊ½ÈçÏÂ(BNFÎÄ·¨)£º
- *     Chunked-Body   = *chunk                        //0ÖÁ¶à¸öchunk
- *     last-chunk                                     //×îºóÒ»¸öchunk
- *     trailer                                        //Î²²¿
- *     CRLF                                           //½áÊø±ê¼Ç·û
+ * åŠŸèƒ½: å¤„ç†Transfer-Encoding: chunked
+ * å‚æ•°: @body_start, @analysis
+ * è¯´æ˜: 
+ *     Chunkedç¼–ç çš„åŸºæœ¬æ–¹æ³•æ˜¯å°†å¤§å—æ•°æ®åˆ†è§£æˆå¤šå—å°æ•°æ®ï¼Œæ¯å—éƒ½å¯ä»¥è‡ªæŒ‡å®šé•¿åº¦ï¼Œå…¶å…·ä½“æ ¼å¼å¦‚ä¸‹(BNFæ–‡æ³•)ï¼š
+ *     Chunked-Body   = *chunk                        //0è‡³å¤šä¸ªchunk
+ *     last-chunk                                     //æœ€åä¸€ä¸ªchunk
+ *     trailer                                        //å°¾éƒ¨
+ *     CRLF                                           //ç»“æŸæ ‡è®°ç¬¦
  *     chunk  = chunk-size [ chunk-extension ] CRLF
  *     chunk-data CRLF
  *     chunk-size     = 1*HEX
@@ -71,19 +71,19 @@ int HexStr2Dec(const char *hex, int len)
  *     chunk-data     = chunk-size(OCTET)
  *     trailer        = *(entity-header CRLF)
  *  
- * ½âÊÍ£º
- *     1. Chunked-Body±íÊ¾¾­¹ıchunked±àÂëºóµÄ±¨ÎÄÌå¡£±¨ÎÄÌå¿ÉÒÔ·ÖÎªchunk, last-chunk£¬trailerºÍ½áÊø·ûËÄ²¿·Ö¡£
- *        chunkµÄÊıÁ¿ÔÚ±¨ÎÄÌåÖĞ×îÉÙ¿ÉÒÔÎª0£¬ÎŞÉÏÏŞ£»
- *     2. Ã¿¸öchunkµÄ³¤¶ÈÊÇ×ÔÖ¸¶¨µÄ£¬¼´£¬ÆğÊ¼µÄÊı¾İ±ØÈ»ÊÇ16½øÖÆÊı×ÖµÄ×Ö·û´®£¬´ú±íºóÃæchunk-dataµÄ³¤¶È£¨×Ö½ÚÊı£©¡£
- *        Õâ¸ö16½øÖÆµÄ×Ö·û´®µÚÒ»¸ö×Ö·ûÈç¹ûÊÇ¡°0¡±£¬Ôò±íÊ¾chunk-sizeÎª0£¬¸ÃchunkÎªlast-chunk,ÎŞchunk-data²¿·Ö¡£
- *     3. ¿ÉÑ¡µÄchunk-extensionÓÉÍ¨ĞÅË«·½×ÔĞĞÈ·¶¨£¬Èç¹û½ÓÊÕÕß²»Àí½âËüµÄÒâÒå£¬¿ÉÒÔºöÂÔ¡£
- *     4. trailerÊÇ¸½¼ÓµÄÔÚÎ²²¿µÄ¶îÍâÍ·Óò£¬Í¨³£°üº¬Ò»Ğ©ÔªÊı¾İ£¨metadata, meta means "about information"£©
- *        ÕâĞ©Í·Óò¿ÉÒÔÔÚ½âÂëºó¸½¼ÓÔÚÏÖÓĞÍ·ÓòÖ®ºó
+ * è§£é‡Šï¼š
+ *     1. Chunked-Bodyè¡¨ç¤ºç»è¿‡chunkedç¼–ç åçš„æŠ¥æ–‡ä½“ã€‚æŠ¥æ–‡ä½“å¯ä»¥åˆ†ä¸ºchunk, last-chunkï¼Œtrailerå’Œç»“æŸç¬¦å››éƒ¨åˆ†ã€‚
+ *        chunkçš„æ•°é‡åœ¨æŠ¥æ–‡ä½“ä¸­æœ€å°‘å¯ä»¥ä¸º0ï¼Œæ— ä¸Šé™ï¼›
+ *     2. æ¯ä¸ªchunkçš„é•¿åº¦æ˜¯è‡ªæŒ‡å®šçš„ï¼Œå³ï¼Œèµ·å§‹çš„æ•°æ®å¿…ç„¶æ˜¯16è¿›åˆ¶æ•°å­—çš„å­—ç¬¦ä¸²ï¼Œä»£è¡¨åé¢chunk-dataçš„é•¿åº¦ï¼ˆå­—èŠ‚æ•°ï¼‰ã€‚
+ *        è¿™ä¸ª16è¿›åˆ¶çš„å­—ç¬¦ä¸²ç¬¬ä¸€ä¸ªå­—ç¬¦å¦‚æœæ˜¯â€œ0â€ï¼Œåˆ™è¡¨ç¤ºchunk-sizeä¸º0ï¼Œè¯¥chunkä¸ºlast-chunk,æ— chunk-dataéƒ¨åˆ†ã€‚
+ *     3. å¯é€‰çš„chunk-extensionç”±é€šä¿¡åŒæ–¹è‡ªè¡Œç¡®å®šï¼Œå¦‚æœæ¥æ”¶è€…ä¸ç†è§£å®ƒçš„æ„ä¹‰ï¼Œå¯ä»¥å¿½ç•¥ã€‚
+ *     4. traileræ˜¯é™„åŠ çš„åœ¨å°¾éƒ¨çš„é¢å¤–å¤´åŸŸï¼Œé€šå¸¸åŒ…å«ä¸€äº›å…ƒæ•°æ®ï¼ˆmetadata, meta means "about information"ï¼‰
+ *        è¿™äº›å¤´åŸŸå¯ä»¥åœ¨è§£ç åé™„åŠ åœ¨ç°æœ‰å¤´åŸŸä¹‹å
  * 
- * ·µ»Ø:
- *      UNC_OK         0: ·ûºÏÒ»¸öÍêÕûµÄ°ü
- *      UNC_NEEDMORE  -4: °ü³¤²»¹»£¬ĞèÒª¿ò¼Ü¼ÌĞøread
- *      UNC_ERR       -1: ³öÏÖÎ´Öª½âÎö´íÎó
+ * è¿”å›:
+ *      UNC_OK         0: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…
+ *      UNC_NEEDMORE  -4: åŒ…é•¿ä¸å¤Ÿï¼Œéœ€è¦æ¡†æ¶ç»§ç»­read
+ *      UNC_ERR       -1: å‡ºç°æœªçŸ¥è§£æé”™è¯¯
  */
 int handle_chunked(const char *body_start, conf_t *config)
 {
@@ -91,13 +91,13 @@ int handle_chunked(const char *body_start, conf_t *config)
     char *p;
     int len;
     int result;
-    int body_sentry = strlen(body_start); //bodyÉÚ±ø
+    int body_sentry = strlen(body_start); //bodyå“¨å…µ
     int chunk_size;
-    unc_str_t *tmp = unc_str_new_empty(); //TODO ·ÀÖ¹ÄÚ´æĞ¹Â©
+    unc_str_t *tmp = unc_str_new_empty(); //TODO é˜²æ­¢å†…å­˜æ³„æ¼
 
     if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked begin.\n");
 
-    //¶ÁÈ¡chunk-size, chunk-extensionºÍCRLF
+    //è¯»å–chunk-size, chunk-extensionå’ŒCRLF
     do{ 
         chunk_size = get_chunk_size(ptr, &len, config); 
         ptr += len;
@@ -118,23 +118,23 @@ int handle_chunked(const char *body_start, conf_t *config)
         {
             if(ptr+chunk_size+2 >= body_start+body_sentry)
             {
-                //ÓÉÓÚchunk_size>0, ËùÒÔ²»ÊÇ×îºóÒ»¸öchunk£¬ÀíÂÛÉÏ´Ë¿ÌÊı¾İ¿Ï¶¨²»¹»£¬»¹ĞèÒª¼ÌĞøread
+                //ç”±äºchunk_size>0, æ‰€ä»¥ä¸æ˜¯æœ€åä¸€ä¸ªchunkï¼Œç†è®ºä¸Šæ­¤åˆ»æ•°æ®è‚¯å®šä¸å¤Ÿï¼Œè¿˜éœ€è¦ç»§ç»­read
                 if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked Need (%ld) more\n", ((ptr+chunk_size+2) - (body_start+body_sentry)));
                 unc_str_free(tmp);
                 return UNC_NEEDMORE;
             }
 
-            //¶Áchunk-size´óĞ¡µÄchunk-data,skip CRLF£¬²¢½«´Ë¿échunk-data×·¼Óµ½entity-bodyºó
+            //è¯»chunk-sizeå¤§å°çš„chunk-data,skip CRLFï¼Œå¹¶å°†æ­¤å—chunk-dataè¿½åŠ åˆ°entity-bodyå
             unc_str_cat_len(&tmp, ptr, chunk_size);
 
-            //¶ÁÈ¡ĞÂchunkµÄchunk-size ºÍ CRLF
+            //è¯»å–æ–°chunkçš„chunk-size å’Œ CRLF
             ptr = ptr+chunk_size+2;
         }
-    }while( chunk_size > 0 ); //chunk_size > 0±íÃ÷²»ÊÇlast-chunk
+    }while( chunk_size > 0 ); //chunk_size > 0è¡¨æ˜ä¸æ˜¯last-chunk
 
     if(chunk_size != 0)
     {
-        //chunk_size == 0±íÃ÷ÒÑ´¦ÀíÍêlast-chunk£¬´Ë¿ÌptrÖ¸Ïòlast-chunkÖ®ºó£¬¿ÉÄÜ´æÔÚtrailer£¬Ò²¿ÉÄÜ²»´æÔÚ
+        //chunk_size == 0è¡¨æ˜å·²å¤„ç†å®Œlast-chunkï¼Œæ­¤åˆ»ptræŒ‡å‘last-chunkä¹‹åï¼Œå¯èƒ½å­˜åœ¨trailerï¼Œä¹Ÿå¯èƒ½ä¸å­˜åœ¨
         if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked Err: last-chunk-size should be 0.\n");
         unc_str_free(tmp);
         return UNC_ERR;
@@ -146,27 +146,27 @@ int handle_chunked(const char *body_start, conf_t *config)
          if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked fill the g_http_response_body, Len: %d.\n",g_http_response_body->len);
     }
 
-    //TODO ¹ØÓÚtrailerµÄ´¦Àí£¬ÕâÀï²»¹ØĞÄ
+    //TODO å…³äºtrailerçš„å¤„ç†ï¼Œè¿™é‡Œä¸å…³å¿ƒ
     /**
-     * read entity-header      //entity-headerµÄ¸ñÊ½Îªname:valueCRLF,Èç¹ûÎª¿Õ¼´Ö»ÓĞCRLF
-     * while £¨entity-header not empty)   //¼´£¬²»ÊÇÖ»ÓĞCRLFµÄ¿ÕĞĞ
+     * read entity-header      //entity-headerçš„æ ¼å¼ä¸ºname:valueCRLF,å¦‚æœä¸ºç©ºå³åªæœ‰CRLF
+     * while ï¼ˆentity-header not empty)   //å³ï¼Œä¸æ˜¯åªæœ‰CRLFçš„ç©ºè¡Œ
      * {
      *     append entity-header to existing header fields
      *     read entity-header
      *  }
-     * Content-Length:=length      //½«Õû¸ö½âÂëÁ÷³Ì½áÊøºó¼ÆËãµÃµ½µÄĞÂ±¨ÎÄÌålength£¬×÷ÎªContent-LengthÓòµÄÖµĞ´Èë±¨ÎÄÖĞ
-     * Remove "chunked" from Transfer-Encoding  //Í¬Ê±´ÓTransfer-EncodingÖĞÓòÖµÈ¥³ıchunkedÕâ¸ö±ê¼Ç
+     * Content-Length:=length      //å°†æ•´ä¸ªè§£ç æµç¨‹ç»“æŸåè®¡ç®—å¾—åˆ°çš„æ–°æŠ¥æ–‡ä½“lengthï¼Œä½œä¸ºContent-LengthåŸŸçš„å€¼å†™å…¥æŠ¥æ–‡ä¸­
+     * Remove "chunked" from Transfer-Encoding  //åŒæ—¶ä»Transfer-Encodingä¸­åŸŸå€¼å»é™¤chunkedè¿™ä¸ªæ ‡è®°
      */
 
     unc_str_free(tmp);
     if(strlen(ptr) && memcmp(ptr, "\r\n", 2)==0)
     {
-        //Ã»ÓĞtrailer
+        //æ²¡æœ‰trailer
         result = UNC_OK;
     }
     else
     {
-        //Èç¹ûÓĞtrailer£¬³¢ÊÔÕÒµ½trailer½áÎ²ºÍ×îÖÕ½áÎ²
+        //å¦‚æœæœ‰trailerï¼Œå°è¯•æ‰¾åˆ°trailerç»“å°¾å’Œæœ€ç»ˆç»“å°¾
         p = strstr(ptr, "\r\n\r\n");
         if(p == NULL)
         {
@@ -177,11 +177,11 @@ int handle_chunked(const char *body_start, conf_t *config)
             if(strlen(p) == 4)
             {
                 if(config->debug) fprintf(stdout, " [DEBUG] Handle_chunked find a trailler.\n");
-                result = UNC_OK;  //Èç¹ûÕÒµ½µÄ¾ÍÊÇ×îÖÕ½áÎ²£¬Ôò·µ»Øok
+                result = UNC_OK;  //å¦‚æœæ‰¾åˆ°çš„å°±æ˜¯æœ€ç»ˆç»“å°¾ï¼Œåˆ™è¿”å›ok
             }
             else
             {
-                result = UNC_ERR; //Èç¹û²»ÊÇ×îÖÕ½áÎ²£¬ËµÃ÷¿Ï¶¨´æÔÚ´íÎó
+                result = UNC_ERR; //å¦‚æœä¸æ˜¯æœ€ç»ˆç»“å°¾ï¼Œè¯´æ˜è‚¯å®šå­˜åœ¨é”™è¯¯
             }
         }
     }
@@ -191,15 +191,15 @@ int handle_chunked(const char *body_start, conf_t *config)
 }
 
 /*
- * ¹¦ÄÜ: ¶ÁÈ¡chunk-size, chunk-extensionºÍCRLF
- * ²ÎÊı: @str, @p_len, @config
+ * åŠŸèƒ½: è¯»å–chunk-size, chunk-extensionå’ŒCRLF
+ * å‚æ•°: @str, @p_len, @config
  * 
- * ËµÃ÷: 
- *      p_len¸æËßÍâ²ã£¬ÏûºÄÁË¶àÉÙ¸ö×Ö½Ú³¤¶È£¬±ãÓÚÍâ²ã´¦Àí
- * ·µ»Ø:
- *      ³É¹¦: chunk-size£¬ºöÂÔchunk-extension
- *      Ê§°Ü: UNC_ERR ³öÏÖÎ´Öª½âÎö´íÎó
- *      UNC_NEEDMORE: ÈÃ¿ò¼Ü¼ÌĞø¶ÁÈ¡
+ * è¯´æ˜: 
+ *      p_lenå‘Šè¯‰å¤–å±‚ï¼Œæ¶ˆè€—äº†å¤šå°‘ä¸ªå­—èŠ‚é•¿åº¦ï¼Œä¾¿äºå¤–å±‚å¤„ç†
+ * è¿”å›:
+ *      æˆåŠŸ: chunk-sizeï¼Œå¿½ç•¥chunk-extension
+ *      å¤±è´¥: UNC_ERR å‡ºç°æœªçŸ¥è§£æé”™è¯¯
+ *      UNC_NEEDMORE: è®©æ¡†æ¶ç»§ç»­è¯»å–
  */
 static int get_chunk_size(const char *str, int *p_len, conf_t *config)
 {
@@ -215,11 +215,11 @@ static int get_chunk_size(const char *str, int *p_len, conf_t *config)
     }
 
     len = p1-str;
-    *p_len = len+2;//+2 ±íÊ¾\r\nÕ¼ÓÃµÄ³¤¶È
+    *p_len = len+2;//+2 è¡¨ç¤º\r\nå ç”¨çš„é•¿åº¦
     
-    snprintf(buf, len+1, "%s", str); //snprintf²ÎÊı³¤¶È°üÀ¨\0
+    snprintf(buf, len+1, "%s", str); //snprintfå‚æ•°é•¿åº¦åŒ…æ‹¬\0
 
-    //Èç¹û´æÔÚchunk-extension£¬ÔòºöÂÔÖ®
+    //å¦‚æœå­˜åœ¨chunk-extensionï¼Œåˆ™å¿½ç•¥ä¹‹
     p2 = strstr(buf, ";");
     if(p2)
     {

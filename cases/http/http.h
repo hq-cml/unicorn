@@ -8,8 +8,8 @@
  *
  *    Filename :  http.c
  * 
- * Description :  »ùÓÚUnicorn¿ò¼ÜµÄHTTPÑ¹²â¿Í»§¶Ë
- *                ÊµÏÖunc_plugin.hÖĞµÄº¯Êı£¬¼´¿É½«ÓÃ»§Âß¼­Ç¶Èëunicorn¿ò¼Ü
+ * Description :  åŸºäºUnicornæ¡†æ¶çš„HTTPå‹æµ‹å®¢æˆ·ç«¯
+ *                å®ç°unc_plugin.hä¸­çš„å‡½æ•°ï¼Œå³å¯å°†ç”¨æˆ·é€»è¾‘åµŒå…¥unicornæ¡†æ¶
  * 
  *     Version :  1.0.0 
  * 
@@ -23,10 +23,10 @@
 #include "unc_core.h"
 
 /* -----------------MACRO---------------- */
-#define HTTP_HEADER_CLOSE       1 //0001: headerÖĞÕÒµ½ÁËConnection:close
-#define HTTP_HEADER_CHUNKED     2 //0010: headerÖĞÕÒµ½ÁËTransfer-Encoding: chunked
-#define HTTP_HEADER_LENGTH      4 //0100: headerÖĞÕÒµ½ÁËContent-Length:
-#define HTTP_HEADER_ERR         8 //0100: Î´Öª´íÎó
+#define HTTP_HEADER_CLOSE       1 //0001: headerä¸­æ‰¾åˆ°äº†Connection:close
+#define HTTP_HEADER_CHUNKED     2 //0010: headerä¸­æ‰¾åˆ°äº†Transfer-Encoding: chunked
+#define HTTP_HEADER_LENGTH      4 //0100: headerä¸­æ‰¾åˆ°äº†Content-Length:
+#define HTTP_HEADER_ERR         8 //0100: æœªçŸ¥é”™è¯¯
 
 int HexStr2Dec(const char *hex, int len);
 int handle_chunked(const char *body_start, conf_t *config);

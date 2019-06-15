@@ -8,8 +8,8 @@
  *
  *    Filename :  http.c
  * 
- * Description :  »ùÓÚUnicorn¿ò¼ÜµÄHTTPÑ¹²â¿Í»§¶Ë
- *                ÊµÏÖunc_plugin.hÖĞµÄº¯Êı£¬¼´¿É½«ÓÃ»§Âß¼­Ç¶Èëunicorn¿ò¼Ü
+ * Description :  åŸºäºUnicornæ¡†æ¶çš„HTTPå‹æµ‹å®¢æˆ·ç«¯
+ *                å®ç°unc_plugin.hä¸­çš„å‡½æ•°ï¼Œå³å¯å°†ç”¨æˆ·é€»è¾‘åµŒå…¥unicornæ¡†æ¶
  * 
  *     Version :  1.0.0 
  * 
@@ -30,18 +30,18 @@ unc_str_t *g_http_response_header;
 unc_str_t *g_http_response_body;
 
 /**
- * ¹¦ÄÜ: Éú³ÉTcpÇëÇóbody
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: ç”ŸæˆTcpè¯·æ±‚body
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_generate_request(void *conf, void *args) 
 {
     conf_t *p_conf =(conf_t *) conf;
     if(!p_conf->request_body)
     {
-        //Æ´´ÕÒ»¸ö×î×î¼òµ¥request
+        //æ‹¼å‡‘ä¸€ä¸ªæœ€æœ€ç®€å•request
         p_conf->request_body = unc_str_new("GET /info.php HTTP/1.0\r\nHost:127.0.0.1:80\r\n\r\n");
     }
 
@@ -49,21 +49,21 @@ int unc_generate_request(void *conf, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ÅĞ¶Ïµ±Ç°µÄresponseÄÚÈİ£¬ÊÇ·ñÊÇÒ»¸öÍêÕûµÄresoponse
- * ²ÎÊı: @conf, @client, @args
- * ËµÃ÷: 
- *       1. ±ØÑ¡º¯Êı
- *       2. °´ÕÕHTTPĞ­Òé±ê×¼:
- *          Ò»¸ö±ê×¼µÄhttp response°üº¬:
+ * åŠŸèƒ½: åˆ¤æ–­å½“å‰çš„responseå†…å®¹ï¼Œæ˜¯å¦æ˜¯ä¸€ä¸ªå®Œæ•´çš„resoponse
+ * å‚æ•°: @conf, @client, @args
+ * è¯´æ˜: 
+ *       1. å¿…é€‰å‡½æ•°
+ *       2. æŒ‰ç…§HTTPåè®®æ ‡å‡†:
+ *          ä¸€ä¸ªæ ‡å‡†çš„http responseåŒ…å«:
  *          STATUS LINE\r\n
  *          HTTP HEADER\r\n
  *          \r\n
  *          HTTP BODY
- * ·µ»Ø:
- *      UNC_OK         0: ·ûºÏÒ»¸öÍêÕûµÄ°ü
- *      UNC_END       -5: ·ûºÏÒ»¸öÍêÕûµÄ°ü£¬µ«ÊÇ°µÊ¾¿ò¼ÜÖ÷¶¯¹Ø±ÕÁ¬½Ó(´¦Àí·şÎñÆ÷Ö÷¶¯¹Ø±Õ£¬µ¼ÖÂunicornÇëÇóÊı¼õ°ëµÄÎÊÌâ)
- *      UNC_NEEDMORE  -4: °ü³¤²»¹»£¬ĞèÒª¿ò¼Ü¼ÌĞøread
- *      UNC_ERR       -1: ³öÏÖÎ´Öª´íÎó
+ * è¿”å›:
+ *      UNC_OK         0: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…
+ *      UNC_END       -5: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…ï¼Œä½†æ˜¯æš—ç¤ºæ¡†æ¶ä¸»åŠ¨å…³é—­è¿æ¥(å¤„ç†æœåŠ¡å™¨ä¸»åŠ¨å…³é—­ï¼Œå¯¼è‡´unicornè¯·æ±‚æ•°å‡åŠçš„é—®é¢˜)
+ *      UNC_NEEDMORE  -4: åŒ…é•¿ä¸å¤Ÿï¼Œéœ€è¦æ¡†æ¶ç»§ç»­read
+ *      UNC_ERR       -1: å‡ºç°æœªçŸ¥é”™è¯¯
  **/
 int unc_check_full_response(void *conf, void *client, void *args) 
 {
@@ -82,35 +82,35 @@ int unc_check_full_response(void *conf, void *client, void *args)
 
     if(config->debug) fprintf(stdout, " [DEBUG] Unc_check_full_response begin.\n");
 
-    //³¢ÊÔÕÒµ½status lineºÍheader±ß½ç
+    //å°è¯•æ‰¾åˆ°status lineå’Œheaderè¾¹ç•Œ
     if(!(p_end = strstr(recvbuf, "\r\n\r\n")))
     {
-        //Èç¹ûÎ´ÕÒµ½±ß½ç£¬ÔòÖ±½Ó·µ»Øneedmore£¬½»¸ø¿ò¼Ü¼ÌĞøread
+        //å¦‚æœæœªæ‰¾åˆ°è¾¹ç•Œï¼Œåˆ™ç›´æ¥è¿”å›needmoreï¼Œäº¤ç»™æ¡†æ¶ç»§ç»­read
         if(config->debug) fprintf(stdout, " [DEBUG] Unc_check_full_response return: %d.\n", UNC_NEEDMORE);
         return UNC_NEEDMORE;
     }
 
-    //¶¨Î»×´Ì¬ĞĞ±ß½ç
+    //å®šä½çŠ¶æ€è¡Œè¾¹ç•Œ
     statusline_start = recvbuf;
-    header_start = strstr(recvbuf, "\r\n") +2; //+2ÊÇ/r/n
+    header_start = strstr(recvbuf, "\r\n") +2; //+2æ˜¯/r/n
     statusline_length = header_start - statusline_start; 
     if(!g_http_response_line)
     {
         g_http_response_line = unc_str_newlen(statusline_start, statusline_length);
     }
     
-    //¶¨Î»header±ß½ç
-    body_start = p_end + 4; //+4ÊÇ\r\n\r\n
+    //å®šä½headerè¾¹ç•Œ
+    body_start = p_end + 4; //+4æ˜¯\r\n\r\n
     header_length = body_start - header_start; 
     if(!g_http_response_header)
     {
          g_http_response_header = unc_str_newlen(header_start, header_length);    
     }
 
-    //È·¶¨bodyµÄ³¤¶È
+    //ç¡®å®šbodyçš„é•¿åº¦
     header_analysis = analysis_body_header(header_start, header_length, &body_length, config);
 
-    //´¦Àíbody
+    //å¤„ç†body
     ret = handle_body(body_start, header_analysis, body_length, config);
 
     if(config->debug) fprintf(stdout, " [DEBUG] Unc_check_full_response return: %d.\n", ret);
@@ -118,13 +118,13 @@ int unc_check_full_response(void *conf, void *client, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ·şÎñ¶Ë¶Ï¿ªÁ¬½ÓµÄÊ±ºòµ÷ÓÃ
- * ²ÎÊı: @conf, @client, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- *       2. ÓĞµÄweb·şÎñÆ÷»áÖ»·µ»Øclose£¬Ò²Ã»ÓĞContent-Length»òÕßTransfer-Encoding¡£Õâ¸öº¯Êı¾Í¿ÉÒÔÓÃÓÚ¾¡Á¿±£ÁôÏÂresponse
+ * åŠŸèƒ½: æœåŠ¡ç«¯æ–­å¼€è¿æ¥çš„æ—¶å€™è°ƒç”¨
+ * å‚æ•°: @conf, @client, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ *       2. æœ‰çš„webæœåŠ¡å™¨ä¼šåªè¿”å›closeï¼Œä¹Ÿæ²¡æœ‰Content-Lengthæˆ–è€…Transfer-Encodingã€‚è¿™ä¸ªå‡½æ•°å°±å¯ä»¥ç”¨äºå°½é‡ä¿ç•™ä¸‹response
  *
- * ·µ»Ø: ³É¹¦:0; Ê§°Ü:-x
+ * è¿”å›: æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_handle_server_close(void *conf, void *client, void *args) 
 {
@@ -135,16 +135,16 @@ int unc_handle_server_close(void *conf, void *client, void *args)
     char *p_end;
     char *body_start;
 
-    //³¢ÊÔÕÒµ½header±ß½ç
+    //å°è¯•æ‰¾åˆ°headerè¾¹ç•Œ
     if(!(p_end = strstr(recvbuf, "\r\n\r\n")))
     {
-        //Èç¹ûÎ´ÕÒµ½±ß½ç£¬ËµÃ÷³öÏÖÁËÎÊÌâ£¬·şÎñ¶Ë²»ÊÇÕı³£µÄclose
+        //å¦‚æœæœªæ‰¾åˆ°è¾¹ç•Œï¼Œè¯´æ˜å‡ºç°äº†é—®é¢˜ï¼ŒæœåŠ¡ç«¯ä¸æ˜¯æ­£å¸¸çš„close
         if(config->debug) fprintf(stdout, " [DEBUG] Unc_handle_server_close return: UNC_ERR.\n");
         return UNC_ERR;
     }
     
-    //¶¨Î»header±ß½ç
-    body_start = p_end + 4; //+4ÊÇ/r/n/r/n
+    //å®šä½headerè¾¹ç•Œ
+    body_start = p_end + 4; //+4æ˜¯/r/n/r/n
     if(!g_http_response_body)
     {
         g_http_response_body = unc_str_new(body_start); 
@@ -156,20 +156,20 @@ int unc_handle_server_close(void *conf, void *client, void *args)
 
 
 /*
- * ¹¦ÄÜ: ·ÖÎöheader, ¼ÆËãbody³¤¶È
- * ²ÎÊı: @header_start, @header_length
- * ËµÃ÷: 
- *       1. ²éÕÒConnection:close£¬Èç¹ûÕÒµ½Ôò±íÊ¾Îñ¶Ë»á¶Ï¿ªÁ¬½Ó£¬ÔòÓ¦¸Ã°µÊ¾¿ò¼ÜÖ÷¶¯¶Ï¿ª£¬±ÜÃâ×ÜÇëÇóÊı±äÉÙ
- *       2. ÏÈÕÒTransfer-Encoding: chunked
- *       3. ²éÕÒContent-Length£¬Èç¹ûÕÒµ½¼ÇÂ¼³¤¶È
- *       4. ¶¼Ã»ÕÒµ½£¬±¨´í
+ * åŠŸèƒ½: åˆ†æheader, è®¡ç®—bodyé•¿åº¦
+ * å‚æ•°: @header_start, @header_length
+ * è¯´æ˜: 
+ *       1. æŸ¥æ‰¾Connection:closeï¼Œå¦‚æœæ‰¾åˆ°åˆ™è¡¨ç¤ºåŠ¡ç«¯ä¼šæ–­å¼€è¿æ¥ï¼Œåˆ™åº”è¯¥æš—ç¤ºæ¡†æ¶ä¸»åŠ¨æ–­å¼€ï¼Œé¿å…æ€»è¯·æ±‚æ•°å˜å°‘
+ *       2. å…ˆæ‰¾Transfer-Encoding: chunked
+ *       3. æŸ¥æ‰¾Content-Lengthï¼Œå¦‚æœæ‰¾åˆ°è®°å½•é•¿åº¦
+ *       4. éƒ½æ²¡æ‰¾åˆ°ï¼ŒæŠ¥é”™
  *
- * ·µ»Ø:
- *       »òµÄ¼¯ºÏ
- *       HTTP_HEADER_CLOSE     0001: ±íÊ¾·şÎñÆ÷»á¶Ï¿ªÁ¬½Ó
- *       HTTP_HEADER_CHUNKED   0010: ±íÊ¾Transfer-Encoding: chunked
- *       HTTP_HEADER_LENGTH    0100: ±íÊ¾Content-Length
- *       HTTP_HEADER_ERR       1000: Î´Öª´íÎó
+ * è¿”å›:
+ *       æˆ–çš„é›†åˆ
+ *       HTTP_HEADER_CLOSE     0001: è¡¨ç¤ºæœåŠ¡å™¨ä¼šæ–­å¼€è¿æ¥
+ *       HTTP_HEADER_CHUNKED   0010: è¡¨ç¤ºTransfer-Encoding: chunked
+ *       HTTP_HEADER_LENGTH    0100: è¡¨ç¤ºContent-Length
+ *       HTTP_HEADER_ERR       1000: æœªçŸ¥é”™è¯¯
  */
 static int analysis_body_header(char *header_start, int header_length, int *body_length, conf_t *config)
 {
@@ -179,16 +179,16 @@ static int analysis_body_header(char *header_start, int header_length, int *body
     
     *body_length = 0;
     body = unc_str_newlen(header_start, header_length);  
-    //TODO ¶Ô±Èg_http_response_header£¬¿´¿´ÊÇ·ñ»á·¢Éú±ä»¯
+    //TODO å¯¹æ¯”g_http_response_headerï¼Œçœ‹çœ‹æ˜¯å¦ä¼šå‘ç”Ÿå˜åŒ–
 
-    //²éÕÒConnection:close
+    //æŸ¥æ‰¾Connection:close
     if((strcasestr(body->buf, "Connection: close"))
         || (strcasestr(body->buf, "Connection:close"))) 
     {
         result |= HTTP_HEADER_CLOSE;
     }
 
-    //²éÕÒContent-Length:
+    //æŸ¥æ‰¾Content-Length:
     if((ptr = strcasestr(body->buf, "Content-Length:"))) 
     {
         *body_length = strtol(ptr + strlen("Content-Length:"), NULL, 10);
@@ -200,7 +200,7 @@ static int analysis_body_header(char *header_start, int header_length, int *body
         result |= HTTP_HEADER_LENGTH;
     }
     
-    //²éÕÒTransfer-Encoding: chunked
+    //æŸ¥æ‰¾Transfer-Encoding: chunked
     if((strcasestr(body->buf, "Transfer-Encoding: chunked"))
         || (strcasestr(body->buf, "Transfer-Encoding:chunked"))) 
     {
@@ -218,15 +218,15 @@ static int analysis_body_header(char *header_start, int header_length, int *body
 }
 
 /*
- * ¹¦ÄÜ: ¸ù¾İbody_length£¬´¦Àíbody
- * ²ÎÊı: @body_start, @analysis, @body_length
- * ËµÃ÷: 
- *      @analysis£¬ÊÂÏÈ·ÖÎöºÃµÄheaderµÄ½á¹û
- * ·µ»Ø:
- *      UNC_OK         0: ·ûºÏÒ»¸öÍêÕûµÄ°ü
- *      UNC_END       -5: ·ûºÏÒ»¸öÍêÕûµÄ°ü£¬µ«°µÊ¾unicorn¿ò¼ÜÖ÷¶¯closeÁ¬½Ó
- *      UNC_NEEDMORE  -4: °ü³¤²»¹»£¬ĞèÒª¿ò¼Ü¼ÌĞøread
- *      UNC_ERR       -1: ³öÏÖÎ´Öª´íÎó
+ * åŠŸèƒ½: æ ¹æ®body_lengthï¼Œå¤„ç†body
+ * å‚æ•°: @body_start, @analysis, @body_length
+ * è¯´æ˜: 
+ *      @analysisï¼Œäº‹å…ˆåˆ†æå¥½çš„headerçš„ç»“æœ
+ * è¿”å›:
+ *      UNC_OK         0: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…
+ *      UNC_END       -5: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…ï¼Œä½†æš—ç¤ºunicornæ¡†æ¶ä¸»åŠ¨closeè¿æ¥
+ *      UNC_NEEDMORE  -4: åŒ…é•¿ä¸å¤Ÿï¼Œéœ€è¦æ¡†æ¶ç»§ç»­read
+ *      UNC_ERR       -1: å‡ºç°æœªçŸ¥é”™è¯¯
  */
 static int handle_body(const char *body_start, int analysis, int body_length, conf_t *config)
 {
@@ -240,8 +240,8 @@ static int handle_body(const char *body_start, int analysis, int body_length, co
     }
     else if(analysis & HTTP_HEADER_CLOSE)
     {
-        //Ä³Ğ©ÌØÊâÇé¿ö£¬web serverÖ»·µ»ØConnection:close£¬È´Ã»ÓĞcontent-lenght»òÕßchunkedµÈ
-        //ÕâÖÖÇé¿öÏÂ£¬Ó¦¸ÃÈÃunicorn¿ò¼ÜÒ»Ö±¶ÁÈ¡£¬Ö±µ½server¶Ëclose¡£¿ò¼Ü¸ĞÖªµ½Ö®ºó»á×Ô¼ºclose
+        //æŸäº›ç‰¹æ®Šæƒ…å†µï¼Œweb serveråªè¿”å›Connection:closeï¼Œå´æ²¡æœ‰content-lenghtæˆ–è€…chunkedç­‰
+        //è¿™ç§æƒ…å†µä¸‹ï¼Œåº”è¯¥è®©unicornæ¡†æ¶ä¸€ç›´è¯»å–ï¼Œç›´åˆ°serverç«¯closeã€‚æ¡†æ¶æ„ŸçŸ¥åˆ°ä¹‹åä¼šè‡ªå·±close
         if(config->debug) fprintf(stdout, " [DEBUG] Handle_body return: %d.\n", UNC_NEEDMORE);
         return UNC_NEEDMORE;
     }
@@ -253,18 +253,18 @@ static int handle_body(const char *body_start, int analysis, int body_length, co
 }
 
 /*
- * ¹¦ÄÜ: ´¦ÀíContent-Length
- * ²ÎÊı: @body_start, @analysis, @body_length
- * ËµÃ÷: 
- *       Èç¹ûbodyµÄ³¤¶È²»¹»£¬ÔòÈÃ¿ò¼Ü¼ÌĞø¶ÁÈ¡£»
- *       Èç¹ûbodyµÄ³¤¶È¹ı¶à£¬ÔòÈÏÎªÊÇÒ»ÖÖÒì³££»
- *       Èç¹ûbodyµÄ³¤¶ÈÕıºÃ£¬Ôò¸ù¾İ·şÎñ¶ËÊÇ·ñ»áclose£¬¾ö¶¨ÈÃunicorn¿ò¼ÜÊÇ·ñÖ÷¶¯close
+ * åŠŸèƒ½: å¤„ç†Content-Length
+ * å‚æ•°: @body_start, @analysis, @body_length
+ * è¯´æ˜: 
+ *       å¦‚æœbodyçš„é•¿åº¦ä¸å¤Ÿï¼Œåˆ™è®©æ¡†æ¶ç»§ç»­è¯»å–ï¼›
+ *       å¦‚æœbodyçš„é•¿åº¦è¿‡å¤šï¼Œåˆ™è®¤ä¸ºæ˜¯ä¸€ç§å¼‚å¸¸ï¼›
+ *       å¦‚æœbodyçš„é•¿åº¦æ­£å¥½ï¼Œåˆ™æ ¹æ®æœåŠ¡ç«¯æ˜¯å¦ä¼šcloseï¼Œå†³å®šè®©unicornæ¡†æ¶æ˜¯å¦ä¸»åŠ¨close
  * 
- * ·µ»Ø:
- *      UNC_OK         0: ·ûºÏÒ»¸öÍêÕûµÄ°ü
- *      UNC_END       -5: ·ûºÏÒ»¸öÍêÕûµÄ°ü£¬µ«°µÊ¾unicorn¿ò¼ÜÖ÷¶¯closeÁ¬½Ó
- *      UNC_NEEDMORE  -4: °ü³¤²»¹»£¬ĞèÒª¿ò¼Ü¼ÌĞøread
- *      UNC_ERR       -1: ³öÏÖÎ´Öª´íÎó
+ * è¿”å›:
+ *      UNC_OK         0: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…
+ *      UNC_END       -5: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…ï¼Œä½†æš—ç¤ºunicornæ¡†æ¶ä¸»åŠ¨closeè¿æ¥
+ *      UNC_NEEDMORE  -4: åŒ…é•¿ä¸å¤Ÿï¼Œéœ€è¦æ¡†æ¶ç»§ç»­read
+ *      UNC_ERR       -1: å‡ºç°æœªçŸ¥é”™è¯¯
  */
 static int handle_body_content_length(const char *body_start, int analysis, int body_length, conf_t *config)
 {
@@ -293,15 +293,15 @@ static int handle_body_content_length(const char *body_start, int analysis, int 
 }
 
 /*
- * ¹¦ÄÜ: ´¦ÀíTransfer-Encoding: chunked
- * ²ÎÊı: @body_start, @analysis, @body_length
- * ËµÃ÷: 
+ * åŠŸèƒ½: å¤„ç†Transfer-Encoding: chunked
+ * å‚æ•°: @body_start, @analysis, @body_length
+ * è¯´æ˜: 
  * 
- * ·µ»Ø:
- *      UNC_OK         0: ·ûºÏÒ»¸öÍêÕûµÄ°ü
- *      UNC_END       -5: ·ûºÏÒ»¸öÍêÕûµÄ°ü£¬µ«°µÊ¾unicorn¿ò¼ÜÖ÷¶¯closeÁ¬½Ó
- *      UNC_NEEDMORE  -4: °ü³¤²»¹»£¬ĞèÒª¿ò¼Ü¼ÌĞøread
- *      UNC_ERR       -1: ³öÏÖÎ´Öª´íÎó
+ * è¿”å›:
+ *      UNC_OK         0: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…
+ *      UNC_END       -5: ç¬¦åˆä¸€ä¸ªå®Œæ•´çš„åŒ…ï¼Œä½†æš—ç¤ºunicornæ¡†æ¶ä¸»åŠ¨closeè¿æ¥
+ *      UNC_NEEDMORE  -4: åŒ…é•¿ä¸å¤Ÿï¼Œéœ€è¦æ¡†æ¶ç»§ç»­read
+ *      UNC_ERR       -1: å‡ºç°æœªçŸ¥é”™è¯¯
  */
 static int handle_body_chunked(const char *body_start, int analysis, conf_t *config)
 {
@@ -323,11 +323,11 @@ static int handle_body_chunked(const char *body_start, int analysis, conf_t *con
 }
 
 /**
- * ¹¦ÄÜ: ÇëÇóÇ°»Øµ÷
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: è¯·æ±‚å‰å›è°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_request_pre(void *conf, void *args) 
 {
@@ -336,11 +336,11 @@ int unc_request_pre(void *conf, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ÇëÇóºó»Øµ÷
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: è¯·æ±‚åå›è°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_request_post(void *conf, void *args) 
 {
@@ -349,11 +349,11 @@ int unc_request_post(void *conf, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ³õÊ¼»¯»Øµ÷
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: åˆå§‹åŒ–å›è°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_handle_init(void *conf, void *args) 
 {
@@ -369,10 +369,10 @@ int unc_handle_init(void *conf, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ½áÊø»Øµ÷
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
+ * åŠŸèƒ½: ç»“æŸå›è°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
  **/
 int unc_handle_finish(void *conf, void *args) 
 {

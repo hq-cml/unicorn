@@ -8,8 +8,8 @@
  *
  *    Filename :  tcp.c
  * 
- * Description :  »ùÓÚUnicorn¿ò¼ÜµÄTCPÑ¹²â¿Í»§¶Ë¡£
- *                ÊµÏÖunc_plugin.hÖĞµÄº¯Êı£¬¼´¿É½«ÓÃ»§Âß¼­Ç¶Èëunicorn¿ò¼Ü¡£
+ * Description :  åŸºäºUnicornæ¡†æ¶çš„TCPå‹æµ‹å®¢æˆ·ç«¯ã€‚
+ *                å®ç°unc_plugin.hä¸­çš„å‡½æ•°ï¼Œå³å¯å°†ç”¨æˆ·é€»è¾‘åµŒå…¥unicornæ¡†æ¶ã€‚
  * 
  *     Version :  1.0.0 
  * 
@@ -21,11 +21,11 @@
 
 
 /**
- * ¹¦ÄÜ: Éú³ÉTcpÇëÇóbody
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: ç”ŸæˆTcpè¯·æ±‚body
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_generate_request(void *conf, void *args) 
 {
@@ -38,18 +38,18 @@ int unc_generate_request(void *conf, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ÅĞ¶Ïµ±Ç°µÄresponseÄÚÈİ£¬ÊÇ·ñÊÇÒ»¸öÍêÕûµÄresoponse
- * ²ÎÊı: @conf, @client, @args
- * ËµÃ÷: 
- *       1. ±ØÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: åˆ¤æ–­å½“å‰çš„responseå†…å®¹ï¼Œæ˜¯å¦æ˜¯ä¸€ä¸ªå®Œæ•´çš„resoponse
+ * å‚æ•°: @conf, @client, @args
+ * è¯´æ˜: 
+ *       1. å¿…é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_check_full_response(void *conf, void *client, void *args) 
 {
     client_t *p_client =(client_t *) client;
 
-    //¶ÔÓÚTCP»ØÏÔÊ¾Ñ¹²â³ÌĞò: 
-    //µ±¶ÁÈ¡µ½µÄÊı¾İ£¬ºÍĞ´³öÈ¥µÄÊı¾İÏàµÈÊ±£¬ËãÊÇÍê³ÉÁËÒ»´ÎÇëÇó
+    //å¯¹äºTCPå›æ˜¾ç¤ºå‹æµ‹ç¨‹åº: 
+    //å½“è¯»å–åˆ°çš„æ•°æ®ï¼Œå’Œå†™å‡ºå»çš„æ•°æ®ç›¸ç­‰æ—¶ï¼Œç®—æ˜¯å®Œæˆäº†ä¸€æ¬¡è¯·æ±‚
     if(p_client->read == p_client->sendbuf->len 
        && 0==memcmp(p_client->recvbuf->buf, p_client->sendbuf->buf, p_client->sendbuf->len))
     {
@@ -62,11 +62,11 @@ int unc_check_full_response(void *conf, void *client, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ³õÊ¼»¯»Øµ÷
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: åˆå§‹åŒ–å›è°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_handle_init(void *conf, void *args) 
 {
@@ -77,10 +77,10 @@ int unc_handle_init(void *conf, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ½áÊø»Øµ÷
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
+ * åŠŸèƒ½: ç»“æŸå›è°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
  **/
 int unc_handle_finish(void *conf, void *args) 
 {
@@ -96,11 +96,11 @@ int unc_handle_finish(void *conf, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ÇëÇóÇ°»Øµ÷
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: è¯·æ±‚å‰å›è°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_request_pre(void *conf, void *args) 
 {
@@ -109,11 +109,11 @@ int unc_request_pre(void *conf, void *args)
 }
 
 /**
- * ¹¦ÄÜ: ÇëÇóºó»Øµ÷
- * ²ÎÊı: @conf, @args
- * ËµÃ÷: 
- *       1. ¿ÉÑ¡º¯Êı
- * ·µ»Ø:³É¹¦:0; Ê§°Ü:-x
+ * åŠŸèƒ½: è¯·æ±‚åå›è°ƒ
+ * å‚æ•°: @conf, @args
+ * è¯´æ˜: 
+ *       1. å¯é€‰å‡½æ•°
+ * è¿”å›:æˆåŠŸ:0; å¤±è´¥:-x
  **/
 int unc_request_post(void *conf, void *args) 
 {
